@@ -107,7 +107,7 @@ export const createRandomId = ():string => {
     return str;
 
 }
-export const calculateGame = async(game, homeScore, awayScore) => {
+export const calculateGame = async(game:any, homeScore:number, awayScore:number) => {
     try {
         let gCopy = game;
         
@@ -142,7 +142,7 @@ export const getTodaysSchedule = async(year:string,month:string,day:string):Prom
     const formatted = await raw.json()
     let gameArray = formatted.dates[0].games;
     let NHLGames:NHLGamesArray = [];
-    gameArray.forEach((game) => {
+    gameArray.forEach((game:any) => {
       
         let o = {
             awayId:game.teams.away.team.id,

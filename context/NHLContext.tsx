@@ -21,7 +21,7 @@ const getSchedule = async(date:PuckfaceDate):Promise<NHLGamesArray | false> => {
         }
         let gameArray = formatted.dates[0].games;
 
-        gameArray.forEach((game) => {
+        gameArray.forEach((game:any) => {
           if(game.gameType === 'R'){
             let o = {
                 awayId:game.teams.away.team.id,
