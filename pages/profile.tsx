@@ -6,7 +6,7 @@ import { signOut} from 'firebase/auth';
 import { auth } from '../firebase/clientApp';
 import Image from 'next/image';
 const Profile: NextPage = () => {
-    const {currentUser} = useAuth();
+    const currentUser = useAuth();
     console.log("PROFILE COMP: ", currentUser);
     const Router = useRouter();
     const signOutHandler = async() => {
