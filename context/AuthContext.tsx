@@ -1,7 +1,8 @@
 import React, {useEffect, useState, useContext} from "react";
 import { auth } from "../firebase/clientApp";
 import { onAuthStateChanged } from "firebase/auth";
-import firebase from "firebase/app";
+// import firebase from "firebase/app";
+import { User } from "firebase/auth";
 export interface UserData {
     userId:string,
     userName:string | null,
@@ -9,14 +10,14 @@ export interface UserData {
     userPhotoLink:string | null,
     userProviderId:string
 }
-export const AuthContext = React.createContext<firebase.User | null>(null);
+export const AuthContext = React.createContext<User | null>(null);
 
 export function useAuth(){
     return useContext(AuthContext);
 }
 
 export const AuthProvider = ({children}) => {
-    const [currentUser, setCurrentUser] = useState<firebase.User | null>(null);
+    const [currentUser, setCurrentUser] = useState<User | null>(null);
     const [loading,setLoading] = useState<boolean>(true);
     const [userData,setUserData] = useState<UserData>({userProviderId: "",userId: "",userName: "",userEmail: "",userPhotoLink: ""})
     useEffect(() => {
