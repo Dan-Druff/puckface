@@ -1,7 +1,7 @@
-import React, {useEffect, useState, useContext, ReactNode} from "react";
+import React, {useEffect, useState, useContext} from "react";
 import { auth } from "../firebase/clientApp";
-// import { onAuthStateChanged } from "firebase/auth";
-// import firebase from "firebase/app";
+import { onAuthStateChanged } from "firebase/auth";
+
 import { User } from "firebase/auth";
 export interface UserData {
     userId:string,
@@ -16,41 +16,41 @@ export function useAuth(){
     return useContext(AuthContext);
 }
 
-export const AuthProvider = ({children}:{children:ReactNode}) => {
+export const AuthProvider = ({children}) => {
     const [currentUser, setCurrentUser] = useState<User | null>(null);
     const [loading,setLoading] = useState<boolean>(true);
-    // const [userData,setUserData] = useState<UserData | null>(null);
+    const [userData,setUserData] = useState<UserData>({userProviderId: "",userId: "",userName: "",userEmail: "",userPhotoLink: ""})
     useEffect(() => {
         const unsubscribe = auth.onAuthStateChanged((user) => {
-            console.log("IM BEING CALLED 🍟", user);
+            console.log("IM BEING CALLED 🍟")
             if(user){
-                console.log("User is: ",user);
                 const requiredData:UserData = {
                     userProviderId: user.providerData[0].providerId,
                     userId: user.uid,
                     userName: user.displayName,
                     userEmail: user.email,
                     userPhotoLink: user.photoURL,
-
                   }
           
-                 
+                  setUserData(requiredData)
                   setCurrentUser(user)
             }else{
-                console.log("Else: ", user);
                 setCurrentUser(null);
-        
+                setUserData({userProviderId: "",userId: "",userName: "",userEmail: "",userPhotoLink: ""});
             }
             setLoading(false);
         });
         return unsubscribe;
     },[]);
 
- 
+    let authValue = {
+        currentUser,
+        userData
+    }
     if(loading){
         return <>LOADING....</>
     }
     return (
-        <AuthContext.Provider value={currentUser}>{children}</AuthContext.Provider>
+        <AuthContext.Provider value={authValue}>{children}</AuthContext.Provider>
     )
 }
