@@ -5,10 +5,12 @@ export type Pages = 'dashboard' | 'lobby' | 'profile' | 'leagues' | 'store' | 'l
 // import {MainState,GameStateActions,useGameState} from '../context/GameState';
 import type {GameStateDispatch,GameState, GameStateActions} from '../context/GameState';
 import {useGameState} from '../context/GameState';
+import {useAuth} from '../context/AuthContext';
 interface Props {
 
 }
 const Menus: FunctionComponent<Props> = () => {
+    const {userData} = useAuth();
     const {gameState, gameStateDispatch} = useGameState();
     console.log("State count is: ", gameState);
     const Router = useRouter();
@@ -67,7 +69,25 @@ const Menus: FunctionComponent<Props> = () => {
                 break;                                
         }
     }
-    return (
+    if(userData === null){
+        return (
+            <>
+        
+                <div className={styles.mainMenu}>
+         
+
+                    <button className={styles.navButton} onClick={() => routeAndPush('home')}>HOME</button>
+                    <button className={styles.navButton} onClick={() => routeAndPush('signup')}>SIGNUP</button>
+                    <button className={styles.navButton} onClick={() => routeAndPush('login')}>LOGIN</button>
+        
+                </div>
+                <div className={styles.subMenu}>
+                        <h2>Welcome to PUCKFACE</h2>
+                    </div>
+            </>
+    )
+    }else{
+        return (
             <>
         
                 <div className={styles.mainMenu}>
@@ -87,6 +107,8 @@ const Menus: FunctionComponent<Props> = () => {
                 </div>
             </>
     )
+    }
+ 
 
 
 }
