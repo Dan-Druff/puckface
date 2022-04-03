@@ -44,7 +44,7 @@ const Profile: NextPage = () => {
           <div>
             <h4>Profile Pic:</h4>
             {userData !== null && userData.userPhotoLink ? (
-               <Image src={userData.userPhotoLink} width={80} height={80} alt={userData.userName}/>
+               <Image src={userData.userPhotoLink} width={80} height={80} alt='userPhoto'/>
              
             ) : (
               "null"
