@@ -1,4 +1,4 @@
-import React, {useEffect, useState, useContext} from "react";
+import React, {useEffect, useState, useContext, ReactNode} from "react";
 import { auth } from "../firebase/clientApp";
 import { onAuthStateChanged } from "firebase/auth";
 // import firebase from "firebase/app";
@@ -16,7 +16,7 @@ export function useAuth(){
     return useContext(AuthContext);
 }
 
-export const AuthProvider = ({children}) => {
+export const AuthProvider = ({children}:{children:ReactNode}) => {
     const [currentUser, setCurrentUser] = useState<User | null>(null);
     const [loading,setLoading] = useState<boolean>(true);
     const [userData,setUserData] = useState<UserData>({userProviderId: "",userId: "",userName: "",userEmail: "",userPhotoLink: ""})
