@@ -10,7 +10,7 @@ export interface UserData {
     userPhotoLink:string | null,
     userProviderId:string
 }
-export const AuthContext = React.createContext<{userData:UserData} | null>(null);
+export const AuthContext = React.createContext<User | null>(null);
 
 export function useAuth(){
     return useContext(AuthContext);
@@ -19,7 +19,7 @@ export function useAuth(){
 export const AuthProvider = ({children}:{children:ReactNode}) => {
     const [currentUser, setCurrentUser] = useState<User | null>(null);
     const [loading,setLoading] = useState<boolean>(true);
-    const [userData,setUserData] = useState<UserData | null>(null);
+    // const [userData,setUserData] = useState<UserData | null>(null);
     useEffect(() => {
         const unsubscribe = auth.onAuthStateChanged((user) => {
             console.log("IM BEING CALLED 🍟", user);
@@ -34,25 +34,23 @@ export const AuthProvider = ({children}:{children:ReactNode}) => {
 
                   }
           
-                  setUserData(requiredData)
+                 
                   setCurrentUser(user)
             }else{
                 console.log("Else: ", user);
                 setCurrentUser(null);
-                setUserData(null);
+        
             }
             setLoading(false);
         });
         return unsubscribe;
     },[]);
 
-    let authValue = {
-        userData:userData
-    }
+ 
     if(loading){
         return <>LOADING....</>
     }
     return (
-        <AuthContext.Provider value={authValue}>{children}</AuthContext.Provider>
+        <AuthContext.Provider value={currentUser}>{children}</AuthContext.Provider>
     )
 }

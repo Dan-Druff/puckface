@@ -6,8 +6,8 @@ import { signOut} from 'firebase/auth';
 import { auth } from '../firebase/clientApp';
 import Image from 'next/image';
 const Profile: NextPage = () => {
-    const {userData} = useAuth();
-    console.log("PROFILE COMP: ", userData);
+    const {currentUser} = useAuth();
+    console.log("PROFILE COMP: ", currentUser);
     const Router = useRouter();
     const signOutHandler = async() => {
         await signOut(auth);
@@ -17,50 +17,44 @@ const Profile: NextPage = () => {
         Router.push('/');
 
     }
-    if(userData === null){
-
-        Router.push('/');
-        return <></>
-    }else{
-        return (
-            <div className={styles.contentContainer}>
-            <div className={styles.rinkDiv}>
-        
-                <h2>PROFILE</h2>
-                <p>Game State: </p>
-                <button className={styles.pfButton} onClick={signOutHandler}>LOGOUT</button>
-                <h3>{userData.userEmail}</h3>
-            <div>
-                <h4>Signup method:</h4>
-                <h6>{userData.userProviderId}</h6>
-              </div>
-              <div>
-                <h4>UserId:</h4>
-                <h6>{userData.userId}</h6>
-              </div>
-              <div>
-                <h4>Display Name:</h4>
-                <h6>{userData.userName ? userData.userName : "null"}</h6>
-              </div>
-              <div>
-                <h4>Email:</h4>
-                <h6>{userData.userEmail}</h6>
-              </div>
-              <div>
-                <h4>Profile Pic:</h4>
-                {userData.userPhotoLink ? (
-                   <Image src={userData.userPhotoLink} width={80} height={80} alt={userData.userName}/>
-                 
-                ) : (
-                  "null"
-                )}
-              </div>
-            
+    return (
+        <div className={styles.contentContainer}>
+        <div className={styles.rinkDiv}>
     
-            </div>
-            </div>
-        )
-    }
- 
+            <h2>PROFILE</h2>
+            <p>Game State: </p>
+            <button className={styles.pfButton} onClick={signOutHandler}>LOGOUT</button>
+            {/* <h3>{userData.userEmail}</h3> */}
+        <div>
+            <h4>Signup method:</h4>
+            {/* <h6>{userData.userProviderId}</h6> */}
+          </div>
+          <div>
+            <h4>UserId:</h4>
+            {/* <h6>{userData.userId}</h6> */}
+          </div>
+          <div>
+            <h4>Display Name:</h4>
+            {/* <h6>{userData.userName ? userData.userName : "null"}</h6> */}
+          </div>
+          <div>
+            <h4>Email:</h4>
+            {/* <h6>{userData.userEmail}</h6> */}
+          </div>
+          <div>
+            <h4>Profile Pic:</h4>
+            {/* {userData.userPhotoLink ? (
+               <Image src={userData.userPhotoLink} width={80} height={80} alt={userData.userName}/>
+             
+            ) : (
+              "null"
+            )} */}
+          </div>
+        
+
+        </div>
+        </div>
+    )
+
 }
 export default Profile
