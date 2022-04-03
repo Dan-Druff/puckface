@@ -41,7 +41,7 @@ export interface NHLGame {
     homeRecord:string,
     description:string
 }
-type NHLGamesArray = NHLGame[];
+export type NHLGamesArray = NHLGame[];
 
 export const dateReader = (date:Date):PuckfaceDate => {
        
