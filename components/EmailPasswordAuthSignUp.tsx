@@ -4,7 +4,6 @@ import { useRouter } from "next/router"
 import { auth } from "../firebase/clientApp"
 import { createUserWithEmailAndPassword } from "firebase/auth"
 import GoogleSignIn from '../components/GoogleSignin';
-import { useGameState } from '../context/GameState';
 
 const EmailPasswordAuthSignUp = () => {
     const Router = useRouter()

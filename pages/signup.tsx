@@ -11,13 +11,11 @@ const Signup: NextPage = () => {
         return <></>
       } else {
         return (
-          <div className={styles.mainContainer}>
-       <div className={styles.formContainer}>
-              <EmailPasswordAuthSignUp />
-              </div>
-        
-         
-          </div>
+            <div className={styles.mainContainer}>
+                <div className={styles.formContainer}>
+                    <EmailPasswordAuthSignUp />
+                </div>
+            </div>
         )
       }
 }
