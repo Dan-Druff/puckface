@@ -1,24 +1,17 @@
 import type { NextPage } from 'next'
 import styles from '../styles/All.module.css'
+import { useDashboard } from '../context/DashboardContext'
 
 
-const Renderer = (Wrapped:any) => {
-    return function New(props:any){
-        return <Wrapped {...props}/>
-    }
-}
-const Child = (props:any) => {
-    return (
-        <h1>Hello from child {props.name}</h1>
-    )
-}
 const Dashboard: NextPage = () => {
-    const C = Renderer(Child);
+    const {pucks} = useDashboard();
+    console.log("Player has pucks: ", pucks);
+  
 
     return (
         <div className={styles.mainContainer}>
             <h2>Dashboard</h2>
-            <C name="Cunt" />
+           <p>Pucks: {pucks}</p>
         </div>
     )
 }
