@@ -69,8 +69,18 @@ export interface GameType {
     awayTeam:TeamTokens
 
 }
+export type DashboardActions = {type:'cancelNotify'} | {type:'notify',payload:{notObj:NoteType}} | {type:'clear'} | {type:'create'} | {type:'login',payload:{displayName:string, dash:DashboardType,games:GameType[],dbData:any}} | {type:'signup',payload:{displayName:string,id:string}}
+
+export interface NoteType {
+    colorClass:string,
+    message:string,
+    twoButtons:boolean,
+    mainTitle:string,
+    cancelTitle:string,
+    mainFunction:() => void,
+    cancelFunction:() => void;
+}
 export type DashboardType = CardType[];
-export type DashboardActions = {type:'clear'} | {type:'create'} | {type:'login',payload:{displayName:string, dash:DashboardType,games:GameType[],dbData:any}} | {type:'signup',payload:{displayName:string,id:string}}
 
 const DefDashDisp = (action:DashboardActions) => {
     console.log("DEF DASH DISPATCH",action.type);
@@ -84,9 +94,10 @@ export interface AllDashType {
     activeLeagues:string[],
     activeGames:GameType[],
     editing:boolean,
-    dashboardDispatch:DashDispatch 
+    dashboardDispatch:DashDispatch,
+    notification:NoteType | null 
 }
-const DashboardContext = createContext<AllDashType>({dashboard:[], pucks:0, dashboardDispatch:DefDashDisp,displayName:'NA',activeGames:[],activeLeagues:[],tokens:[],editing:false});
+const DashboardContext = createContext<AllDashType>({dashboard:[], pucks:0, dashboardDispatch:DefDashDisp,displayName:'NA',activeGames:[],activeLeagues:[],tokens:[],editing:false, notification:null});
 
 
 
@@ -98,6 +109,7 @@ export const DashboardProvider = ({children}:{children:ReactNode}) => {
     const [activeLeagues,setActiveLeagues] = useState<string[]>([]);
     const [activeGames,setActiveGames] = useState<GameType[]>([]);
     const [editing,setEditing] = useState<boolean>(false);
+    const [notification,setNotification] = useState<NoteType | null>(null);
     function dashboardReducer(state:DashboardType, action:DashboardActions){
         switch (action.type) {
             case 'clear':
@@ -127,7 +139,13 @@ export const DashboardProvider = ({children}:{children:ReactNode}) => {
                 setActiveLeagues([]);
                 setActiveGames([]);
                 setEditing(false);
-                return state;        
+                return state;   
+            case 'notify':
+                setNotification(action.payload.notObj);
+                return state;   
+            case 'cancelNotify':
+                setNotification(null);
+                return state;
             default:
                 return state;
         }
@@ -141,7 +159,8 @@ export const DashboardProvider = ({children}:{children:ReactNode}) => {
         activeGames:activeGames,
         activeLeagues:activeLeagues,
         editing:editing,
-        dashboardDispatch:dashboardDispatch
+        dashboardDispatch:dashboardDispatch,
+        notification:notification
     }
     return (
         <DashboardContext.Provider value={allVal}>{children}</DashboardContext.Provider>
