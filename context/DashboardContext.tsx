@@ -101,7 +101,13 @@ export const DashboardProvider = ({children}:{children:ReactNode}) => {
     function dashboardReducer(state:DashboardType, action:DashboardActions){
         switch (action.type) {
             case 'clear':
-                return state;
+                setPucks(0);
+                setActiveGames([]);
+                setActiveLeagues([]);
+                setDisplayName('NA');
+                setTokens([]);
+                setEditing(false);
+                return [];
             case 'create':
                 return state;
             case 'login':

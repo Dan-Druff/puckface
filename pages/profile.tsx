@@ -6,13 +6,17 @@ import { signOut} from 'firebase/auth';
 import { auth } from '../firebase/clientApp';
 import Image from 'next/image';
 import AuthRoute from '../hoc/authRoute';
+import { useGameState } from '../context/GameState';
+import { useDashboard } from '../context/DashboardContext';
 const Profile: NextPage = () => {
-    const {currentUser,userData} = useAuth();
+    const {gameStateDispatch} = useGameState();
+    const {dashboardDispatch} = useDashboard();
+    const {userData} = useAuth();
     const Router = useRouter();
     const signOutHandler = async() => {
         await signOut(auth);
-
-        
+        gameStateDispatch({type:'home'})
+        dashboardDispatch({type:'clear'});
    
         Router.push('/');
 

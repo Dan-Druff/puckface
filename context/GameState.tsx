@@ -13,9 +13,11 @@ function gameStateReducer(state:GameState,action:GameStateActions){
     switch (action.type) {
         case 'home':
             state.main = 'none';
+            state.sub = 'none';
             return state;
         case 'dashboard':
             state.main = 'dashboard';
+            state.sub = 'none';
             return state;
         case 'leagues':
             state.main = 'leagues';

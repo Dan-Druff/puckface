@@ -7,7 +7,9 @@ import { auth } from "../firebase/clientApp"
 import { postLogin,postSignup } from "../utility/dbHandlers";
 import { useDashboard } from "../context/DashboardContext";
 import { useNHL } from "../context/NHLContext";
+import { useGameState } from "../context/GameState";
 const GoogleSignIn = () => {
+    const {gameStateDispatch} = useGameState()
     const {dashboardDispatch} = useDashboard();
     const Router = useRouter()
     const {tonightsGames} = useNHL();
@@ -27,6 +29,7 @@ const GoogleSignIn = () => {
                     if(typeof postSign === 'boolean'){
                         throw new Error('🚦Google Res error🚦')
                     }else{
+                        gameStateDispatch({type:'dashboard'})
                         dashboardDispatch({type:'signup',payload:{displayName:postSign.displayName,id:postSign.id}});
                         Router.push("/dashboard")
                         return;
@@ -47,6 +50,8 @@ const GoogleSignIn = () => {
                     }else{
                         
                         dashboardDispatch({type:'login',payload:{displayName:googleRes.user.email,dash:postLog.dashboardPromises,dbData:postLog.dataFromDB,games:postLog.activeGames}})
+                        gameStateDispatch({type:'dashboard'})
+
                         Router.push("/dashboard")
                         return;
                     }

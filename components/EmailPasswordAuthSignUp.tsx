@@ -7,8 +7,10 @@ import GoogleSignIn from '../components/GoogleSignin';
 import { postSignup } from '../utility/dbHandlers';
 import type { DashboardActions } from '../context/DashboardContext';
 import { useDashboard } from '../context/DashboardContext';
+import { useGameState } from '../context/GameState';
 const EmailPasswordAuthSignUp = () => {
     const Router = useRouter()
+    const {gameStateDispatch} = useGameState();
     const {dashboardDispatch} = useDashboard();
     const signupHandler = async(e:any) => {
         
@@ -25,6 +27,7 @@ const EmailPasswordAuthSignUp = () => {
             throw new Error('🚦Error Post Signup🚦')
         }else{
             dashboardDispatch({type:'signup',payload:{displayName:postResult.displayName,id:postResult.id}})
+            gameStateDispatch({type:'dashboard'});
             Router.push("/dashboard")
             return;
 

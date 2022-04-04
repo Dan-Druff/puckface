@@ -6,10 +6,14 @@ import { auth } from "../firebase/clientApp"
 import { signInWithEmailAndPassword } from "firebase/auth"
 import React from 'react';
 import { useNHL } from '../context/NHLContext';
+import { useDashboard } from '../context/DashboardContext';
 import { postLogin } from '../utility/dbHandlers';
+import { useGameState } from '../context/GameState';
 const EmailPasswordAuthLogin = () => {
     const Router = useRouter()
+    const {gameStateDispatch} = useGameState();
     const {tonightsGames} = useNHL();
+    const {dashboardDispatch} = useDashboard();
     const loginHandler = async(e:any) => {
       e.preventDefault();
     //   const butt: HTMLButtonElement = e.currentTarget;
@@ -18,10 +22,15 @@ const EmailPasswordAuthLogin = () => {
       try {
         await signInWithEmailAndPassword(auth, email.value, password.value)
         const postLog = await postLogin(email.value, tonightsGames);
-       
-    
-    
-        Router.push('/dashboard');
+        if(typeof postLog === 'boolean'){
+            throw new Error('🚦Google Res error 2🚦')
+        }else{
+            
+            dashboardDispatch({type:'login',payload:{displayName:postLog.dataFromDB.username,dash:postLog.dashboardPromises,dbData:postLog.dataFromDB,games:postLog.activeGames}})
+            gameStateDispatch({type:'dashboard'})
+            Router.push("/dashboard")
+            return;
+        }
       } catch (error) {
         console.log("error")
         alert(error)
