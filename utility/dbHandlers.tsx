@@ -1,6 +1,6 @@
 import { db } from "../firebase/clientApp";
 import {doc,getDoc,setDoc} from 'firebase/firestore';
-import { createRandomId } from "./helpers";
+import { createRandomId,gameIsOver } from "./helpers";
 import { baseURL } from "./constants";
 import {CardType, GameType} from '../context/DashboardContext';
 import type {DashboardType} from '../context/DashboardContext';

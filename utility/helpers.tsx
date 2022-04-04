@@ -1,5 +1,5 @@
 import { multipliers } from "./constants";
-
+import { GameType } from "../context/DashboardContext";
 export interface PuckfaceDate {
     month:string,
     day:string,
@@ -158,4 +158,34 @@ export const getTodaysSchedule = async(year:string,month:string,day:string):Prom
     })
     return NHLGames;
 
+}
+export const gameIsOver = (game:GameType) => {
+    try {
+        let d = {
+            year:0,
+            day:0,
+            month:0
+        }
+        let t = dateReader(new Date);
+        let today = {
+            year:Number(t.yearNumber),
+            month:Number(t.monthNumber),
+            day:Number(t.dayNumber)
+        }
+        if(game.date instanceof Date){
+            const x = dateReader(game.date);
+            d.year = Number(x.yearNumber);
+            d.month = Number(x.monthNumber);
+            d.day = Number(x.dayNumber);
+        }
+        if(today.year > d.year || today.month > d.month || today.day > d.day){
+            return true;
+        }else{
+            return false;
+        }
+        
+    } catch (er) {
+        console.log("Er game isover",er);
+        return false;
+    }
 }
