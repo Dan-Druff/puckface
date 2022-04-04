@@ -5,11 +5,11 @@ import { useRouter } from "next/router"
 import { auth } from "../firebase/clientApp"
 import { signInWithEmailAndPassword } from "firebase/auth"
 import React from 'react';
-
-
+import { useNHL } from '../context/NHLContext';
+import { postLogin } from '../utility/dbHandlers';
 const EmailPasswordAuthLogin = () => {
     const Router = useRouter()
- 
+    const {tonightsGames} = useNHL();
     const loginHandler = async(e:any) => {
       e.preventDefault();
     //   const butt: HTMLButtonElement = e.currentTarget;
@@ -17,7 +17,7 @@ const EmailPasswordAuthLogin = () => {
 
       try {
         await signInWithEmailAndPassword(auth, email.value, password.value)
-    
+        const postLog = await postLogin(email.value, tonightsGames);
        
     
     

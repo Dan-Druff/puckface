@@ -4,10 +4,12 @@ import { useRouter } from "next/router"
 import { auth } from "../firebase/clientApp"
 import { createUserWithEmailAndPassword } from "firebase/auth"
 import GoogleSignIn from '../components/GoogleSignin';
-
+import { postSignup } from '../utility/dbHandlers';
+import type { DashboardActions } from '../context/DashboardContext';
+import { useDashboard } from '../context/DashboardContext';
 const EmailPasswordAuthSignUp = () => {
     const Router = useRouter()
-
+    const {dashboardDispatch} = useDashboard();
     const signupHandler = async(e:any) => {
         
       e.preventDefault();
@@ -18,11 +20,22 @@ const EmailPasswordAuthSignUp = () => {
         console.log(email.value, password.value, username.value);
         const userResult = await createUserWithEmailAndPassword(auth, email.value, password.value)
         console.log("User resu;t is: ", userResult.user);
-        Router.push("/dashboard")
+        const postResult = await postSignup(email.value,username.value);
+        if(typeof postResult === 'boolean'){
+            throw new Error('🚦Error Post Signup🚦')
+        }else{
+            dashboardDispatch({type:'signup',payload:{displayName:postResult.displayName,id:postResult.id}})
+            Router.push("/dashboard")
+            return;
+
+        }
+      
+       
 
    
       } catch (error) {
         alert(error)
+        return;
       }
   
     }

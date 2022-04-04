@@ -4,3 +4,4 @@ export const multipliers = {
     superRare:2,
     unique:3
 }
+export const baseURL = 'https://ipfs.io/ipfs/bafybeiedfdak44r7owq5ytvvgb6cywkpfcnhlauroqqlrr7ta3jt2yqhee/files/';
