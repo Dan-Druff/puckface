@@ -5,3 +5,5 @@ export const multipliers = {
     unique:3
 }
 export const baseURL = 'https://ipfs.io/ipfs/bafybeiedfdak44r7owq5ytvvgb6cywkpfcnhlauroqqlrr7ta3jt2yqhee/files/';
+
+export const PRICE_PER_PACK = 18;

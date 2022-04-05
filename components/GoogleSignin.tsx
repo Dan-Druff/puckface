@@ -4,15 +4,16 @@ import { useRouter } from "next/router"
 import styles from '../styles/All.module.css';
 import { GoogleAuthProvider, signInWithPopup, getAdditionalUserInfo } from "firebase/auth"
 import { auth } from "../firebase/clientApp"
-import { postLogin,postSignup } from "../utility/dbHandlers";
-import { useDashboard } from "../context/DashboardContext";
-import { useNHL } from "../context/NHLContext";
+
+
+import { useDashboard,postSignup } from "../context/DashboardContext";
+
 import { useGameState } from "../context/GameState";
 const GoogleSignIn = () => {
     const {gameStateDispatch} = useGameState()
-    const {dashboardDispatch} = useDashboard();
+    const {dashboardDispatch, postLogin} = useDashboard();
     const Router = useRouter()
-    const {tonightsGames} = useNHL();
+
   const googleHandler = async() => {
     const provider = new GoogleAuthProvider();
 
@@ -26,7 +27,7 @@ const GoogleSignIn = () => {
                 console.log("Signin IS a new user: ",newUser);
                 if(googleRes.user.email !== null){
                     const postSign = await postSignup(googleRes.user.email,'googlesignin')
-                    if(typeof postSign === 'boolean'){
+                    if(postSign === false){
                         throw new Error('🚦Google Res error🚦')
                     }else{
                         gameStateDispatch({type:'dashboard'})
@@ -44,8 +45,8 @@ const GoogleSignIn = () => {
     
                 console.log("Signin is NOT a new user: ",newUser);
                 if(googleRes.user.email !== null){
-                    const postLog = await postLogin(googleRes.user.email,tonightsGames);
-                    if(typeof postLog === 'boolean'){
+                    const postLog = await postLogin(googleRes.user.email);
+                    if(postLog === false){
                         throw new Error('🚦Google Res error 2🚦')
                     }else{
                         

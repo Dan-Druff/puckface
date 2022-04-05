@@ -35,6 +35,7 @@ function gameStateReducer(state:GameState,action:GameStateActions){
             state.sub = 'lockerroom';
             return state;
         case 'store':
+            state.main = 'none'
             state.sub = 'store';
             return state;
         case 'tradingBlock':
