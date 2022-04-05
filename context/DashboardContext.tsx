@@ -1,6 +1,6 @@
 import { createContext, ReactNode, useContext, useReducer, useState } from "react";
 import { db } from "../firebase/clientApp";
-import {doc,getDoc,setDoc} from 'firebase/firestore';
+import {doc,getDoc,setDoc,collection,getDocs} from 'firebase/firestore';
 import { createRandomId,gameIsOver } from "../utility/helpers";
 import { baseURL } from "../utility/constants";
 import type { NHLGamesArray } from "../utility/helpers";
@@ -41,7 +41,8 @@ export enum GamePosition {
 export enum GameStates {
     waitForOpp = "Waiting for Opponent",
     waitForGame = "Waiting for Game",
-    complete = "Completed"
+    complete = "Completed",
+    init = "Initialized"
 }
 type StringBool = string | boolean;
 export interface Stats {
@@ -251,7 +252,39 @@ export const buyPucks = async(amount:number, email:string):Promise <boolean> => 
         return false;
     }
 }
-
+export const getLobbyGames = async():Promise <GameType[] | false> => {
+    try {
+        const lobbySnapshot = await getDocs(collection(db,'lobbyGames'));
+        let lobbyArray:GameType[] = [];
+        lobbySnapshot.forEach((lobbygame) => {
+            let g = lobbygame.data();
+            if(g.open){
+                let d = lobbygame.data();
+                let obj:GameType = {
+                    awayEmail:d.awayEmail,
+                    awayName:d.awayName,
+                    homeEmail:d.homeEmail,
+                    homeName:d.homeName,
+                    date:d.date.toDate(),
+                    id:d.id,
+                    value:d.value,
+                    private:d.private,
+                    open:d.open,
+                    gameState:d.gameState,
+                    homeTeam:d.homeTeam,
+                    awayTeam:d.awayTeam
+                }
+                lobbyArray.push(obj);
+            }
+            // DO MY ACTIVE GAMES HERE???????? ----- ????????
+            
+        })
+        return lobbyArray;
+    } catch (er) {
+        console.log("Error Lobby Games", er);
+        return false;
+    }
+}
 
 // ----------------------------- <MEAT AND POTOTOS> -----------------------------
 const DashboardContext = createContext<AllDashType>({dashboard:[], pucks:0, dashboardDispatch:DefDashDisp,displayName:'NA',activeGames:[],activeLeagues:[],tokens:[],editing:false, notification:null, postLogin:DefPostLog, getPlayersFromTokenArray:DefGetPlayersFromTokenArray,getPacket:DefGetPacket});

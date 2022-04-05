@@ -1,6 +1,6 @@
 import {createContext, useReducer, useContext} from 'react';
 import type { ReactNode } from 'react';
-export type GameStateActions = {type:'home'} | {type:'dashboard'} | {type:'leagues'} | {type:'lobby'} | {type:'profile'} | {type:'lockerroom'} | {type:'tradingBlock'} | {type:'freeAgents'} | {type:'store'}
+export type GameStateActions = {type:'createGame'} | {type:'home'} | {type:'dashboard'} | {type:'leagues'} | {type:'lobby'} | {type:'profile'} | {type:'lockerroom'} | {type:'tradingBlock'} | {type:'freeAgents'} | {type:'store'}
 const defaultState = {main:'none',sub:'none'}
 
 export type GameState = typeof defaultState
@@ -17,16 +17,18 @@ function gameStateReducer(state:GameState,action:GameStateActions){
             return state;
         case 'dashboard':
             state.main = 'dashboard';
-            state.sub = 'none';
+            state.sub = 'dashboard';
             return state;
         case 'leagues':
             state.main = 'leagues';
             return state;
         case 'lobby':
             state.main = 'lobby';
+            state.sub = 'lobby';
             return state;
         case 'profile':
             state.main = 'profile';
+            state.sub = 'profile';
             return state;  
         case 'freeAgents':
             state.sub = 'freeAgents';
@@ -40,7 +42,11 @@ function gameStateReducer(state:GameState,action:GameStateActions){
             return state;
         case 'tradingBlock':
             state.sub = 'tradingBlock';
-            return state;            
+            return state;     
+        case 'createGame':
+            state.main = 'lobby';
+            state.sub = 'createGame';
+            return state;           
      }
 }
 export function GameStateProvider({children}:{children:ReactNode}){

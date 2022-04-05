@@ -1,7 +1,7 @@
 import React, {FunctionComponent} from 'react';
 import { useRouter } from "next/router"
 import styles from '../styles/All.module.css';
-export type Pages = 'dashboard' | 'lobby' | 'profile' | 'leagues' | 'store' | 'login' | 'signup' | 'home' | 'freeAgents' | 'tradingBlock' | 'lockerroom'
+export type Pages = 'createGame' | 'dashboard' | 'lobby' | 'profile' | 'leagues' | 'store' | 'login' | 'signup' | 'home' | 'freeAgents' | 'tradingBlock' | 'lockerroom'
 // import {MainState,GameStateActions,useGameState} from '../context/GameState';
 import type {GameStateDispatch,GameState, GameStateActions} from '../context/GameState';
 import {useGameState} from '../context/GameState';
@@ -12,8 +12,10 @@ interface Props {
 const Menus: FunctionComponent<Props> = () => {
     const {userData} = useAuth();
     const {gameState, gameStateDispatch} = useGameState();
+
     console.log("State count is: ", gameState);
     const Router = useRouter();
+
 
     const routeAndPush = (page:Pages) => {
         switch (page) {
@@ -65,10 +67,15 @@ const Menus: FunctionComponent<Props> = () => {
 
                 Router.push('/tradingBlock');
                 break;     
-            default:
+            case 'createGame':
+                gameStateDispatch({type:'createGame'});
+                Router.push('./createGame');
+                break;
+                default:
                 break;                                
         }
     }
+    
     if(userData === null){
         return (
             <>
@@ -83,7 +90,7 @@ const Menus: FunctionComponent<Props> = () => {
                 </div>
                 <div className={styles.subMenu}>
                         <h2>Welcome to PUCKFACE</h2>
-                    </div>
+                </div>
             </>
     )
     }else{
@@ -99,12 +106,26 @@ const Menus: FunctionComponent<Props> = () => {
                     <button className={gameState.main === 'profile' ? styles.navButtonSecondary : styles.navButton} onClick={() => routeAndPush('profile')}>PROFILE</button>
         
                 </div>
-                <div className={styles.subMenu}>
-                    <button className={gameState.sub === 'lockerroom' ? styles.navButtonSecondary : styles.navButton} onClick={() => routeAndPush('lockerroom')}>LOCKERROOM</button>
-                    <button className={gameState.sub === 'tradingBlock' ? styles.navButtonSecondary : styles.navButton} onClick={() => routeAndPush('tradingBlock')}>TRADING BLOCK</button>
-                    <button className={gameState.sub === 'freeAgents' ? styles.navButtonSecondary : styles.navButton} onClick={() => routeAndPush('freeAgents')}>FREE AGENTS</button>
-                    <button className={gameState.sub === 'store' ? styles.navButtonSecondary : styles.navButton} onClick={() => routeAndPush('store')}>STORE</button>
-                </div>
+                {gameState.sub === 'lobby' &&       
+                    <div className={styles.subMenu}>
+                        <button className={styles.navButton} onClick={() => routeAndPush('createGame')}>CREATE</button>
+                        <button className={styles.navButton}>FREEROLL</button>
+                    </div>
+                }
+                {gameState.sub === 'dashboard' && 
+                    <div className={styles.subMenu}>
+                        <button className={styles.navButton} onClick={() => routeAndPush('lockerroom')}>LOCKERROOM</button>
+                        <button className={styles.navButton} onClick={() => routeAndPush('tradingBlock')}>TRADING BLOCK</button>
+                        <button className={styles.navButton} onClick={() => routeAndPush('freeAgents')}>FREE AGENTS</button>
+                        <button className={styles.navButton} onClick={() => routeAndPush('store')}>STORE</button>
+                    </div>
+                }
+                {gameState.sub === 'createGame' &&  
+                    <div className={styles.subMenu}>
+                        <h2>Select Game Options:</h2>
+                    </div>
+                }
+                
             </>
     )
     }

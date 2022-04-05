@@ -1,5 +1,14 @@
 import { multipliers } from "./constants";
-import { GameType } from "../context/DashboardContext";
+import { CardType, GameType, Rarity } from "../context/DashboardContext";
+interface StatsReturnType {
+    goals:number,
+    assists:number,
+    plusMinus:number,
+    points:number,
+    shutouts:number,
+    wins:number,
+    total:number,
+}
 export interface PuckfaceDate {
     month:string,
     day:string,
@@ -186,6 +195,360 @@ export const gameIsOver = (game:GameType) => {
         
     } catch (er) {
         console.log("Er game isover",er);
+        return false;
+    }
+}
+export const getPlayerFromToken = async(token:number, tonightsGames:NHLGamesArray):Promise <CardType | false> => {
+    try {
+       
+        let playingTeams:string[] = [];
+        tonightsGames.forEach((game) => {
+            playingTeams.push(game.awayName);
+            playingTeams.push(game.homeName);
+        });
+        let inUse = false;
+        let goals = 0;
+        let assists = 0;
+        let plusMinus = 0;
+        let points = 0;
+        let wins = 0;
+        let shutouts = 0;
+        let active = false;
+        let url = 'https://ipfs.io/ipfs/bafybeiedfdak44r7owq5ytvvgb6cywkpfcnhlauroqqlrr7ta3jt2yqhee/files/' + token.toString() + '.json';
+
+        let data = await fetch(url);
+        let guy = await data.json();
+
+        let playerId = guy.attributes[3].value;
+        let pos = guy.attributes[0].value;
+        
+        let data2 = await fetch(`https://statsapi.web.nhl.com/api/v1/people/${playerId}/stats?stats=statsSingleSeason&season=20212022`);
+        let playerStats = await data2.json();
+
+        let teamName = guy.attributes[1].value;
+        if(playingTeams.indexOf(teamName) > -1){
+            // this means the player is playing tonight
+            active = true;
+        }
+
+        if(playerStats.stats[0].splits[0] !== undefined){
+            plusMinus = playerStats.stats[0].splits[0].stat.plusMinus || playerStats.stats[0].splits[0].stat.plusMinus === typeof 'number' ? playerStats.stats[0].splits[0].stat.plusMinus : 0;
+            assists = playerStats.stats[0].splits[0].stat.assists || playerStats.stats[0].splits[0].stat.assists === typeof 'number' ? playerStats.stats[0].splits[0].stat.assists : 0;
+            wins = playerStats.stats[0].splits[0].stat.wins || playerStats.stats[0].splits[0].stat.wins === typeof 'number' ? playerStats.stats[0].splits[0].stat.wins : 0;
+            shutouts = playerStats.stats[0].splits[0].stat.shutouts || playerStats.stats[0].splits[0].stat.shutouts === typeof 'number' ? playerStats.stats[0].splits[0].stat.shutouts : 0;
+            points = playerStats.stats[0].splits[0].stat.points || playerStats.stats[0].splits[0].stat.points === typeof 'number' ? playerStats.stats[0].splits[0].stat.points : 0;
+            goals = playerStats.stats[0].splits[0].stat.goals || playerStats.stats[0].splits[0].stat.goals === typeof 'number' ? playerStats.stats[0].splits[0].stat.goals : 0;
+        }else{
+            plusMinus = 0;
+            assists = 0;
+            wins = 0;
+            shutouts = 0;
+            points = 0;
+            goals = 0;
+        }
+     
+     
+        let player:CardType = {
+            tokenId:token,
+            image:guy.image,
+            playerId:playerId,
+            rarity:guy.attributes[2].value,
+            inUse:inUse,
+            playerName:guy.name,
+            points:points,
+            pos:pos,
+            playingTonight:active,
+            inGame:'',
+            stats:{
+                goals:goals,
+                assists:assists,
+                plusMinus:plusMinus,
+                wins:wins,
+                shutouts:shutouts
+            }
+
+        }
+        return player;
+    } catch (e) {
+        console.log("Error", e);
+        return false;
+    }
+    
+
+}
+export const getPlayersPointsFromIdAndDate = async(playerId:string,gameDate:PuckfaceDate,rarity:Rarity):Promise <StatsReturnType | false> => {
+    try {
+        // TO DO: All error checking, make sure its the right goalie and not the back. TOI?
+
+
+        // gameDate shoudle be an object: {year:'2022',month:'02',day:'18'}
+
+        // Get all games for tonight
+        let playerIsGoalie = false;
+        let playerIsHome = false;
+        let playingTeamsIntArray:number[] = [];
+        let homeTeams:number[] = [];
+        let awayTeams: number[] = [];
+        const raw = await (await fetch(`https://statsapi.web.nhl.com/api/v1/schedule?date=${gameDate.yearNumber.toString()}-${gameDate.monthNumber.toString()}-${gameDate.dayNumber.toString()}`)).json();
+        const tonightsGames = raw.dates[0].games;
+
+        tonightsGames.forEach((game:any) => {
+            playingTeamsIntArray.push(game.teams.away.team.id);
+            playingTeamsIntArray.push(game.teams.home.team.id);
+            homeTeams.push(game.teams.home.team.id);
+            awayTeams.push(game.teams.away.team.id);
+        })
+  
+        // Get players team ID
+        const rawPlayer = await (await fetch(`https://statsapi.web.nhl.com/api/v1/people/${playerId}`)).json();
+        console.log("RAW:🍎 ", rawPlayer.people[0].fullName);
+        if(rawPlayer.people[0].primaryPosition.type === 'Goalie'){
+            playerIsGoalie = true;
+        }
+        
+        // See if team ID is in the tonightsGames array
+        if(playingTeamsIntArray.indexOf(rawPlayer.people[0].currentTeam.id) > -1){
+  
+            if(homeTeams.indexOf(rawPlayer.people[0].currentTeam.id) > -1){
+                playerIsHome = true;
+         
+            }
+            // Get the game ID
+            let filt = tonightsGames.filter(g => g.teams.away.team.id === rawPlayer.people[0].currentTeam.id || g.teams.home.team.id === rawPlayer.people[0].currentTeam.id);
+            // let gamePk = filt[0].gamePk;
+            let gameLink = `https://statsapi.web.nhl.com${filt[0].link}`;
+            let gameData = await (await fetch(gameLink)).json();
+            
+            let objId = `ID${playerId}`;
+            console.log("🌵 Cactus: ", gameData.liveData.boxscore.teams.away.players);
+            if(playerIsHome){
+                if(playerIsGoalie){
+                    let win = 0;
+                    let shutout = 0;
+                    let goalieStats = gameData.liveData.boxscore.teams.home.players[objId] !== undefined ? gameData.liveData.boxscore.teams.home.players[objId].stats.goalieStats : false;
+                    // let goalieStats = gameData.liveData.boxscore.teams.home.players[objId].stats.goalieStats;
+                    if(goalieStats.decision === 'W'){
+                        win = 2;
+                    }
+                    if(goalieStats.savePercentage === 100){
+                        shutout = 3;
+                    }
+                   
+                    if(goalieStats){
+                        let tots = 0;
+                        switch (rarity) {
+                            case Rarity.Standard:
+                                tots = win + shutout;
+                                break;
+                            case Rarity.Rare:
+                                tots = win + shutout;
+                                tots = tots * multipliers.rare;
+                                break;
+                            case Rarity.Super_Rare:
+                                tots = win + shutout;
+                                tots = tots * multipliers.superRare;
+                                break;
+                            case Rarity.Unique:
+                                tots = win + shutout;
+                                tots = tots * multipliers.unique;
+                                break;
+                        
+                            default:
+                                break;
+                        }
+                        return {
+                            goals:goalieStats.goals,
+                            assists:goalieStats.assists,
+                            plusMinus:0,
+                            points:goalieStats.goals + goalieStats.assists,
+                            shutouts:shutout,
+                            wins:win,
+                            total:tots
+                        }
+                    }else{
+                        
+                        return {
+                            goals:0,
+                            assists:0,
+                            plusMinus:0,
+                            points:0,
+                            shutouts:0,
+                            wins:0,
+                            total:0
+                        }
+                    }
+                
+                }else{
+                    let playerStats = gameData.liveData.boxscore.teams.home.players[objId] !== undefined ? gameData.liveData.boxscore.teams.home.players[objId].stats.skaterStats : false;
+                    // let playerStats = gameData.liveData.boxscore.teams.home.players[objId].stats.skaterStats;
+                    if(playerStats){
+                        let plu = playerStats.plusMinus / 2
+                        console.log("PLAYER STSTA ",playerStats);
+                        let tots = 0;
+                        switch (rarity) {
+                            case Rarity.Standard:
+                                tots = playerStats.goals + playerStats.assists + plu;
+                                break;
+                            case Rarity.Rare:
+                                tots = playerStats.goals + playerStats.assists + plu;
+                                tots = tots * multipliers.rare;
+                                break;
+                            case Rarity.Super_Rare:
+                                tots = playerStats.goals + playerStats.assists + plu;
+                                tots = tots * multipliers.superRare;
+                                break;
+                            case Rarity.Unique:
+                                tots = playerStats.goals + playerStats.assists + plu;
+                                tots = tots * multipliers.unique;
+                                break;
+                        
+                            default:
+                                break;
+                        }
+
+                        return {
+                            goals:playerStats.goals,
+                            assists:playerStats.assists,
+                            plusMinus:playerStats.plusMinus,
+                            points:playerStats.goals + playerStats.assists,
+                            shutouts:0,
+                            wins:0,
+                            total:tots
+                        }
+                    }else{
+              
+                        return {
+                            goals:0,
+                            assists:0,
+                            plusMinus:0,
+                            points:0,
+                            shutouts:0,
+                            wins:0,
+                            total:0
+                        }
+                    }
+                 
+                }
+         
+            }else{
+                if(playerIsGoalie){
+                    let win = 0;
+                    let shutout = 0;
+                    let goalieStats = gameData.liveData.boxscore.teams.away.players[objId] !== undefined ? gameData.liveData.boxscore.teams.away.players[objId].stats.goalieStats : false;
+                    // let goalieStats = gameData.liveData.boxscore.teams.away.players[objId].stats.goalieStats;
+                    if(goalieStats.decision === 'W'){
+                        win = 2;
+                    }
+                    if(goalieStats.savePercentage === 100){
+                        shutout = 3;
+                    }
+                    if(goalieStats){
+                        console.log("HOME GOALIEEEE", goalieStats);
+                        let tots = 0;
+                        switch (rarity) {
+                            case Rarity.Standard:
+                                tots = win + shutout;
+                                break;
+                            case Rarity.Rare:
+                                tots = win + shutout;
+                                tots = tots * multipliers.rare;
+                                break;
+                            case Rarity.Super_Rare:
+                                tots = win + shutout;
+                                tots = tots * multipliers.superRare;
+                                break;
+                            case Rarity.Unique:
+                                tots = win + shutout;
+                                tots = tots * multipliers.unique;
+                                break;
+                        
+                            default:
+                                break;
+                        }
+                        return {
+                            goals:goalieStats.goals,
+                            assists:goalieStats.assists,
+                            plusMinus:0,
+                            points:goalieStats.goals + goalieStats.assists,
+                            shutouts:shutout,
+                            wins:win,
+                            total:tots
+                        }
+                    }else{
+                        console.log("HOME GOALIEEEE", goalieStats);
+                        return {
+                            goals:0,
+                            assists:0,
+                            plusMinus:0,
+                            points:0,
+                            shutouts:0,
+                            wins:0,
+                            total:0
+                        }
+                    }
+                 
+                }else{
+                    let playerStats = gameData.liveData.boxscore.teams.away.players[objId] !== undefined ? gameData.liveData.boxscore.teams.away.players[objId].stats.skaterStats : false;
+                    // let playerStats = gameData.liveData.boxscore.teams.away.players[objId].stats.skaterStats;
+                    if(playerStats){
+                        let plu = playerStats.plusMinus / 2;
+                        console.log("PLAYER STSTA ",playerStats);
+                        let tots = 0;
+                        switch (rarity) {
+                            case Rarity.Standard:
+                                tots = playerStats.goals + playerStats.assists + plu;
+                                break;
+                            case Rarity.Rare:
+                                tots = playerStats.goals + playerStats.assists + plu;
+                                tots = tots * multipliers.rare;
+                                break;
+                            case Rarity.Super_Rare:
+                                tots = playerStats.goals + playerStats.assists + plu;
+                                tots = tots * multipliers.superRare;
+                                break;
+                            case Rarity.Unique:
+                                tots = playerStats.goals + playerStats.assists + plu;
+                                tots = tots * multipliers.unique;
+                                break;
+                        
+                            default:
+                                break;
+                        }
+                        return {
+                            goals:playerStats.goals,
+                            assists:playerStats.assists,
+                            plusMinus:playerStats.plusMinus,
+                            points:playerStats.goals + playerStats.assists,
+                            shutouts:0,
+                            wins:0,
+                            total:tots
+                        }
+                    }else{
+                   
+                        console.log("PLAYER STSTA ",playerStats);
+                        return {
+                            goals:0,
+                            assists:0,
+                            plusMinus:0,
+                            points:0,
+                            shutouts:0,
+                            wins:0,
+                            total:0
+                        }
+                    }
+          
+                }
+           
+            }
+         
+           
+        }else{
+            console.log("Player DID NOT Play this day");
+            return false;
+
+        }
+    } catch (e) {
+        console.log("Error getting players game data", e);
         return false;
     }
 }
