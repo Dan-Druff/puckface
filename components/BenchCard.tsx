@@ -6,7 +6,7 @@ const BenchCard = ({benchCardObj}:{benchCardObj:BenchCardType}) => {
         return (
             <div className={styles.benchCard} onClick={() => benchCardObj.func(benchCardObj.posId, benchCardObj.card.tokenId)}>
                
-                <img alt='alt img' className={styles.cardImage} src={card.image}/>
+                <img alt='alt img' className={styles.cardImage} src={benchCardObj.card.image}/>
                {benchCardObj.card.playingTonight && <p>Playing</p>}
                 
                 </div>
@@ -15,7 +15,7 @@ const BenchCard = ({benchCardObj}:{benchCardObj:BenchCardType}) => {
         return (
             <div className={styles.benchCard}>
                
-                <img className={styles.cardImage} src={card.image}/>
+                <img className={styles.cardImage} src={benchCardObj.card.image}/>
                {benchCardObj.card.playingTonight && <p>Playing</p>}
                 
                 </div>
