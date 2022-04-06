@@ -17,13 +17,14 @@ const BuildABench = ({benchObj}:{benchObj:BuildABenchType}) => {
     const dismiss = () => {
         dashboardDispatch({type:'cancelEdit'});
     }
+    
   return (
     <div className={styles.popupBench}>
         {/* <div className={styles.contentContainer}><h3>I AM BENCH</h3></div> */}
         <div className={styles.leftDiv}>
             {benchObj.guys.map((guy) => {
                 return (
-                    <BenchCard key={guy.tokenId} card={guy} active={true} func={selectPlayer} posId='na'/>
+                    <BenchCard key={guy.tokenId} card={guy} active={true} func={selectPlayer} posId={GamePosition.NONE}/>
                 )
             })}
 
