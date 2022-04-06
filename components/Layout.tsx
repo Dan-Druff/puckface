@@ -3,8 +3,9 @@ import type { ReactNode } from 'react';
 import Head from 'next/head'
 import styles from '../styles/All.module.css';
 import Menus from "./Menus";
-import { useDashboard, NoteType } from "../context/DashboardContext";
+import { useDashboard } from "../context/DashboardContext";
 import Notification from './Notification';
+import { NoteType } from "../utility/constants";
 
 
 const Layout: FunctionComponent<ReactNode> = ({children}) => {
