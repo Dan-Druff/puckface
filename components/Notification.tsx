@@ -1,6 +1,6 @@
 
 import styles from '../styles/All.module.css';
-import { NoteType } from '../context/DashboardContext';
+import { NoteType } from '../utility/constants'
 const Notification = ({notObj}:{notObj:NoteType}) => {
     const hello = () => {
         console.log("Hello????");

@@ -1,8 +1,8 @@
 import {createContext, useReducer, useContext,useEffect,useState} from 'react';
 import type { ReactNode } from 'react';
 export type NHLActions = 'increment' | 'decrement'
-import { dateReader, PuckfaceDate } from '../utility/helpers';
-import type { NHLGamesArray } from '../utility/helpers';
+import { dateReader } from '../utility/helpers';
+import type {NHLGamesArray,PuckfaceDate} from '../utility/constants'
 let games:NHLGamesArray = [];
 const defaultState = games;
 

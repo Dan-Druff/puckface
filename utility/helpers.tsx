@@ -1,56 +1,6 @@
-import { multipliers } from "./constants";
-import { CardType, GameType, Rarity } from "../context/DashboardContext";
-interface StatsReturnType {
-    goals:number,
-    assists:number,
-    plusMinus:number,
-    points:number,
-    shutouts:number,
-    wins:number,
-    total:number,
-}
-export interface PuckfaceDate {
-    month:string,
-    day:string,
-    year:string,
-    fullDate:string,
-    monthNumber:number,
-    yearNumber:number,
-    dayNumber:number
-}
-export interface TeamTokens {
-    lw:number,
-    c:number,
-    rw:number,
-    d1:number,
-    d2:number,
-    g:number
-}
-export type LobbyGameState = 'Waiting for Opponent' | 'Waiting for Game' | 'Game Complete'
-export interface Game {
-    awayEmail:string,
-    awayName:string,
-    homeEmail:string,
-    homeName:string,
-    homeTeam:TeamTokens,
-    awayTeam:TeamTokens,
-    date:Date,
-    gameState:LobbyGameState,
-    id:string,
-    open:boolean,
-    private:boolean,
-    value:number
-}
-export interface NHLGame {
-    awayId:number,
-    homeId:number,
-    awayName:string,
-    awayRecord:string,
-    homeName:string,
-    homeRecord:string,
-    description:string
-}
-export type NHLGamesArray = NHLGame[];
+import { GamePosition, multipliers, Team } from "./constants";
+import { CardType, GameType, Rarity,StatsReturnType,PuckfaceDate,TeamTokens,NHLGame } from "../utility/constants"
+import type {LobbyGameState,NHLGamesArray} from '../utility/constants'
 
 export const dateReader = (date:Date):PuckfaceDate => {
        
@@ -552,3 +502,41 @@ export const getPlayersPointsFromIdAndDate = async(playerId:string,gameDate:Puck
         return false;
     }
 }
+export const makeTeam = (teamArray:CardType[], theTeam:Team) => {
+    let teamCopy = {
+        lw:theTeam.lw,
+        c:theTeam.c,
+        rw:theTeam.rw,
+        d1:theTeam.d1,
+        d2:theTeam.d2,
+        g:theTeam.g
+    };
+ 
+    teamArray.forEach((guy) => {
+        if(guy.inUse){
+            switch (guy.inUse) {
+                case GamePosition.LW:
+                    teamCopy.lw = guy;
+                    break;
+                case GamePosition.C:
+                    teamCopy.c = guy;
+                    break;
+                case GamePosition.RW:
+                    teamCopy.rw = guy;
+                    break;
+                case GamePosition.D1:
+                    teamCopy.d1 = guy;
+                    break;
+                case GamePosition.D2:
+                    teamCopy.d2 = guy;
+                    break;
+                case GamePosition.G:
+                    teamCopy.g = guy;
+                    break;
+                default:
+                    break;
+            }
+        }
+    })
+    return teamCopy;
+} 

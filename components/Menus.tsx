@@ -125,6 +125,7 @@ const Menus: FunctionComponent<Props> = () => {
                         <h2>Select Game Options:</h2>
                     </div>
                 }
+                {gameState.sub === 'observing' && <p>OBSERVING</p>}
                 
             </>
     )

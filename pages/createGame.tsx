@@ -4,26 +4,127 @@ import ToggleSwitch from '../components/ToggleSwitch'
 import { useState, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { createRandomId } from '../utility/helpers';
-import { useDashboard, GameType, GameStates } from '../context/DashboardContext';
+import { useDashboard } from '../context/DashboardContext';
 import { useRouter } from 'next/router';
 import { useGameState } from '../context/GameState';
-
+import BuildABench from '../components/BuildABench';
+import { GameType, GameStates, GamePosition, CardType, nobody } from '../utility/constants';
 const CreateGame: NextPage = () => {
+    const Router = useRouter();
     const {userData} = useAuth();
-    const {editing} = useDashboard();
+    const {pucks,editing,availableGuys,dashboardDispatch,prevPlayer,team, createGameInDB} = useDashboard();
     const {gameStateDispatch} = useGameState();
     const [isPrivateGame, setIsPrivateGame] = useState<boolean>(false);
     const [buildingTeam, setBuildingTeam] = useState<boolean>(false);
     const [gameObject, setGameObject] = useState<GameType>({open:true,awayEmail:'',awayName:'',homeEmail:'',homeName:'',date:new Date(),id:createRandomId(),value:0,private:false,gameState:GameStates.init,homeTeam:{lw:0,c:0,rw:0,d1:0,d2:0,g:0},awayTeam:{lw:0,c:0,rw:0,d1:0,d2:0,g:0}});
+    const gameValue = useRef(1);
+    let bo = {
+        guys:availableGuys,
+        dispatch:dashboardDispatch,
+        prevPlayer:prevPlayer,
+        game:gameObject
+    
+    }
+    const selectForEdit = (posId:GamePosition, tokenId:number) => {
 
+        try {
+           console.log("DID I GET TOKEN ID HERE? ", tokenId);
+           console.log("Also, did i get game id: ", gameObject.id);
+            // let thePlayer = team[posId];
+            let player:CardType = nobody;
+            switch (posId) {
+                case GamePosition.C:
+                    player = team.c;
+                    break;
+                case GamePosition.D1:
+                    player = team.d1;
+                    break;
+                case GamePosition.D2:
+                    player = team.d2;
+                    break;
+                case GamePosition.G:
+                    player = team.g;
+                    break;
+                case GamePosition.LW:
+                    player = team.lw;
+                    break;                
+                case GamePosition.RW:
+                    player = team.rw;
+                    break;
+                case GamePosition.NONE:
+
+                    break;    
+                default:
+                    break;
+            }
+            dashboardDispatch({type:'editPlayer',payload:{player:player,posId:posId}})
+
+            console.log("Selecting pos: ",posId);
+        } catch (e) {
+            console.log("SelectError: ", e);
+        }
+    }
+    const createGameHandler = async(e:any) => {
+        e.preventDefault();
+
+        try {
+            console.log("create game Handler: ",Number(gameValue.current));
+            let dbObject = gameObject;
+            dbObject.value = Number(gameValue.current);
+            if (userData === null || userData.userEmail === null) throw new Error('🚦user data error🚦')
+            dbObject.homeEmail = userData.userEmail;
+            // TO DO... retreive users display name here..
+            dbObject.homeName = userData.userEmail;
+            dbObject.private = isPrivateGame;
+            dbObject.gameState = GameStates.waitForOpp;
+            dbObject.homeTeam.lw = team.lw.tokenId;
+            dbObject.homeTeam.c = team.c.tokenId;
+            dbObject.homeTeam.rw = team.rw.tokenId;
+            dbObject.homeTeam.d1 = team.d1.tokenId;
+            dbObject.homeTeam.d2 = team.d2.tokenId;
+            dbObject.homeTeam.g = team.g.tokenId;
+
+            const dbResult = await createGameInDB(dbObject);
+            if(dbResult === false) throw new Error('🚦create game error🚦');
+            let newPucks = pucks - dbObject.value;
+            dashboardDispatch({type:'createLobbyGame',payload:{game:dbResult, newPucks:newPucks}})
+            
+            Router.push(`/game/${gameObject.id}`)
+            return;
+  
+            
+        } catch (er) {
+            console.log("Error", er);
+            return;
+        }
+
+
+    }
+    const buildTeamHandler = async(e:any) => {
+        e.preventDefault();
+        try {
+            // Check stuff here
+          
+            const {howMuch} = e.target.elements;
+           
+            gameValue.current = howMuch.value;
+
+            setBuildingTeam(true);
+            return;
+        } catch (er) {
+            console.log("Error: ", er);
+            return;
+        }
+    }
     return (
   
         <div className={styles.mainContainer}>
             <h3>CREATING GAME SUCKA</h3>
+            {editing && <BuildABench benchObj={bo}/>}
             {/* {editing && 
             <BuildABench guys={availableGuys} dispatch={dashboardDispatch} prevPlayer={prevPlayer} setEditing={setEditing} game={gameObject}/>
             } */}
-            {/* {buildingTeam ?
+            {buildingTeam ?
             <div className={styles.contentContainer}>
               <div className={styles.rinkDiv}>
                   <form onSubmit={createGameHandler}>
@@ -91,7 +192,7 @@ const CreateGame: NextPage = () => {
                     </form>
                 </div>
             </div>
-            } */}
+            }
          
        
        

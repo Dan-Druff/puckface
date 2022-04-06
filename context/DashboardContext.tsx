@@ -1,120 +1,12 @@
-import { createContext, ReactNode, useContext, useReducer, useState } from "react";
+import { createContext, ReactNode, useContext, useReducer, useState, useRef } from "react";
 import { db } from "../firebase/clientApp";
 import {doc,getDoc,setDoc,collection,getDocs} from 'firebase/firestore';
-import { createRandomId,gameIsOver } from "../utility/helpers";
-import { baseURL } from "../utility/constants";
-import type { NHLGamesArray } from "../utility/helpers";
+import { createRandomId,gameIsOver,makeTeam } from "../utility/helpers";
+import { nobody,baseURL, CardType, Stats, Rarity, GamePosition, blankGame, blankTeam, Team, GameStates, TeamTokens,PostSignupReturnType,PostLoginReturnType,GameType, NoteType, DashboardType,DefDashDisp,DefPostLog,DefGetPlayersFromTokenArray,DefGetPacket,DefCreateGameDB, NHLGame } from "../utility/constants";
+import type { StringBool,DashDispatch,DashboardActions,NHLGamesArray } from "../utility/constants";
 import { useNHL } from "./NHLContext";
+import { useAuth } from "./AuthContext";
 const playerMap = require('../utility/playerMap.json');
-interface PostSignupReturnType {
-    displayName:string,
-    id:string
-}
-interface PostLoginReturnType {
-    dashboardPromises:DashboardType,
-    dataFromDB:{
-        pucks:number,
-        username:string,
-        cards:number[],
-        activeGames:string[],
-        activeLeagues:string[],
-        userId:string
-    },
-    activeGames:GameType[]
-}
-export type DashDispatch = (action:DashboardActions) => void;
-export enum Rarity {
-    Standard = "Standard",
-    Rare = "Rare",
-    Super_Rare = "Super Rare",
-    Unique = "Unique"
-}
-export enum GamePosition {
-    NONE = "na",
-    LW = "lw",
-    C = "c",
-    RW = "rw",
-    D1 = "d1",
-    D2 = "d2",
-    G = "g"
-}
-export enum GameStates {
-    waitForOpp = "Waiting for Opponent",
-    waitForGame = "Waiting for Game",
-    complete = "Completed",
-    init = "Initialized"
-}
-type StringBool = string | boolean;
-export interface Stats {
-    goals:number;
-    assists:number;
-    plusMinus:number;
-    wins:number;
-    shutouts:number;
-}
-export interface CardType {
-    playerName: string;
-    playerId: string;
-    tokenId: number;
-    image:string;
-    points:number;
-    playingTonight: boolean;
-    stats: Stats;
-    rarity: Rarity;
-    pos:GamePosition;
-    inGame:StringBool;
-    inUse:StringBool;
-  
-
-}
-export interface TeamTokens {
-    lw:number,
-    c:number,
-    rw:number,
-    d1:number,
-    d2:number,
-    g:number
-}
-export interface GameType {
-    awayEmail:string,
-    awayName:string,
-    homeEmail:string,
-    homeName:string,
-    date:Date,
-    id:string,
-    value:number,
-    private:boolean,
-    open:boolean,
-    gameState:GameStates,
-    homeTeam:TeamTokens,
-    awayTeam:TeamTokens
-
-}
-export type DashboardActions = {type:'addPack',payload:{guys:DashboardType, newPucks:number}} | {type:'addPucks',payload:{amount:number}} | {type:'cancelNotify'} | {type:'notify',payload:{notObj:NoteType}} | {type:'clear'} | {type:'create'} | {type:'login',payload:{displayName:string, dash:DashboardType,games:GameType[],dbData:any}} | {type:'signup',payload:{displayName:string,id:string}}
-
-export interface NoteType {
-    colorClass:string,
-    message:string,
-    twoButtons:boolean,
-    mainTitle:string,
-    cancelTitle:string,
-    mainFunction:() => void,
-    cancelFunction:() => void;
-}
-export type DashboardType = CardType[];
-
-const DefDashDisp = (action:DashboardActions) => {
-    console.log("DEF DASH DISPATCH",action.type);
-}
-const DefPostLog = async(email:string):Promise <false | PostLoginReturnType> => {
-    return false;
-}
-const DefGetPlayersFromTokenArray = async(tokenArray:number[]):Promise<DashboardType | false> => {
-    return false;
-}
-const DefGetPacket = async(email:string,tokens:number[]):Promise <false | DashboardType> => {
-    return false;
-}
 
 export interface AllDashType {
     dashboard:DashboardType,
@@ -128,7 +20,13 @@ export interface AllDashType {
     notification:NoteType | null,
     postLogin:(email:string) => Promise<false | PostLoginReturnType>,
     getPlayersFromTokenArray:(tokenArray:number[]) => Promise<DashboardType | false>,
-    getPacket:(email:string,tokens:number[]) => Promise<false | DashboardType>
+    getPacket:(email:string,tokens:number[]) => Promise<false | DashboardType>,
+    availableGuys:DashboardType,
+    currentGame:GameType,
+    team:Team,
+    oppTeam:Team,
+    prevPlayer:CardType,
+    createGameInDB:(game:GameType) => Promise<GameType | false>
 }
 // -----------------------------Types UP ^------------------------------
 // FUNCTIONS THAT DONT NEED STATE--------------------
@@ -285,14 +183,12 @@ export const getLobbyGames = async():Promise <GameType[] | false> => {
         return false;
     }
 }
-
 // ----------------------------- <MEAT AND POTOTOS> -----------------------------
-const DashboardContext = createContext<AllDashType>({dashboard:[], pucks:0, dashboardDispatch:DefDashDisp,displayName:'NA',activeGames:[],activeLeagues:[],tokens:[],editing:false, notification:null, postLogin:DefPostLog, getPlayersFromTokenArray:DefGetPlayersFromTokenArray,getPacket:DefGetPacket});
-
-
+const DashboardContext = createContext<AllDashType>({dashboard:[], pucks:0, dashboardDispatch:DefDashDisp,displayName:'NA',activeGames:[],activeLeagues:[],tokens:[],editing:false, notification:null, postLogin:DefPostLog, getPlayersFromTokenArray:DefGetPlayersFromTokenArray,getPacket:DefGetPacket, availableGuys:[], currentGame:blankGame, team:blankTeam, oppTeam:blankTeam, prevPlayer:nobody,createGameInDB:DefCreateGameDB});
 
 export const DashboardProvider = ({children}:{children:ReactNode}) => {
     const {tonightsGames} = useNHL();
+    const {userData} = useAuth();
     const [pucks, setPucks] = useState<number>(0);
     const [displayName, setDisplayName] = useState<string>('NA');
     const [tokens,setTokens] = useState<number[]>([]);
@@ -300,9 +196,108 @@ export const DashboardProvider = ({children}:{children:ReactNode}) => {
     const [activeGames,setActiveGames] = useState<GameType[]>([]);
     const [editing,setEditing] = useState<boolean>(false);
     const [notification,setNotification] = useState<NoteType | null>(null);
+    const [availableGuys, setAvailableGuys] = useState<DashboardType>([]);
+    const [currentGame, setCurrentGame] = useState<GameType>(blankGame);
+    const [team,setTeam] = useState<Team>(blankTeam);
+    const [oppTeam, setOppTeam] = useState<Team>(blankTeam);
+    const [prevPlayer, setPrevPlayer] = useState<CardType>(nobody);
+    const selectedPosition = useRef('');
+
     function dashboardReducer(state:DashboardType, action:DashboardActions){
         switch (action.type) {
+            case 'createLobbyGame':
+                setPucks(action.payload.newPucks);
+                setCurrentGame(action.payload.game);
+                setActiveGames([action.payload.game, ...activeGames]);
+                return state;
+            case 'editPlayer':
+                selectedPosition.current = action.payload.posId;
+                let filt :DashboardType = [];
+                switch (action.payload.posId) {
+                    case GamePosition.LW:
+                        filt = dashboard.filter(g => g.pos === 'Left Wing' || g.pos === 'Center' || g.pos === 'Right Wing');
+
+                        break;
+                    case GamePosition.C:
+                        filt = dashboard.filter(g => g.pos === 'Left Wing' || g.pos === 'Center' || g.pos === 'Right Wing');
+
+                        break;
+                    case GamePosition.RW:
+                        filt = dashboard.filter(g => g.pos === 'Left Wing' || g.pos === 'Center' || g.pos === 'Right Wing');
+
+                        break;
+                    case GamePosition.D1:
+                        filt = dashboard.filter(g => g.pos === 'Defenseman');
+
+                        break;
+                    case GamePosition.D2:
+                        filt = dashboard.filter(g => g.pos === 'Defenseman');
+
+                        break;
+                    case GamePosition.G:
+                        filt = dashboard.filter(g => g.pos === 'Goalie');
+
+                        break;
+                    case GamePosition.NONE:
+                        break;                        
+                
+                    default:
+                        break;
+                }
+                setAvailableGuys(filt);
+                setPrevPlayer(action.payload.player);
+                setEditing(true);
+                
+                return state;
+            case 'cancelEdit':
+                setAvailableGuys([]);
+                setPrevPlayer(nobody);
+                setEditing(false);
+                return state;
+            case 'selectPlayer':
+                let selectedToken = action.payload.tokenId
+                let gameId = action.payload.game.id;
+                const newDashboard = state.map((guy) => {
+                    if(guy.tokenId === selectedToken){
+                        guy.inUse = selectedPosition.current;
+                        guy.inGame = gameId;
+                    }
+                    if(guy.tokenId === prevPlayer.tokenId){
+                        guy.inUse = false;
+                        guy.inGame = false;
+                    }
+                    return guy;
+                })
+                let newTeam = makeTeam(newDashboard,team);
+                
+                let teamC = {
+                    lw:newTeam.lw.tokenId,
+                    c:newTeam.c.tokenId,
+                    rw:newTeam.rw.tokenId,
+                    d1:newTeam.d1.tokenId,
+                    d2:newTeam.d2.tokenId,
+                    g:newTeam.g.tokenId
+                }
+                let cc = currentGame;
+                if(userData === null || userData.userEmail === null) throw new Error('🚦user data errror🚦');
+                if(userData.userEmail === action.payload.game.homeEmail){
+                    // User is home
+                  
+                   cc.homeTeam = teamC;
+                   
+             
+                }else{
+                    cc.awayTeam = teamC;
+                }
+                setCurrentGame(cc);
+                setTeam(newTeam);
+                setPrevPlayer(nobody);
+                setEditing(false);
+                return newDashboard;
             case 'clear':
+                setCurrentGame(blankGame);
+                setTeam(blankTeam);
+                setPrevPlayer(nobody);
                 setPucks(0);
                 setActiveGames([]);
                 setActiveLeagues([]);
@@ -313,12 +308,19 @@ export const DashboardProvider = ({children}:{children:ReactNode}) => {
             case 'create':
                 return state;
             case 'login':
+                setAvailableGuys([]);
+                setNotification(null)
+                setOppTeam(blankTeam);
+                setTeam(blankTeam);
+                setCurrentGame(blankGame)
+                setPrevPlayer(nobody);
                 setDisplayName(action.payload.displayName);
                 setPucks(action.payload.dbData.pucks);
                 setActiveGames(action.payload.games);
                 setTokens(action.payload.dbData.cards);
                 setEditing(false);
                 setActiveLeagues(action.payload.dbData.activeLeagues);
+                setDisplayName(action.payload.displayName)
                 return action.payload.dash;
             case 'signup':
                 const dispName = action.payload.displayName;
@@ -347,27 +349,28 @@ export const DashboardProvider = ({children}:{children:ReactNode}) => {
         }
     }
     const [dashboard, dashboardDispatch] = useReducer(dashboardReducer, []);
+
     const postLogin = async(email:string):Promise <false | PostLoginReturnType> => {
         try {
                    // Get USER Info from DB
-                   const dbRef = doc(db,'users',email);
-                   const dbRes = await getDoc(dbRef);
-                   if(dbRes.exists()){
-                       const dbdata = dbRes.data();
-                       // Need to populate activeGames array from the activeGames array from db
-                       const gameObjectArray = await Promise.all(dbdata.activeGames.map(async(g:string) => {
+            const dbRef = doc(db,'users',email);
+            const dbRes = await getDoc(dbRef);
+            if(dbRes.exists()){
+                const dbdata = dbRes.data();
+                    // Need to populate activeGames array from the activeGames array from db
+                const gameObjectArray = await Promise.all(dbdata.activeGames.map(async(g:string) => {
                            let pGame = await getGame(g);
                         //    pGame.date = pGame.date.toDate();
                            console.log("Converted toDate",pGame);
                            return pGame;
-                       }))
+                }))
                     //    console.log("Got games from users card array: ",gameObjectArray);
                        // Create array of NHL team names that are playing tonight
-                       let playingTeams: string[] = [];
-                       tonightsGames.forEach((game) => {
+                let playingTeams: string[] = [];
+                tonightsGames.forEach((game:NHLGame) => {
                            playingTeams.push(game.awayName);
                            playingTeams.push(game.homeName);
-                       });
+                });
                        // Create array of player objects
                        const dashboardPromises = await Promise.all(dbdata.cards.map(async(token:number) => {
                            // I have the integer of the token. 
@@ -775,6 +778,54 @@ export const DashboardProvider = ({children}:{children:ReactNode}) => {
             return false;
         }
     }
+    const createGameInDB = async(game:GameType):Promise <GameType | false>  => {
+        try {
+            const ref = await setDoc(doc(db,'lobbyGames', game.id),{
+                awayEmail:game.awayEmail,
+                awayName:game.awayName,
+                homeEmail:game.homeEmail,
+                homeName:displayName,
+                date:game.date,
+                id:game.id,
+                value:game.value,
+                private:game.private,
+                homeTeam:game.homeTeam,
+                awayTeam:game.awayTeam,
+                open:game.open,
+                gameState:game.gameState
+            })  
+            let h:string[] = [];
+            activeGames.forEach((game) => {
+                h.push(game.id);
+            })
+            let puckAmt = pucks - game.value;
+            const userRes = await setDoc(doc(db,'users',game.homeEmail),{
+                pucks:puckAmt,
+                activeGames:[...h, game.id]
+            },{ merge: true });
+            let k = {
+                awayEmail:game.awayEmail,
+                awayName:game.awayName,
+                homeEmail:game.homeEmail,
+                homeName:displayName,
+                date:game.date,
+                id:game.id,
+                value:game.value,
+                private:game.private,
+                homeTeam:game.homeTeam,
+                awayTeam:game.awayTeam,
+                open:game.open,
+                gameState:game.gameState
+            }
+            // setActiveGames([...activeGames,k]);
+            
+            return k;
+        } catch (e) {
+            console.log("Erroro: ", e);
+            return false;
+        }
+    }  
+    
     let allVal = {
         dashboard:dashboard,
         pucks:pucks,
@@ -787,7 +838,13 @@ export const DashboardProvider = ({children}:{children:ReactNode}) => {
         notification:notification,
         postLogin:postLogin,
         getPlayersFromTokenArray:getPlayersFromTokenArray,
-        getPacket:getPacket
+        getPacket:getPacket,
+        availableGuys:availableGuys,
+        currentGame:currentGame,
+        team:team,
+        oppTeam:oppTeam,
+        prevPlayer:prevPlayer,
+        createGameInDB:createGameInDB
     }
     return (
         <DashboardContext.Provider value={allVal}>{children}</DashboardContext.Provider>
