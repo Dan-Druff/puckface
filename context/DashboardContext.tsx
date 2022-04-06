@@ -215,27 +215,27 @@ export const DashboardProvider = ({children}:{children:ReactNode}) => {
                 let filt :DashboardType = [];
                 switch (action.payload.posId) {
                     case GamePosition.LW:
-                        filt = dashboard.filter(g => g.pos === 'Left Wing' || g.pos === 'Center' || g.pos === 'Right Wing');
+                        filt = state.filter(g => g.pos === 'Left Wing' || g.pos === 'Center' || g.pos === 'Right Wing');
 
                         break;
                     case GamePosition.C:
-                        filt = dashboard.filter(g => g.pos === 'Left Wing' || g.pos === 'Center' || g.pos === 'Right Wing');
+                        filt = state.filter(g => g.pos === 'Left Wing' || g.pos === 'Center' || g.pos === 'Right Wing');
 
                         break;
                     case GamePosition.RW:
-                        filt = dashboard.filter(g => g.pos === 'Left Wing' || g.pos === 'Center' || g.pos === 'Right Wing');
+                        filt = state.filter(g => g.pos === 'Left Wing' || g.pos === 'Center' || g.pos === 'Right Wing');
 
                         break;
                     case GamePosition.D1:
-                        filt = dashboard.filter(g => g.pos === 'Defenseman');
+                        filt = state.filter(g => g.pos === 'Defenseman');
 
                         break;
                     case GamePosition.D2:
-                        filt = dashboard.filter(g => g.pos === 'Defenseman');
+                        filt = state.filter(g => g.pos === 'Defenseman');
 
                         break;
                     case GamePosition.G:
-                        filt = dashboard.filter(g => g.pos === 'Goalie');
+                        filt = state.filter(g => g.pos === 'Goalie');
 
                         break;
                     case GamePosition.NONE:

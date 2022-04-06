@@ -1,11 +1,13 @@
 import type { NextPage } from 'next'
 import styles from '../styles/All.module.css'
 import { useDashboard} from '../context/DashboardContext'
-import { NoteType } from '../utility/constants'
+import { GamePosition, NoteType } from '../utility/constants'
 import AuthRoute from '../hoc/authRoute'
 import LobbyGameCard from '../components/LobbyGameCard'
-
+import BenchCard from '../components/BenchCard'
+import { useRouter } from 'next/router'
 const Dashboard: NextPage = () => {
+    const Router = useRouter();
     const {activeGames, pucks, dashboardDispatch, dashboard, displayName} = useDashboard();
     console.log("Player has pucks: ", pucks);
     const funnyFunction = () => {
@@ -23,7 +25,14 @@ const Dashboard: NextPage = () => {
         mainFunction:funnyFunction,
         cancelFunction:canc
     }
-
+    const cardSelect = async(posId:GamePosition, tokenId:number) => {
+        try {
+            console.log("You selected card: ", tokenId, posId);
+            Router.push(`/card/${tokenId.toString()}`);
+        } catch (er) {
+            console.log("Card select error: ",er);
+        }
+    }
     return (
         <AuthRoute>
             <div className={styles.mainContainer}>
@@ -48,15 +57,28 @@ const Dashboard: NextPage = () => {
              :
              <h2>NO GAMES TO SHOW</h2>
              }
-         </div>
-            {dashboard.map((guy) => {
-                return (
-                    <div key={guy.tokenId}>
-                        <p>Guys nmae: {guy.playerName}</p>
+                </div>
+                <div className={styles.contentContainer}>
+                    {dashboard.length > 0 ? 
+                    <>
+                        <h2>⬇ ALL CARDS ⬇</h2>
+                        <div className={styles.lockerroom}>
+                        {dashboard.map((card) => {
+                            return (
+                                <BenchCard key={card.tokenId} card={card} active={true} func={cardSelect} posId={GamePosition.NONE}/>
+                            )
+                        })}           
                     </div>
-                )
-            })}
-            <button onClick={() => dashboardDispatch({type:'notify',payload:{notObj:funnyObj}})}>NOTIFY</button>
+                    </> 
+                    : 
+                    <div className={styles.contentContainerColumn}>
+                        <h2>Welcome Puck Face! 🏒 </h2>
+                        <h2>Checkout the store to start playing... 🥅</h2>
+                    </div>
+                    }
+                </div>
+
+            {/* <button onClick={() => dashboardDispatch({type:'notify',payload:{notObj:funnyObj}})}>NOTIFY</button> */}
             </div>
         </AuthRoute>
     )

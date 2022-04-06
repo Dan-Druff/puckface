@@ -41,7 +41,7 @@ const BenchCard = (props:BenchCardType) => {
         return (
             <div className={styles.benchCard}>
                
-                <img className={styles.cardImage} src={props.card.image}/>
+                <img alt='alt img' className={styles.cardImage} src={props.card.image}/>
                {props.card.playingTonight && <p>Playing</p>}
                 
                 </div>
