@@ -1,6 +1,7 @@
 import type { NextPage } from 'next'
 import styles from '../styles/All.module.css'
-import { useDashboard,NoteType } from '../context/DashboardContext'
+import { useDashboard} from '../context/DashboardContext'
+import { NoteType } from '../utility/constants'
 import AuthRoute from '../hoc/authRoute'
 import LobbyGameCard from '../components/LobbyGameCard'
 
