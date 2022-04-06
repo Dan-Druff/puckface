@@ -259,7 +259,32 @@ export const DashboardProvider = ({children}:{children:ReactNode}) => {
                 let gameId = action.payload.game.id;
                 const newDashboard = state.map((guy) => {
                     if(guy.tokenId === selectedToken){
-                        guy.inUse = selectedPosition.current;
+                        switch (selectedPosition.current) {
+                            case GamePosition.LW:
+                                guy.inUse = GamePosition.LW
+                                break;
+                            case GamePosition.C:
+                                guy.inUse = GamePosition.C
+                                break;
+                            case GamePosition.RW:
+                                guy.inUse = GamePosition.RW
+                                break;
+                            case GamePosition.D1:
+                                guy.inUse = GamePosition.D1
+                                break;
+                            case GamePosition.D2:
+                                guy.inUse = GamePosition.D2
+                                break;
+                            case GamePosition.G:
+                                guy.inUse = GamePosition.G
+                                break;
+                            case GamePosition.NONE:
+                                guy.inUse = GamePosition.NONE
+                                break;                    
+                            default:
+                                break;
+                        }
+                        // guy.inUse = selectedPosition.current;
                         guy.inGame = gameId;
                     }
                     if(guy.tokenId === prevPlayer.tokenId){
