@@ -3,9 +3,10 @@ import { dateReader, getPlayerFromToken, getPlayersPointsFromIdAndDate } from ".
 import { useRouter } from "next/router"
 import styles from '../styles/All.module.css';
 import { useGameState } from "../context/GameState";
-import { useDashboard,getGame, GameType } from "../context/DashboardContext";
+import { useDashboard,getGame } from "../context/DashboardContext";
 import { useNHL } from "../context/NHLContext";
 import { useAuth } from "../context/AuthContext";
+import { GameType } from "../utility/constants";
 const LobbyGameCard = ({game}:{game:GameType}) => {
     const {gameStateDispatch} = useGameState();
     const Router = useRouter();
