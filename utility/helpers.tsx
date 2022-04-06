@@ -240,7 +240,7 @@ export const getPlayersPointsFromIdAndDate = async(playerId:string,gameDate:Puck
         let homeTeams:number[] = [];
         let awayTeams: number[] = [];
         const raw = await (await fetch(`https://statsapi.web.nhl.com/api/v1/schedule?date=${gameDate.yearNumber.toString()}-${gameDate.monthNumber.toString()}-${gameDate.dayNumber.toString()}`)).json();
-        const tonightsGames = raw.dates[0].games;
+        const tonightsGames:any[] = raw.dates[0].games;
 
         tonightsGames.forEach((game:any) => {
             playingTeamsIntArray.push(game.teams.away.team.id);
