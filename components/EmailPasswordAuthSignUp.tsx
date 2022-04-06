@@ -6,7 +6,7 @@ import { createUserWithEmailAndPassword } from "firebase/auth"
 import GoogleSignIn from '../components/GoogleSignin';
 
 import { postSignup } from '../context/DashboardContext';
-import type { DashboardActions } from '../context/DashboardContext';
+import type { DashboardActions } from '../utility/constants';
 import { useDashboard } from '../context/DashboardContext';
 import { useGameState } from '../context/GameState';
 const EmailPasswordAuthSignUp = () => {
