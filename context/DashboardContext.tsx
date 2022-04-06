@@ -654,7 +654,7 @@ export const DashboardProvider = ({children}:{children:ReactNode}) => {
                     points = 0;
                     goals = 0;
                 }
-                let player = {
+                let player:CardType = {
                     tokenId:token,
                     image:guy.image,
                     playerId:playerId,
