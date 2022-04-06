@@ -5,7 +5,8 @@ import AuthRoute from '../hoc/authRoute';
 import LobbyGameCard from '../components/LobbyGameCard';
 import { gameIsOver } from '../utility/helpers';
 import { useEffect, useState } from 'react';
-import { getLobbyGames, GameType } from '../context/DashboardContext';
+import { getLobbyGames } from '../context/DashboardContext';
+import { GameType } from '../utility/constants';
 
 const Lobby: NextPage = () => {
     const [openLobbyGames, setOpenLobbyGames] = useState<GameType[]>([]);
