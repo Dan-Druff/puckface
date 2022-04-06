@@ -9,6 +9,7 @@ import { useRouter } from 'next/router';
 import { useGameState } from '../context/GameState';
 import BuildABench from '../components/BuildABench';
 import { GameType, GameStates, GamePosition, CardType, nobody } from '../utility/constants';
+import BenchCard from '../components/BenchCard';
 const CreateGame: NextPage = () => {
     const Router = useRouter();
     const {userData} = useAuth();
@@ -116,6 +117,11 @@ const CreateGame: NextPage = () => {
             return;
         }
     }
+    let togg = {
+        label:'Public',
+        setToggle:setIsPrivateGame,
+        toggle:isPrivateGame
+    }
     return (
   
         <div className={styles.mainContainer}>
@@ -131,24 +137,24 @@ const CreateGame: NextPage = () => {
                   <h2>Build Team:</h2>
                   <hr className={styles.smallRedLine} />
                   <div className={styles.cardRow}>
-                    <BenchCard card={team.lw} active={true} func={selectForEdit} posId='lw'/>
-                    <BenchCard card={team.c} active={true} func={selectForEdit} posId='c'/>
-                    <BenchCard card={team.rw} active={true} func={selectForEdit} posId='rw'/>
+                    <BenchCard card={team.lw} active={true} func={selectForEdit} posId={GamePosition.LW}/>
+                    <BenchCard card={team.c} active={true} func={selectForEdit} posId={GamePosition.C}/>
+                    <BenchCard card={team.rw} active={true} func={selectForEdit} posId={GamePosition.RW}/>
 
              
                   </div>
             
               <hr className={styles.blueLine}/>
               <div className={styles.cardRow}>
-                <BenchCard card={team.d1} active={true} func={selectForEdit} posId='d1'/>
-                <BenchCard card={team.d2} active={true} func={selectForEdit} posId='d2'/>
+                <BenchCard card={team.d1} active={true} func={selectForEdit} posId={GamePosition.D1}/>
+                <BenchCard card={team.d2} active={true} func={selectForEdit} posId={GamePosition.D2}/>
 
                  
              
                   </div>
               <hr className={styles.centerLine}/>
               <div className={styles.cardRow}>
-                <BenchCard card={team.g} active={true} func={selectForEdit} posId='g'/>
+                <BenchCard card={team.g} active={true} func={selectForEdit} posId={GamePosition.G}/>
 
              
              
@@ -174,7 +180,9 @@ const CreateGame: NextPage = () => {
                 <input name="howMuch" id="howMuch" type="number" placeholder="1" required/>
                 </div><br />
                 <hr className={styles.blueLine}/><br />
-                <ToggleSwitch toggle={isPrivateGame} setToggle={setIsPrivateGame} label="Public"/>
+                <ToggleSwitch tog={togg}/>
+
+                {/* <ToggleSwitch toggle={isPrivateGame} setToggle={setIsPrivateGame} label="Public"/> */}
                 <br />
                 <hr className={styles.centerLine}/>
                 <br /> 
