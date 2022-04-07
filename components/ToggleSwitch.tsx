@@ -2,7 +2,7 @@
 import styles from '../styles/All.module.css';
 
 import { ToggleType } from '../utility/constants';
-const ToggleSwitch = ({tog}:{tog:ToggleType}) => {
+const ToggleSwitch = (tog:ToggleType) => {
     let msg = tog.label;
 if(tog.label === 'Public'){
     if(tog.toggle){

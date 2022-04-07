@@ -1,6 +1,6 @@
-import { GamePosition, multipliers, Team } from "./constants";
-import { CardType, GameType, Rarity,StatsReturnType,PuckfaceDate,TeamTokens,NHLGame } from "../utility/constants"
-import type {LobbyGameState,NHLGamesArray} from '../utility/constants'
+import { multipliers, Team } from "./constants";
+import { CardType, GameType,StatsReturnType,PuckfaceDate,TeamTokens,NHLGame } from "../utility/constants"
+import type {LobbyGameState,NHLGamesArray, GamePosition, Rarity} from '../utility/constants'
 
 export const dateReader = (date:Date):PuckfaceDate => {
        
@@ -156,7 +156,7 @@ export const getPlayerFromToken = async(token:number, tonightsGames:NHLGamesArra
             playingTeams.push(game.awayName);
             playingTeams.push(game.homeName);
         });
-        let inUse = false;
+        let inUse: GamePosition = 'none';
         let goals = 0;
         let assists = 0;
         let plusMinus = 0;
@@ -287,18 +287,18 @@ export const getPlayersPointsFromIdAndDate = async(playerId:string,gameDate:Puck
                     if(goalieStats){
                         let tots = 0;
                         switch (rarity) {
-                            case Rarity.Standard:
+                            case "Standard":
                                 tots = win + shutout;
                                 break;
-                            case Rarity.Rare:
+                            case "Rare":
                                 tots = win + shutout;
                                 tots = tots * multipliers.rare;
                                 break;
-                            case Rarity.Super_Rare:
+                            case "Super Rare":
                                 tots = win + shutout;
                                 tots = tots * multipliers.superRare;
                                 break;
-                            case Rarity.Unique:
+                            case "Unique":
                                 tots = win + shutout;
                                 tots = tots * multipliers.unique;
                                 break;
@@ -336,18 +336,18 @@ export const getPlayersPointsFromIdAndDate = async(playerId:string,gameDate:Puck
                         console.log("PLAYER STSTA ",playerStats);
                         let tots = 0;
                         switch (rarity) {
-                            case Rarity.Standard:
+                            case "Standard":
                                 tots = playerStats.goals + playerStats.assists + plu;
                                 break;
-                            case Rarity.Rare:
+                            case "Rare":
                                 tots = playerStats.goals + playerStats.assists + plu;
                                 tots = tots * multipliers.rare;
                                 break;
-                            case Rarity.Super_Rare:
+                            case "Super Rare":
                                 tots = playerStats.goals + playerStats.assists + plu;
                                 tots = tots * multipliers.superRare;
                                 break;
-                            case Rarity.Unique:
+                            case "Unique":
                                 tots = playerStats.goals + playerStats.assists + plu;
                                 tots = tots * multipliers.unique;
                                 break;
@@ -396,18 +396,18 @@ export const getPlayersPointsFromIdAndDate = async(playerId:string,gameDate:Puck
                         console.log("HOME GOALIEEEE", goalieStats);
                         let tots = 0;
                         switch (rarity) {
-                            case Rarity.Standard:
+                            case "Standard":
                                 tots = win + shutout;
                                 break;
-                            case Rarity.Rare:
+                            case "Rare":
                                 tots = win + shutout;
                                 tots = tots * multipliers.rare;
                                 break;
-                            case Rarity.Super_Rare:
+                            case "Super Rare":
                                 tots = win + shutout;
                                 tots = tots * multipliers.superRare;
                                 break;
-                            case Rarity.Unique:
+                            case "Unique":
                                 tots = win + shutout;
                                 tots = tots * multipliers.unique;
                                 break;
@@ -445,18 +445,18 @@ export const getPlayersPointsFromIdAndDate = async(playerId:string,gameDate:Puck
                         console.log("PLAYER STSTA ",playerStats);
                         let tots = 0;
                         switch (rarity) {
-                            case Rarity.Standard:
+                            case "Standard":
                                 tots = playerStats.goals + playerStats.assists + plu;
                                 break;
-                            case Rarity.Rare:
+                            case "Rare":
                                 tots = playerStats.goals + playerStats.assists + plu;
                                 tots = tots * multipliers.rare;
                                 break;
-                            case Rarity.Super_Rare:
+                            case "Super Rare":
                                 tots = playerStats.goals + playerStats.assists + plu;
                                 tots = tots * multipliers.superRare;
                                 break;
-                            case Rarity.Unique:
+                            case "Unique":
                                 tots = playerStats.goals + playerStats.assists + plu;
                                 tots = tots * multipliers.unique;
                                 break;
@@ -515,22 +515,22 @@ export const makeTeam = (teamArray:CardType[], theTeam:Team) => {
     teamArray.forEach((guy) => {
         if(guy.inUse){
             switch (guy.inUse) {
-                case GamePosition.LW:
+                case 'lw':
                     teamCopy.lw = guy;
                     break;
-                case GamePosition.C:
+                case 'c':
                     teamCopy.c = guy;
                     break;
-                case GamePosition.RW:
+                case 'rw':
                     teamCopy.rw = guy;
                     break;
-                case GamePosition.D1:
+                case 'd1':
                     teamCopy.d1 = guy;
                     break;
-                case GamePosition.D2:
+                case 'd2':
                     teamCopy.d2 = guy;
                     break;
-                case GamePosition.G:
+                case 'g':
                     teamCopy.g = guy;
                     break;
                 default:

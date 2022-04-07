@@ -3,7 +3,7 @@ import { useRouter } from "next/router"
 import styles from '../styles/All.module.css';
 export type Pages = 'createGame' | 'dashboard' | 'lobby' | 'profile' | 'leagues' | 'store' | 'login' | 'signup' | 'home' | 'freeAgents' | 'tradingBlock' | 'lockerroom'
 // import {MainState,GameStateActions,useGameState} from '../context/GameState';
-import type {GameStateDispatch,GameState, GameStateActions} from '../context/GameState';
+// import type {GameStateDispatch,GameState, GameStateActions} from '../context/GameState';
 import {useGameState} from '../context/GameState';
 import {useAuth} from '../context/AuthContext';
 interface Props {
@@ -126,6 +126,11 @@ const Menus: FunctionComponent<Props> = () => {
                     </div>
                 }
                 {gameState.sub === 'observing' && <p>OBSERVING</p>}
+                {gameState.sub === 'inGame' &&   
+                    <div className={styles.subMenu}>
+                        <h2>Select Your Team:</h2>
+                    </div>
+                }
                 
             </>
     )

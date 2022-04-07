@@ -1,19 +1,21 @@
 import {createContext, useReducer, useContext} from 'react';
 import type { ReactNode } from 'react';
-export type GameStateActions = {type:'observingGame'} | {type:'createGame'} | {type:'home'} | {type:'dashboard'} | {type:'leagues'} | {type:'lobby'} | {type:'profile'} | {type:'lockerroom'} | {type:'tradingBlock'} | {type:'freeAgents'} | {type:'store'}
-const defaultState = {main:'none',sub:'none'}
-
-export type GameState = typeof defaultState
-export type GameStateDispatch = (action:GameStateActions) => void
+import type { GameStateActions, GameState,GameStateDispatch } from '../utility/constants';
+import { defaultState } from '../utility/constants';
 
 const GameStateContext = createContext<{gameState:GameState;gameStateDispatch:GameStateDispatch} | undefined>(undefined);
 
 function gameStateReducer(state:GameState,action:GameStateActions){
 
     switch (action.type) {
+        case 'inGame':
+            state.main = 'none';
+            state.sub = 'inGame';
+            return state;
         case 'observingGame':
             state.main = 'none';
             state.sub = 'observing';
+            return state;
         case 'home':
             state.main = 'none';
             state.sub = 'none';

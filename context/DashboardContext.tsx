@@ -2,8 +2,8 @@ import { createContext, ReactNode, useContext, useReducer, useState, useRef } fr
 import { db } from "../firebase/clientApp";
 import {doc,getDoc,setDoc,collection,getDocs} from 'firebase/firestore';
 import { createRandomId,gameIsOver,makeTeam } from "../utility/helpers";
-import { nobody,baseURL, CardType, Stats, Rarity, GamePosition, blankGame, blankTeam, Team, GameStates, TeamTokens,PostSignupReturnType,PostLoginReturnType,GameType, NoteType, DashboardType,DefDashDisp,DefPostLog,DefGetPlayersFromTokenArray,DefGetPacket,DefCreateGameDB, NHLGame } from "../utility/constants";
-import type { StringBool,DashDispatch,DashboardActions,NHLGamesArray } from "../utility/constants";
+import { nobody,baseURL, CardType, Stats,blankGame, blankTeam, Team, GameStates, TeamTokens,PostSignupReturnType,PostLoginReturnType,GameType, NoteType, DashboardType,DefDashDisp,DefPostLog,DefGetPlayersFromTokenArray,DefGetPacket,DefCreateGameDB, NHLGame,CalculatedGameType } from "../utility/constants";
+import type { StringBool,DashDispatch,DashboardActions,NHLGamesArray, GamePosition, Rarity } from "../utility/constants";
 import { useNHL } from "./NHLContext";
 import { useAuth } from "./AuthContext";
 const playerMap = require('../utility/playerMap.json');
@@ -183,6 +183,99 @@ export const getLobbyGames = async():Promise <GameType[] | false> => {
         return false;
     }
 }
+export const calculateGame = async(game:GameType, homeScore:number, awayScore:number):Promise <CalculatedGameType | false> => {
+    try {
+        console.log("CALCU:ATINGGGG:🌈🌈🌈 ")
+        let gCopy = game;
+        let winner = '';
+        
+        if(homeScore > awayScore){
+            // home person wins, add pucks
+            winner = 'home';
+            const dbRef = doc(db,'users',game.homeEmail);
+            const dbRes = await getDoc(dbRef);
+            if(dbRes.exists()){
+                const usrData = dbRes.data();
+                let pks = usrData.pucks;
+                let gv = game.value * 2;
+                pks = pks + gv;
+
+                const addToUserRef = await setDoc(doc(db,'users',game.homeEmail),{
+                    pucks:pks
+                },{ merge:true});
+
+                
+                
+
+            }
+        }
+        if(awayScore > homeScore){
+            // away team wins, add pucks
+            winner = 'away';
+            const dbRef = doc(db,'users',game.awayEmail);
+            const dbRes = await getDoc(dbRef);
+            if(dbRes.exists()){
+                const usrData = dbRes.data();
+                let pks = usrData.pucks;
+                let gv = game.value * 2;
+                pks = pks + gv;
+
+                const addToUserRef = await setDoc(doc(db,'users',game.awayEmail),{
+                    pucks:pks
+                },{ merge:true});
+
+                
+                
+
+            }
+        }
+        if(awayScore === homeScore){
+            // game tied distributre evenly
+            winner = 'tie';
+            const homedbRef = doc(db,'users',game.homeEmail);
+            const awaydbRef = doc(db,'users',game.awayEmail);
+            const homeRes = await getDoc(homedbRef);
+            const awayRes = await getDoc(awaydbRef);
+            if(homeRes.exists() && awayRes.exists()){
+                const homeData = homeRes.data();
+                const awayData = awayRes.data();
+                let homepks = homeData.pucks;
+                let awaypks = awayData.pucks;
+                let hv = homepks + game.value;
+                let av = awaypks + game.value;
+  
+
+                const addToHomeRef = await setDoc(doc(db,'users',game.homeEmail),{
+                    pucks:hv
+                },{ merge:true});
+
+                const addToAwayRef = await setDoc(doc(db,'users',game.awayEmail),{
+                    pucks:av
+                },{ merge:true});
+
+                
+                
+
+            }
+        }
+
+        gCopy.gameState = GameStates.complete
+        gCopy.open = false;
+        console.log("CALCU:ATINGGGG:🌈🌈🌈 : ");
+        const addToGamesRef = await setDoc(doc(db,'lobbyGames',gCopy.id),{
+            gameState:gCopy.gameState
+        },{ merge:true});
+        const calced:CalculatedGameType = {
+            game:gCopy,
+            winner:winner
+        }
+        return calced;
+       
+    } catch (er) {
+        console.log("Calulate Erro: ", er);
+        return false;
+    }
+}
 // ----------------------------- <MEAT AND POTOTOS> -----------------------------
 const DashboardContext = createContext<AllDashType>({dashboard:[], pucks:0, dashboardDispatch:DefDashDisp,displayName:'NA',activeGames:[],activeLeagues:[],tokens:[],editing:false, notification:null, postLogin:DefPostLog, getPlayersFromTokenArray:DefGetPlayersFromTokenArray,getPacket:DefGetPacket, availableGuys:[], currentGame:blankGame, team:blankTeam, oppTeam:blankTeam, prevPlayer:nobody,createGameInDB:DefCreateGameDB});
 
@@ -205,6 +298,55 @@ export const DashboardProvider = ({children}:{children:ReactNode}) => {
 
     function dashboardReducer(state:DashboardType, action:DashboardActions){
         switch (action.type) {
+            case 'setTeams':
+                let game = action.payload.game;
+                let upDash = state.map((g) => {
+                    if(g.tokenId === game.homeTeam.lw || g.tokenId === game.homeTeam.c || g.tokenId === game.homeTeam.rw || g.tokenId === game.homeTeam.d1 || g.tokenId === game.homeTeam.d2 || g.tokenId === game.homeTeam.g || g.tokenId === game.awayTeam.lw || g.tokenId === game.awayTeam.c || g.tokenId === game.awayTeam.rw || g.tokenId === game.awayTeam.d1 || g.tokenId === game.awayTeam.d2 || g.tokenId === game.awayTeam.g){
+                        
+                    }
+                    // g.inGame = game.id;
+                    return g;
+                })
+                setTeam(action.payload.myTeam);
+                setOppTeam(action.payload.oppTeam);
+                setCurrentGame(game);
+                setEditing(false);
+                return upDash;
+            case 'joinGame':
+                const cancel = () => {
+                    setNotification(null);
+                }
+                let y:NoteType = {
+                    message:'Game has been set. Do some date calculations or something?',
+                    twoButtons:false,
+                    cancelFunction:cancel,
+                    cancelTitle:'GOT IT',
+                    colorClass:'',
+                    mainTitle:'',
+                    mainFunction:() => {}
+
+                }
+                setPucks(action.payload.pucks);
+                setCurrentGame(action.payload.game);
+                setActiveGames([action.payload.game,...activeGames]);
+                setNotification(y);
+                return state;
+            case 'calculatedGame':
+                setPucks(action.payload.newPucks);
+                setCurrentGame(action.payload.newGame);
+                return state;
+            case 'leavingGame':
+                setTeam(blankTeam);
+                setOppTeam(blankTeam);
+                setPrevPlayer(nobody);
+                setEditing(false);
+                setNotification(null);
+                setCurrentGame(blankGame);
+                const newdash = state.map((g) => {
+                    g.inUse = false;
+                    return g;
+                })
+                return newdash;
             case 'createLobbyGame':
                 setPucks(action.payload.newPucks);
                 setCurrentGame(action.payload.game);
@@ -214,31 +356,31 @@ export const DashboardProvider = ({children}:{children:ReactNode}) => {
                 selectedPosition.current = action.payload.posId;
                 let filt :DashboardType = [];
                 switch (action.payload.posId) {
-                    case GamePosition.LW:
+                    case 'lw':
                         filt = state.filter(g => g.pos === 'Left Wing' || g.pos === 'Center' || g.pos === 'Right Wing');
 
                         break;
-                    case GamePosition.C:
+                    case 'c':
                         filt = state.filter(g => g.pos === 'Left Wing' || g.pos === 'Center' || g.pos === 'Right Wing');
 
                         break;
-                    case GamePosition.RW:
+                    case 'rw':
                         filt = state.filter(g => g.pos === 'Left Wing' || g.pos === 'Center' || g.pos === 'Right Wing');
 
                         break;
-                    case GamePosition.D1:
+                    case 'd1':
                         filt = state.filter(g => g.pos === 'Defenseman');
 
                         break;
-                    case GamePosition.D2:
+                    case 'd2':
                         filt = state.filter(g => g.pos === 'Defenseman');
 
                         break;
-                    case GamePosition.G:
+                    case 'g':
                         filt = state.filter(g => g.pos === 'Goalie');
 
                         break;
-                    case GamePosition.NONE:
+                    case 'none':
                         break;                        
                 
                     default:
@@ -260,26 +402,26 @@ export const DashboardProvider = ({children}:{children:ReactNode}) => {
                 const newDashboard = state.map((guy) => {
                     if(guy.tokenId === selectedToken){
                         switch (selectedPosition.current) {
-                            case GamePosition.LW:
-                                guy.inUse = GamePosition.LW
+                            case 'lw':
+                                guy.inUse = 'lw'
                                 break;
-                            case GamePosition.C:
-                                guy.inUse = GamePosition.C
+                            case 'c':
+                                guy.inUse = 'c'
                                 break;
-                            case GamePosition.RW:
-                                guy.inUse = GamePosition.RW
+                            case 'rw':
+                                guy.inUse = 'rw'
                                 break;
-                            case GamePosition.D1:
-                                guy.inUse = GamePosition.D1
+                            case 'd1':
+                                guy.inUse = 'd1'
                                 break;
-                            case GamePosition.D2:
-                                guy.inUse = GamePosition.D2
+                            case 'd2':
+                                guy.inUse = 'd2'
                                 break;
-                            case GamePosition.G:
-                                guy.inUse = GamePosition.G
+                            case 'g':
+                                guy.inUse = 'g'
                                 break;
-                            case GamePosition.NONE:
-                                guy.inUse = GamePosition.NONE
+                            case 'none':
+                                guy.inUse = 'none'
                                 break;                    
                             default:
                                 break;
@@ -401,7 +543,7 @@ export const DashboardProvider = ({children}:{children:ReactNode}) => {
                            // I have the integer of the token. 
                
                            // Determine if card is in an active game. If so set inuse position and ingameID
-                           let inUse = false;
+                           let inUse:GamePosition = 'none';
                            let inGame = false;
                          
                            gameObjectArray.forEach((gme) => {
@@ -558,59 +700,59 @@ export const DashboardProvider = ({children}:{children:ReactNode}) => {
                 // I have the integer of the token. 
     
                 // Determine if card is in an active game. If so set inuse position and ingameID
-                let inUse:StringBool = false;
+                let inUse:GamePosition = 'none';
                 let inGame: StringBool = false;
                 activeGames.forEach((gme:GameType) => {
                     if(gme.awayTeam.lw === token){
-                        inUse = GamePosition.LW;
+                        inUse = 'lw';
                         inGame = gme.id;
                     }
                     if(gme.awayTeam.c === token){
-                        inUse = GamePosition.C;
+                        inUse = 'c';
                         inGame = gme.id;
                     }
                     if(gme.awayTeam.rw === token){
-                        inUse = GamePosition.RW;
+                        inUse = 'rw';
                         inGame = gme.id;
                     }
                     if(gme.awayTeam.d1 === token){
-                        inUse = GamePosition.D1;
+                        inUse = 'd1';
                         inGame = gme.id;
                     }
                     if(gme.awayTeam.d2 === token){
-                        inUse = GamePosition.D2;
+                        inUse = 'd2';
                         inGame = gme.id;
                     }
                     if(gme.awayTeam.g === token){
-                        inUse = GamePosition.G;
+                        inUse = 'g';
                         inGame = gme.id;
                     }
                     if(gme.homeTeam.lw === token){
-                        inUse = GamePosition.LW;
+                        inUse = 'lw';
 
                         inGame = gme.id;
                     }
                     if(gme.homeTeam.c === token){
-                        inUse = GamePosition.C;
+                        inUse = 'c';
 
                         inGame = gme.id;
                     }
                     if(gme.homeTeam.rw === token){
-                        inUse = GamePosition.RW;
+                        inUse = 'rw';
 
                         inGame = gme.id;
                     }
                     if(gme.homeTeam.d1 === token){
-                        inUse = GamePosition.D1;
+                        inUse = 'd1';
 
                         inGame = gme.id;
                     }
                     if(gme.homeTeam.d2 === token){
-                        inUse = GamePosition.D2;
+                        inUse = 'd2';
                         inGame = gme.id;
                     }
                     if(gme.homeTeam.g === token){
-                        inUse = GamePosition.G;
+                        inUse = 'g';
 
                         inGame = gme.id;
                     }

@@ -8,7 +8,8 @@ import { useDashboard } from '../context/DashboardContext';
 import { useRouter } from 'next/router';
 import { useGameState } from '../context/GameState';
 import BuildABench from '../components/BuildABench';
-import { GameType, GameStates, GamePosition, CardType, nobody } from '../utility/constants';
+import { GameType, GameStates, CardType, nobody } from '../utility/constants';
+import type { GamePosition } from '../utility/constants';
 import BenchCard from '../components/BenchCard';
 const CreateGame: NextPage = () => {
     const Router = useRouter();
@@ -19,13 +20,7 @@ const CreateGame: NextPage = () => {
     const [buildingTeam, setBuildingTeam] = useState<boolean>(false);
     const [gameObject, setGameObject] = useState<GameType>({open:true,awayEmail:'',awayName:'',homeEmail:'',homeName:'',date:new Date(),id:createRandomId(),value:0,private:false,gameState:GameStates.init,homeTeam:{lw:0,c:0,rw:0,d1:0,d2:0,g:0},awayTeam:{lw:0,c:0,rw:0,d1:0,d2:0,g:0}});
     const gameValue = useRef(1);
-    let bo = {
-        guys:availableGuys,
-        dispatch:dashboardDispatch,
-        prevPlayer:prevPlayer,
-        game:gameObject
-    
-    }
+  
     const selectForEdit = (posId:GamePosition, tokenId:number) => {
 
         try {
@@ -34,25 +29,25 @@ const CreateGame: NextPage = () => {
             // let thePlayer = team[posId];
             let player:CardType = nobody;
             switch (posId) {
-                case GamePosition.C:
+                case 'c':
                     player = team.c;
                     break;
-                case GamePosition.D1:
+                case 'd1':
                     player = team.d1;
                     break;
-                case GamePosition.D2:
+                case 'd2':
                     player = team.d2;
                     break;
-                case GamePosition.G:
+                case 'g':
                     player = team.g;
                     break;
-                case GamePosition.LW:
+                case 'lw':
                     player = team.lw;
                     break;                
-                case GamePosition.RW:
+                case 'rw':
                     player = team.rw;
                     break;
-                case GamePosition.NONE:
+                case 'none':
 
                     break;    
                 default:
@@ -117,16 +112,12 @@ const CreateGame: NextPage = () => {
             return;
         }
     }
-    let togg = {
-        label:'Public',
-        setToggle:setIsPrivateGame,
-        toggle:isPrivateGame
-    }
+
     return (
   
         <div className={styles.mainContainer}>
             <h3>CREATING GAME SUCKA</h3>
-            {editing && <BuildABench benchObj={bo}/>}
+            {editing && <BuildABench guys={availableGuys} dispatch={dashboardDispatch} prevPlayer={prevPlayer} game={gameObject}/>}
             {/* {editing && 
             <BuildABench guys={availableGuys} dispatch={dashboardDispatch} prevPlayer={prevPlayer} setEditing={setEditing} game={gameObject}/>
             } */}
@@ -137,24 +128,24 @@ const CreateGame: NextPage = () => {
                   <h2>Build Team:</h2>
                   <hr className={styles.smallRedLine} />
                   <div className={styles.cardRow}>
-                    <BenchCard card={team.lw} active={true} func={selectForEdit} posId={GamePosition.LW}/>
-                    <BenchCard card={team.c} active={true} func={selectForEdit} posId={GamePosition.C}/>
-                    <BenchCard card={team.rw} active={true} func={selectForEdit} posId={GamePosition.RW}/>
+                    <BenchCard card={team.lw} active={true} func={selectForEdit} posId={'lw'}/>
+                    <BenchCard card={team.c} active={true} func={selectForEdit} posId={'c'}/>
+                    <BenchCard card={team.rw} active={true} func={selectForEdit} posId={'rw'}/>
 
              
                   </div>
             
               <hr className={styles.blueLine}/>
               <div className={styles.cardRow}>
-                <BenchCard card={team.d1} active={true} func={selectForEdit} posId={GamePosition.D1}/>
-                <BenchCard card={team.d2} active={true} func={selectForEdit} posId={GamePosition.D2}/>
+                <BenchCard card={team.d1} active={true} func={selectForEdit} posId={'d1'}/>
+                <BenchCard card={team.d2} active={true} func={selectForEdit} posId={'d2'}/>
 
                  
              
                   </div>
               <hr className={styles.centerLine}/>
               <div className={styles.cardRow}>
-                <BenchCard card={team.g} active={true} func={selectForEdit} posId={GamePosition.G}/>
+                <BenchCard card={team.g} active={true} func={selectForEdit} posId={'g'}/>
 
              
              
@@ -180,7 +171,9 @@ const CreateGame: NextPage = () => {
                 <input name="howMuch" id="howMuch" type="number" placeholder="1" required/>
                 </div><br />
                 <hr className={styles.blueLine}/><br />
-                <ToggleSwitch tog={togg}/>
+                {/* <ToggleSwitch tog={togg}/> */}
+             
+                <ToggleSwitch label='Public' setToggle={setIsPrivateGame} toggle={isPrivateGame}/>
 
                 {/* <ToggleSwitch toggle={isPrivateGame} setToggle={setIsPrivateGame} label="Public"/> */}
                 <br />

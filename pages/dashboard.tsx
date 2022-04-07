@@ -1,7 +1,8 @@
 import type { NextPage } from 'next'
 import styles from '../styles/All.module.css'
 import { useDashboard} from '../context/DashboardContext'
-import { GamePosition, NoteType } from '../utility/constants'
+import { NoteType } from '../utility/constants'
+import type { GamePosition } from '../utility/constants'
 import AuthRoute from '../hoc/authRoute'
 import LobbyGameCard from '../components/LobbyGameCard'
 import BenchCard from '../components/BenchCard'
@@ -65,7 +66,7 @@ const Dashboard: NextPage = () => {
                         <div className={styles.lockerroom}>
                         {dashboard.map((card) => {
                             return (
-                                <BenchCard key={card.tokenId} card={card} active={true} func={cardSelect} posId={GamePosition.NONE}/>
+                                <BenchCard key={card.tokenId} card={card} active={true} func={cardSelect} posId={'none'}/>
                             )
                         })}           
                     </div>
