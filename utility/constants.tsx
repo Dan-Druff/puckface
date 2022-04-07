@@ -1,4 +1,4 @@
-
+import { SetStateAction } from "react";
 export const multipliers = {
     standard:1,
     rare:1.5,
@@ -8,7 +8,7 @@ export const multipliers = {
 export const baseURL = 'https://ipfs.io/ipfs/bafybeiedfdak44r7owq5ytvvgb6cywkpfcnhlauroqqlrr7ta3jt2yqhee/files/';
 
 export const PRICE_PER_PACK = 18;
-export type LobbyGameState = 'Initialized' | 'Waiting for Opponent' | 'Waiting for Game' | 'Game Complete'
+// export type LobbyGameState = 'Initialized' | 'Waiting for Opponent' | 'Waiting for Game' | 'Game Complete'
 export interface CalculatedGameType {
     game:GameType,
     winner:string
@@ -176,7 +176,7 @@ export interface NoteType {
     mainTitle:string,
     cancelTitle:string,
     mainFunction:() => void,
-    cancelFunction:() => void;
+    cancelFunction:(value: SetStateAction<NoteType | null>) => void;
 }
 export interface PostSignupReturnType {
     displayName:string,
@@ -196,7 +196,7 @@ export interface PostLoginReturnType {
     },
     activeGames:GameType[]
 }
-export type DashboardActions = {type:'setTeams',payload:{game:GameType, myTeam:Team, oppTeam:Team}} | {type:'joinGame',payload:{pucks:number,game:GameType}} | {type:'leavingGame'} | {type:'calculatedGame',payload:{newGame:GameType, newPucks:number}} | {type:'createLobbyGame',payload:{game:GameType, newPucks:number}} | {type:'editPlayer',payload:{posId:GamePosition, player:CardType}} | {type:'cancelEdit'} | {type:'selectPlayer',payload:{tokenId:number, game:GameType}} | {type:'addPack',payload:{guys:DashboardType, newPucks:number}} | {type:'addPucks',payload:{amount:number}} | {type:'cancelNotify'} | {type:'notify',payload:{notObj:NoteType}} | {type:'clear'} | {type:'create',payload:{activeGames:GameType[],dbData:any}} | {type:'login',payload:{displayName:string, dash:DashboardType,games:GameType[],dbData:any}} | {type:'signup',payload:{displayName:string,id:string}}
+export type DashboardActions = {type:'error',payload:{er:string}} | {type:'setTeams',payload:{game:GameType, myTeam:Team, oppTeam:Team}} | {type:'joinGame',payload:{game:GameType}} | {type:'leavingGame'} | {type:'calculatedGame',payload:{newGame:GameType, newPucks:number}} | {type:'createLobbyGame',payload:{game:GameType, newPucks:number}} | {type:'editPlayer',payload:{posId:GamePosition, player:CardType}} | {type:'cancelEdit'} | {type:'selectPlayer',payload:{tokenId:number, game:GameType}} | {type:'addPack',payload:{guys:DashboardType, newPucks:number}} | {type:'addPucks',payload:{amount:number}} | {type:'cancelNotify'} | {type:'notify',payload:{notObj:NoteType}} | {type:'clear'} | {type:'create',payload:{activeGames:GameType[],dbData:any}} | {type:'login',payload:{displayName:string, dash:DashboardType,games:GameType[],dbData:any}} | {type:'signup',payload:{displayName:string,id:string}}
 
 export type DashDispatch = (action:DashboardActions) => void;
 
@@ -233,5 +233,8 @@ export const DefGetPacket = async(email:string,tokens:number[]):Promise <false |
     return false;
 }
 export const DefCreateGameDB = async(game:GameType):Promise <GameType | false> => {
+    return false;
+}
+export const DefJoinGameDB = async():Promise<GameType | false> => {
     return false;
 }

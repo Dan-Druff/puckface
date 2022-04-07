@@ -124,35 +124,37 @@ const Game: NextPage = () => {
                 if(currentGame.gameState === 'Waiting for Game' && gameFinished){
                     const gameResult = await calculateGame(currentGame, homeScore, awayScore);
                     if (gameResult === false) throw new Error('🚦game result err🚦')
-                    if(gameResult){
-                        let newp = pucks;
-                        switch (gameResult.winner) {
-                            case 'home':
-                                if(gameResult.game.homeEmail === userData.userEmail){
-                                    let hval = gameResult.game.value * 2;
-                                    newp = newp + hval;
-                                }
-                                break;
-                            case 'away':
-                                if(gameResult.game.awayEmail === userData.userEmail){
-                                    let aval = gameResult.game.value * 2;
-                                    newp = newp + aval;
-                                }
-                                break;
-                            case 'tie':
-                                newp = newp + gameResult.game.value;
-                                // if(gameResult.game.homeEmail === userData.userEmail){
-                                
-                                //     newp = newp + gameResult.game.value;
-                                // }
-                                break;    
-                        
-                            default:
-                                break;
-                        }
-                        dashboardDispatch({type:'calculatedGame',payload:{newGame:gameResult.game, newPucks:newp}});
-                        return;
+                    let newp = pucks;
+                    switch (gameResult.winner) {
+                        case 'home':
+                            if(gameResult.game.homeEmail === userData.userEmail){
+                                let hval = gameResult.game.value * 2;
+                                newp = newp + hval;
+                            }
+                            break;
+                        case 'away':
+                            if(gameResult.game.awayEmail === userData.userEmail){
+                                let aval = gameResult.game.value * 2;
+                                newp = newp + aval;
+                            }
+                            break;
+                        case 'tie':
+                            newp = newp + gameResult.game.value;
+                            // if(gameResult.game.homeEmail === userData.userEmail){
+                            
+                            //     newp = newp + gameResult.game.value;
+                            // }
+                            break;    
+                    
+                        default:
+                            break;
                     }
+                    console.log("Returning game page, gameState: ", currentGame.gameState)
+                    console.log("team is: ", team);
+                    console.log("Oppteam ", oppTeam);
+                    dashboardDispatch({type:'calculatedGame',payload:{newGame:gameResult.game, newPucks:newp}});
+                    return;
+                 
                 }
                 // If gameState = playingGame && if game Is over, Do a calulation to change state & release pucks
             
@@ -164,10 +166,11 @@ const Game: NextPage = () => {
         initGame();
         return () => {
         console.log("CLEANUP: 🤡🤡🤡")
-        dashboardDispatch({type:'leavingGame'})
+        // dashboardDispatch({type:'leavingGame'})
         }
 
     },[])
+  
     return (
         <>
         {iAmHost ? 

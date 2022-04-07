@@ -2,7 +2,7 @@ import { createContext, ReactNode, useContext, useReducer, useState, useRef } fr
 import { db } from "../firebase/clientApp";
 import {doc,getDoc,setDoc,collection,getDocs} from 'firebase/firestore';
 import { createRandomId,gameIsOver,makeTeam } from "../utility/helpers";
-import { nobody,baseURL, CardType, Stats,blankGame, blankTeam, Team,  TeamTokens,PostSignupReturnType,PostLoginReturnType,GameType, NoteType, DashboardType,DefDashDisp,DefPostLog,DefGetPlayersFromTokenArray,DefGetPacket,DefCreateGameDB, NHLGame,CalculatedGameType } from "../utility/constants";
+import { DefJoinGameDB,nobody,baseURL, CardType, Stats,blankGame, blankTeam, Team,  TeamTokens,PostSignupReturnType,PostLoginReturnType,GameType, NoteType, DashboardType,DefDashDisp,DefPostLog,DefGetPlayersFromTokenArray,DefGetPacket,DefCreateGameDB, NHLGame,CalculatedGameType } from "../utility/constants";
 import type { StringBool,DashDispatch,DashboardActions,NHLGamesArray, GamePosition, Rarity, PossibleGameStates } from "../utility/constants";
 import { useNHL } from "./NHLContext";
 import { useAuth } from "./AuthContext";
@@ -26,7 +26,8 @@ export interface AllDashType {
     team:Team,
     oppTeam:Team,
     prevPlayer:CardType,
-    createGameInDB:(game:GameType) => Promise<GameType | false>
+    createGameInDB:(game:GameType) => Promise<GameType | false>,
+    joinGameInDB:() => Promise<GameType | false>
 }
 // -----------------------------Types UP ^------------------------------
 // FUNCTIONS THAT DONT NEED STATE--------------------
@@ -276,8 +277,9 @@ export const calculateGame = async(game:GameType, homeScore:number, awayScore:nu
         return false;
     }
 }
+
 // ----------------------------- <MEAT AND POTOTOS> -----------------------------
-const DashboardContext = createContext<AllDashType>({dashboard:[], pucks:0, dashboardDispatch:DefDashDisp,displayName:'NA',activeGames:[],activeLeagues:[],tokens:[],editing:false, notification:null, postLogin:DefPostLog, getPlayersFromTokenArray:DefGetPlayersFromTokenArray,getPacket:DefGetPacket, availableGuys:[], currentGame:blankGame, team:blankTeam, oppTeam:blankTeam, prevPlayer:nobody,createGameInDB:DefCreateGameDB});
+const DashboardContext = createContext<AllDashType>({dashboard:[], pucks:0, dashboardDispatch:DefDashDisp,displayName:'NA',activeGames:[],activeLeagues:[],tokens:[],editing:false, notification:null, postLogin:DefPostLog, getPlayersFromTokenArray:DefGetPlayersFromTokenArray,getPacket:DefGetPacket, availableGuys:[], currentGame:blankGame, team:blankTeam, oppTeam:blankTeam, prevPlayer:nobody,createGameInDB:DefCreateGameDB,joinGameInDB:DefJoinGameDB});
 
 export const DashboardProvider = ({children}:{children:ReactNode}) => {
     const {tonightsGames} = useNHL();
@@ -295,9 +297,25 @@ export const DashboardProvider = ({children}:{children:ReactNode}) => {
     const [oppTeam, setOppTeam] = useState<Team>(blankTeam);
     const [prevPlayer, setPrevPlayer] = useState<CardType>(nobody);
     const selectedPosition = useRef('');
+    const cancelNotification = () => {
+        setNotification(null);
+    }
 
     function dashboardReducer(state:DashboardType, action:DashboardActions){
         switch (action.type) {
+            case 'error':
+                const erObj:NoteType = {
+                    cancelFunction:cancelNotification,
+                    mainFunction:() => {},
+                    mainTitle:'NA',
+                    cancelTitle:'Got It',
+                    twoButtons:false,
+                    colorClass:'',
+                    message:action.payload.er
+
+                }
+                setNotification(erObj);
+                return state;
             case 'setTeams':
                 let game = action.payload.game;
                 let upDash = state.map((g) => {
@@ -313,20 +331,18 @@ export const DashboardProvider = ({children}:{children:ReactNode}) => {
                 setEditing(false);
                 return upDash;
             case 'joinGame':
-                const cancel = () => {
-                    setNotification(null);
-                }
+              
                 let y:NoteType = {
                     message:'Game has been set. Do some date calculations or something?',
                     twoButtons:false,
-                    cancelFunction:cancel,
+                    cancelFunction:cancelNotification,
                     cancelTitle:'GOT IT',
                     colorClass:'',
                     mainTitle:'',
                     mainFunction:() => {}
 
                 }
-                setPucks(action.payload.pucks);
+                setPucks(pucks - action.payload.game.value);
                 setCurrentGame(action.payload.game);
                 setActiveGames([action.payload.game,...activeGames]);
                 setNotification(y);
@@ -992,7 +1008,61 @@ export const DashboardProvider = ({children}:{children:ReactNode}) => {
             return false;
         }
     }  
+    const joinGameInDB = async():Promise <GameType | false> => {
+        try {
+            if(pucks < currentGame.value) throw new Error('🚦Not enough pucks to Join🚦')
+            if(userData === null || userData.userEmail === null) throw new Error('🚦No User Dara🚦');
+            const joinRef = await setDoc(doc(db,'lobbyGames',currentGame.id),{
+                awayEmail:userData.userEmail,
+                awayName:displayName,
+                homeEmail:currentGame.homeEmail,
+                homeName:currentGame.homeName,
+                date:currentGame.date,
+                id:currentGame.id,
+                value:currentGame.value,
+                private:currentGame.private,
+                homeTeam:currentGame.homeTeam,
+                awayTeam:currentGame.awayTeam,
+                open:false,
+                gameState:'Waiting for Game'
+            })
+            const upd:GameType = {
+                awayEmail:userData.userEmail,
+                awayName:displayName,
+                homeEmail:currentGame.homeEmail,
+                homeName:currentGame.homeName,
+                date:currentGame.date,
+                id:currentGame.id,
+                value:currentGame.value,
+                private:currentGame.private,
+                homeTeam:currentGame.homeTeam,
+                awayTeam:currentGame.awayTeam,
+                open:false,
+                gameState:'Waiting for Game'
+            }
     
+            const ref = doc(db,'users',userData.userEmail);
+            const res = await getDoc(ref);
+            let gameIds:string[] = [];
+            if(res.exists()){
+                const da = res.data();
+                gameIds = da.activeGames;
+                
+            }
+            gameIds.push(upd.id);
+            console.log("GAME iDS: ", gameIds);
+            let newAmount = pucks - currentGame.value;
+            const addToUserRef = await setDoc(doc(db,'users',userData.userEmail),{
+                activeGames:gameIds,
+                pucks:newAmount
+            },{ merge:true});
+            // setActiveGames([...activeGames, currentGame]);
+            return upd;
+        } catch (e) {
+            console.log("Error joining", e);
+            return false;
+        }
+    }
     let allVal = {
         dashboard:dashboard,
         pucks:pucks,
@@ -1011,7 +1081,8 @@ export const DashboardProvider = ({children}:{children:ReactNode}) => {
         team:team,
         oppTeam:oppTeam,
         prevPlayer:prevPlayer,
-        createGameInDB:createGameInDB
+        createGameInDB:createGameInDB,
+        joinGameInDB:joinGameInDB
     }
     return (
         <DashboardContext.Provider value={allVal}>{children}</DashboardContext.Provider>

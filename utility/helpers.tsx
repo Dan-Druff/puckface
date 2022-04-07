@@ -513,7 +513,7 @@ export const makeTeam = (teamArray:CardType[], theTeam:Team) => {
     };
  
     teamArray.forEach((guy) => {
-        if(guy.inUse){
+
             switch (guy.inUse) {
                 case 'lw':
                     teamCopy.lw = guy;
@@ -536,7 +536,7 @@ export const makeTeam = (teamArray:CardType[], theTeam:Team) => {
                 default:
                     break;
             }
-        }
+     
     })
     return teamCopy;
 } 

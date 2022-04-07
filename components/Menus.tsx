@@ -1,24 +1,46 @@
 import React, {FunctionComponent} from 'react';
 import { useRouter } from "next/router"
 import styles from '../styles/All.module.css';
-export type Pages = 'createGame' | 'dashboard' | 'lobby' | 'profile' | 'leagues' | 'store' | 'login' | 'signup' | 'home' | 'freeAgents' | 'tradingBlock' | 'lockerroom'
+export type Pages = 'joinGame' | 'createGame' | 'dashboard' | 'lobby' | 'profile' | 'leagues' | 'store' | 'login' | 'signup' | 'home' | 'freeAgents' | 'tradingBlock' | 'lockerroom'
 // import {MainState,GameStateActions,useGameState} from '../context/GameState';
 // import type {GameStateDispatch,GameState, GameStateActions} from '../context/GameState';
 import {useGameState} from '../context/GameState';
 import {useAuth} from '../context/AuthContext';
+import {useDashboard} from '../context/DashboardContext';
+import { NoteType } from '../utility/constants';
+import { dateReader } from '../utility/helpers';
 interface Props {
 
 }
 const Menus: FunctionComponent<Props> = () => {
     const {userData} = useAuth();
     const {gameState, gameStateDispatch} = useGameState();
-
+    const {joinGameInDB, dashboardDispatch,currentGame} = useDashboard();
     console.log("State count is: ", gameState);
     const Router = useRouter();
-
+    const joinGame = async() => {
+        try {
+            
+            const res = await joinGameInDB();
+            if(res === false) throw new Error('🚦Error Joinging Game🚦');
+            
+            dashboardDispatch({type:'joinGame',payload:{game:res}})
+            gameStateDispatch({type:'observingGame'})
+            //join game
+            return true;
+        } catch (e) {
+            // Show errror to user
+            dashboardDispatch(({type:'error',payload:{er:"🚦Error Joining Game🚦"}}));
+            console.log("Error joinging game: ",e);
+            return false;
+        }
+    }
 
     const routeAndPush = (page:Pages) => {
         switch (page) {
+            case 'joinGame':
+                joinGame();
+                break;
             case 'dashboard':
                 gameStateDispatch({type:'dashboard'})
 
@@ -94,6 +116,7 @@ const Menus: FunctionComponent<Props> = () => {
             </>
     )
     }else{
+        let dateString = dateReader(currentGame.date);
         return (
             <>
         
@@ -125,15 +148,19 @@ const Menus: FunctionComponent<Props> = () => {
                         <h2>Select Game Options:</h2>
                     </div>
                 }
-                {gameState.sub === 'observing' && <p>OBSERVING</p>}
-                {gameState.sub === 'inGame' &&   
+                {gameState.sub === 'observing' &&       
+                    <div className={styles.subMenu}>
+                        <h2>Observing: {dateString.fullDate}</h2>
+                    </div>}
+            
+                {gameState.sub === 'inGame' &&         
                     <div className={styles.subMenu}>
                         <h2>Select Your Team:</h2>
+                        <button className={styles.navButtonSecondary} onClick={() => routeAndPush('joinGame')}>SUBMIT TEAM</button>
                     </div>
                 }
-                
             </>
-    )
+        )
     }
  
 
