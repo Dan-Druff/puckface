@@ -8,8 +8,8 @@ import { useDashboard } from '../context/DashboardContext';
 import { useRouter } from 'next/router';
 import { useGameState } from '../context/GameState';
 import BuildABench from '../components/BuildABench';
-import { GameType, GameStates, CardType, nobody } from '../utility/constants';
-import type { GamePosition } from '../utility/constants';
+import { GameType, CardType, nobody } from '../utility/constants';
+import type { GamePosition, PossibleGameStates } from '../utility/constants';
 import BenchCard from '../components/BenchCard';
 const CreateGame: NextPage = () => {
     const Router = useRouter();
@@ -18,7 +18,7 @@ const CreateGame: NextPage = () => {
     const {gameStateDispatch} = useGameState();
     const [isPrivateGame, setIsPrivateGame] = useState<boolean>(false);
     const [buildingTeam, setBuildingTeam] = useState<boolean>(false);
-    const [gameObject, setGameObject] = useState<GameType>({open:true,awayEmail:'',awayName:'',homeEmail:'',homeName:'',date:new Date(),id:createRandomId(),value:0,private:false,gameState:GameStates.init,homeTeam:{lw:0,c:0,rw:0,d1:0,d2:0,g:0},awayTeam:{lw:0,c:0,rw:0,d1:0,d2:0,g:0}});
+    const [gameObject, setGameObject] = useState<GameType>({open:true,awayEmail:'',awayName:'',homeEmail:'',homeName:'',date:new Date(),id:createRandomId(),value:0,private:false,gameState:'Initialized',homeTeam:{lw:0,c:0,rw:0,d1:0,d2:0,g:0},awayTeam:{lw:0,c:0,rw:0,d1:0,d2:0,g:0}});
     const gameValue = useRef(1);
   
     const selectForEdit = (posId:GamePosition, tokenId:number) => {
@@ -72,7 +72,7 @@ const CreateGame: NextPage = () => {
             // TO DO... retreive users display name here..
             dbObject.homeName = userData.userEmail;
             dbObject.private = isPrivateGame;
-            dbObject.gameState = GameStates.waitForOpp;
+            dbObject.gameState = 'Waiting for Opponent';
             dbObject.homeTeam.lw = team.lw.tokenId;
             dbObject.homeTeam.c = team.c.tokenId;
             dbObject.homeTeam.rw = team.rw.tokenId;

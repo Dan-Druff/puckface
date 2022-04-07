@@ -139,12 +139,13 @@ export type NHLGamesArray = NHLGame[];
 //     complete = "Completed",
 //     init = "Initialized"
 // }
-export const GameStates = {
-    waitForOpp : "Waiting for Opponent",
-    waitForGame : "Waiting for Game",
-    complete : "Completed",
-    init : "Initialized"
-}
+export type PossibleGameStates = 'Waiting for Opponent' | 'Waiting for Game' | 'Complete' | 'Initialized'
+// export const GameStates = {
+//     waitForOpp : "Waiting for Opponent",
+//     waitForGame : "Waiting for Game",
+//     complete : "Completed",
+//     init : "Initialized"
+// }
 export interface TeamTokens {
     lw:number,
     c:number,
@@ -163,7 +164,7 @@ export interface GameType {
     value:number,
     private:boolean,
     open:boolean,
-    gameState:GameStates,
+    gameState:PossibleGameStates,
     homeTeam:TeamTokens,
     awayTeam:TeamTokens
 
@@ -199,7 +200,7 @@ export type DashboardActions = {type:'setTeams',payload:{game:GameType, myTeam:T
 
 export type DashDispatch = (action:DashboardActions) => void;
 
-export const blankGame:GameType = {awayEmail:'',awayName:'',awayTeam:{c:0,lw:0,rw:0,d1:0,d2:0,g:0},date:new Date(),gameState:GameStates.init,homeEmail:'',homeName:'blank home',homeTeam:{c:0,lw:0,rw:0,d1:0,d2:0,g:0},id:'blank',open:true,private:false,value:0}
+export const blankGame:GameType = {awayEmail:'',awayName:'',awayTeam:{c:0,lw:0,rw:0,d1:0,d2:0,g:0},date:new Date(),gameState:'Initialized',homeEmail:'',homeName:'blank home',homeTeam:{c:0,lw:0,rw:0,d1:0,d2:0,g:0},id:'blank',open:true,private:false,value:0}
 export const lw:CardType = {"playerName":"Def F","playerId":"31","tokenId":-1,"rarity":"Standard","pos":"lw","inUse":"none","image":"https://hamtronmedia.com/media/images/spongebob.jpeg","stats":{"goals":0,"assists":0,"plusMinus":0,"wins":0,"shutouts":0,},"points":0,"playingTonight":false,"inGame":false};
 export const c:CardType = {"playerName":"Def F","playerId":"31","tokenId":-2,"rarity":"Standard","pos":"c","inUse":"none","image":"https://hamtronmedia.com/media/images/spongebob.jpeg","stats":{"goals":0,"assists":0,"plusMinus":0,"wins":0,"shutouts":0,},"points":0,"playingTonight":false,"inGame":false};
 export const rw:CardType = {"playerName":"Def F","playerId":"31","tokenId":-3,"rarity":"Standard","pos":"rw","inUse":"none","image":"https://hamtronmedia.com/media/images/spongebob.jpeg","stats":{"goals":0,"assists":0,"plusMinus":0,"wins":0,"shutouts":0,},"points":0,"playingTonight":false,"inGame":false};

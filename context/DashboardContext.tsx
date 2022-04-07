@@ -2,8 +2,8 @@ import { createContext, ReactNode, useContext, useReducer, useState, useRef } fr
 import { db } from "../firebase/clientApp";
 import {doc,getDoc,setDoc,collection,getDocs} from 'firebase/firestore';
 import { createRandomId,gameIsOver,makeTeam } from "../utility/helpers";
-import { nobody,baseURL, CardType, Stats,blankGame, blankTeam, Team, GameStates, TeamTokens,PostSignupReturnType,PostLoginReturnType,GameType, NoteType, DashboardType,DefDashDisp,DefPostLog,DefGetPlayersFromTokenArray,DefGetPacket,DefCreateGameDB, NHLGame,CalculatedGameType } from "../utility/constants";
-import type { StringBool,DashDispatch,DashboardActions,NHLGamesArray, GamePosition, Rarity } from "../utility/constants";
+import { nobody,baseURL, CardType, Stats,blankGame, blankTeam, Team,  TeamTokens,PostSignupReturnType,PostLoginReturnType,GameType, NoteType, DashboardType,DefDashDisp,DefPostLog,DefGetPlayersFromTokenArray,DefGetPacket,DefCreateGameDB, NHLGame,CalculatedGameType } from "../utility/constants";
+import type { StringBool,DashDispatch,DashboardActions,NHLGamesArray, GamePosition, Rarity, PossibleGameStates } from "../utility/constants";
 import { useNHL } from "./NHLContext";
 import { useAuth } from "./AuthContext";
 const playerMap = require('../utility/playerMap.json');
@@ -259,7 +259,7 @@ export const calculateGame = async(game:GameType, homeScore:number, awayScore:nu
             }
         }
 
-        gCopy.gameState = GameStates.complete
+        gCopy.gameState = 'Complete'
         gCopy.open = false;
         console.log("CALCU:ATINGGGG:🌈🌈🌈 : ");
         const addToGamesRef = await setDoc(doc(db,'lobbyGames',gCopy.id),{
@@ -343,7 +343,7 @@ export const DashboardProvider = ({children}:{children:ReactNode}) => {
                 setNotification(null);
                 setCurrentGame(blankGame);
                 const newdash = state.map((g) => {
-                    g.inUse = false;
+                    g.inUse = 'none';
                     return g;
                 })
                 return newdash;
@@ -430,7 +430,7 @@ export const DashboardProvider = ({children}:{children:ReactNode}) => {
                         guy.inGame = gameId;
                     }
                     if(guy.tokenId === prevPlayer.tokenId){
-                        guy.inUse = false;
+                        guy.inUse = 'none';
                         guy.inGame = false;
                     }
                     return guy;

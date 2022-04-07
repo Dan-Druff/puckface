@@ -8,9 +8,9 @@ import { useEffect, useState } from 'react'
 import { useAuth } from '../../../context/AuthContext'
 import { useDashboard, calculateGame } from '../../../context/DashboardContext'
 import { dateReader } from '../../../utility/helpers'
-import { BubbleType, InfoBubbleState, CardType, nobody, GameStates } from '../../../utility/constants'
+import { BubbleType, InfoBubbleState, CardType, nobody } from '../../../utility/constants'
 import { useGameState } from '../../../context/GameState'
-import type {GamePosition} from '../../../utility/constants'
+import type {GamePosition, PossibleGameStates} from '../../../utility/constants'
 const Game: NextPage = () => {
     const {gameStateDispatch} = useGameState();
     const {userData} = useAuth();
@@ -121,7 +121,7 @@ const Game: NextPage = () => {
                     setIAmHost(true);
                 }
                 console.log("Whats gamwstate then???????>> ",currentGame);
-                if(currentGame.gameState === GameStates.waitForGame && gameFinished){
+                if(currentGame.gameState === 'Waiting for Game' && gameFinished){
                     const gameResult = await calculateGame(currentGame, homeScore, awayScore);
                     if (gameResult === false) throw new Error('🚦game result err🚦')
                     if(gameResult){
@@ -205,7 +205,7 @@ const Game: NextPage = () => {
         <div className={styles.gameContainer}>
             {editing && <BuildABench guys={availableGuys} dispatch={dashboardDispatch} prevPlayer={prevPlayer} game={currentGame}/>}
                 
-                {currentGame.gameState === GameStates.waitForOpp ? 
+                {currentGame.gameState === 'Waiting for Opponent' ? 
                 <>
                    <div className={styles.cardRow}>
                         <InfoBubble bub={infoBubbles.pot} />
