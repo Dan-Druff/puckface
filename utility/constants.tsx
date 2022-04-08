@@ -185,7 +185,7 @@ export interface NoteType {
     mainTitle:string,
     cancelTitle:string,
     mainFunction:() => void,
-    cancelFunction:(value: SetStateAction<NoteType | null>) => void;
+    cancelFunction:() => void;
 }
 export interface PostSignupReturnType {
     displayName:string,
