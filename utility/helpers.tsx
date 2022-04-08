@@ -1,6 +1,6 @@
 import { multipliers, Team } from "./constants";
 import { CardType, GameType,StatsReturnType,PuckfaceDate,TeamTokens,NHLGame } from "../utility/constants"
-import type {LobbyGameState,NHLGamesArray, GamePosition, Rarity} from '../utility/constants'
+import type {NHLGamesArray, GamePosition, Rarity} from '../utility/constants'
 
 export const dateReader = (date:Date):PuckfaceDate => {
        

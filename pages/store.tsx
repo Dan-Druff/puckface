@@ -132,8 +132,9 @@ const Store: NextPage = () => {
             </div>
             {!buyCardPage && !buyPuckPage &&  
             <div className={styles.contentContainer}>
-                <button className={styles.pfButtonSecondary} onClick={() => buyCards()}>BUY CARDS</button>
+
                 <button className={styles.pfButtonSecondary} onClick={() => setBuyPuckPage(true)}>BUY PUCKS</button>
+                <button className={styles.pfButtonSecondary} onClick={() => buyCards()}>BUY CARDS</button>
             </div>
             }
             {buyCardPage && 
@@ -152,10 +153,10 @@ const Store: NextPage = () => {
                     <input name="howMany" id="howMany" type="number" placeholder="0" required/>
                     </div><br />
                     <hr className={styles.blueLine}/><br />
-                    <div className={styles.inputDiv}>
+                    {/* <div className={styles.inputDiv}>
                     <label htmlFor="howMuch">Other Property: </label><br />
                     <input name="other" id="other" type="number" placeholder="0" required/>
-                    </div>
+                    </div> */}
                     <br />
                     <hr className={styles.centerLine}/>
                     <br /> 

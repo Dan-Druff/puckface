@@ -2,7 +2,7 @@ import { createContext, ReactNode, useContext, useReducer, useState, useRef } fr
 import { db } from "../firebase/clientApp";
 import {doc,getDoc,setDoc,collection,getDocs} from 'firebase/firestore';
 import { createRandomId,gameIsOver,makeTeam } from "../utility/helpers";
-import { DefJoinGameDB,nobody,baseURL, CardType, Stats,blankGame, blankTeam, Team,  TeamTokens,PostSignupReturnType,PostLoginReturnType,GameType, NoteType, DashboardType,DefDashDisp,DefPostLog,DefGetPlayersFromTokenArray,DefGetPacket,DefCreateGameDB, NHLGame,CalculatedGameType } from "../utility/constants";
+import { DefJoinGameDB,nobody,baseURL, CardType, Stats,blankGame, blankTeam, Team,  TeamTokens,PostSignupReturnType,PostLoginReturnType,GameType, NoteType, DashboardType,DefDashDisp,DefPostLog,DefGetPlayersFromTokenArray,DefGetPacket,DefCreateGameDB, NHLGame,CalculatedGameType, LogActionType } from "../utility/constants";
 import type { StringBool,DashDispatch,DashboardActions,NHLGamesArray, GamePosition, Rarity, PossibleGameStates } from "../utility/constants";
 import { useNHL } from "./NHLContext";
 import { useAuth } from "./AuthContext";
@@ -277,6 +277,15 @@ export const calculateGame = async(game:GameType, homeScore:number, awayScore:nu
         return false;
     }
 }
+export const logOnTheFire = async(log:LogActionType):Promise <boolean> => {
+    try {
+        // Do something to Log With here. DB solution????
+        return true;
+    } catch (er) {
+       console.log("Lon On The Fire Error"); 
+       return false;
+    }
+}
 
 // ----------------------------- <MEAT AND POTOTOS> -----------------------------
 const DashboardContext = createContext<AllDashType>({dashboard:[], pucks:0, dashboardDispatch:DefDashDisp,displayName:'NA',activeGames:[],activeLeagues:[],tokens:[],editing:false, notification:null, postLogin:DefPostLog, getPlayersFromTokenArray:DefGetPlayersFromTokenArray,getPacket:DefGetPacket, availableGuys:[], currentGame:blankGame, team:blankTeam, oppTeam:blankTeam, prevPlayer:nobody,createGameInDB:DefCreateGameDB,joinGameInDB:DefJoinGameDB});
@@ -303,6 +312,14 @@ export const DashboardProvider = ({children}:{children:ReactNode}) => {
 
     function dashboardReducer(state:DashboardType, action:DashboardActions){
         switch (action.type) {
+            case 'dashboard':
+                setTeam(blankTeam);
+                setCurrentGame(blankGame);
+                setOppTeam(blankTeam);
+                setPrevPlayer(nobody);
+                setNotification(null);
+                setEditing(false);
+                return state;
             case 'error':
                 const erObj:NoteType = {
                     cancelFunction:cancelNotification,
@@ -364,13 +381,14 @@ export const DashboardProvider = ({children}:{children:ReactNode}) => {
                 })
                 return newdash;
             case 'createLobbyGame':
-                setPucks(action.payload.newPucks);
+                setPucks(pucks - action.payload.game.value);
                 setCurrentGame(action.payload.game);
                 setActiveGames([action.payload.game, ...activeGames]);
                 return state;
             case 'editPlayer':
                 selectedPosition.current = action.payload.posId;
                 let filt :DashboardType = [];
+                
                 switch (action.payload.posId) {
                     case 'lw':
                         filt = state.filter(g => g.pos === 'Left Wing' || g.pos === 'Center' || g.pos === 'Right Wing');
@@ -402,7 +420,8 @@ export const DashboardProvider = ({children}:{children:ReactNode}) => {
                     default:
                         break;
                 }
-                setAvailableGuys(filt);
+              
+                setAvailableGuys(filt.filter(gy => gy.inGame === false));
                 setPrevPlayer(action.payload.player);
                 setEditing(true);
                 

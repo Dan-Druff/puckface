@@ -62,7 +62,7 @@ const Game: NextPage = () => {
             try {
                 let homeScore = 0;
                 let awayScore = 0;
-                let infoCop = {
+                let infoCop:InfoBubbleState = {
                     home:infoBubbles.home,
                     away:infoBubbles.away,
                     pot:infoBubbles.pot,
@@ -115,7 +115,11 @@ const Game: NextPage = () => {
                     gameStateDispatch({type:'observingGame'});
              
                 }
-            
+                if(currentGame.gameState !== 'Complete'){
+                    infoCop.away.data = 0;
+                    infoCop.home.data = 0;
+                    
+                }
                 setInfoBubbles(infoCop);
                 if(userData.userEmail === currentGame.homeEmail){
                     setIAmHost(true);

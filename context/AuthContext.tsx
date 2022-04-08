@@ -1,7 +1,8 @@
 import React, {useEffect, useState, useContext, ReactNode} from "react";
+import styles from '../styles/All.module.css';
 import { auth } from "../firebase/clientApp";
-import { onAuthStateChanged } from "firebase/auth";
-
+// import { onAuthStateChanged } from "firebase/auth";
+import Loader from "../components/Loader";
 import { User } from "firebase/auth";
 
 export interface UserData {
@@ -53,7 +54,11 @@ export const AuthProvider = ({children}:{children:ReactNode}) => {
         userData:userData
     }
     if(loading){
-        return <>LOADING....</>
+        return (
+            <div className={styles.contentContainer}>
+                <Loader />
+            </div>
+        )
     }
     return (
         <AuthContext.Provider value={authValue}>{children}</AuthContext.Provider>

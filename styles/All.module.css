@@ -166,8 +166,7 @@
   gap: 6px;
   border-radius: 25px;
 }
-.cardRow {
-}
+
 .bubble {
   /* height: 100%;
     width: 25%;
@@ -238,7 +237,7 @@
   align-items: center;
 }
 .pfButtonSecondary {
-  background-color: var(--primaryColor);
+  background-color: var(--secondaryColor);
   color: whitesmoke;
   border: 1px solid var(--primaryColor);
   border-radius: 50px;
@@ -262,8 +261,7 @@ hr.smallRedLine {
   border-radius: 5px;
   width: 100%;
 }
-.inputDiv {
-}
+
 .toggleswitch {
   position: relative;
   display: inline-block;
@@ -336,8 +334,8 @@ hr.smallRedLine {
   z-index: 50;
   position: absolute;
   top: 2%;
-  left: 5%;
-  right: 5%;
+  left: 25%;
+  right: 25%;
   bottom: 5%;
 
   background-color: var(--secondaryColor);
@@ -356,15 +354,16 @@ hr.smallRedLine {
 }
 
 @media (max-width: 600px) {
+  .notification{
+    top: 2%;
+    left: 5%;
+    right: 5%;
+    bottom: 5%;
+  }
   .testCard {
     width: 29%;
   }
-  .buildTeam {
-    /* top: 2%;
-      bottom: 2%;
-      left: 5%;
-      right: 5%; */
-  }
+
   .rinkDiv {
     height: 90%;
     width: 75%;

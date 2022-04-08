@@ -64,7 +64,6 @@ const CreateGame: NextPage = () => {
         e.preventDefault();
 
         try {
-            console.log("create game Handler: ",Number(gameValue.current));
             let dbObject = gameObject;
             dbObject.value = Number(gameValue.current);
             if (userData === null || userData.userEmail === null) throw new Error('🚦user data error🚦')
@@ -79,18 +78,18 @@ const CreateGame: NextPage = () => {
             dbObject.homeTeam.d1 = team.d1.tokenId;
             dbObject.homeTeam.d2 = team.d2.tokenId;
             dbObject.homeTeam.g = team.g.tokenId;
-
+            if(pucks < dbObject.value) throw new Error('🚦Not enough pucks🚦')
             const dbResult = await createGameInDB(dbObject);
             if(dbResult === false) throw new Error('🚦create game error🚦');
-            let newPucks = pucks - dbObject.value;
-            dashboardDispatch({type:'createLobbyGame',payload:{game:dbResult, newPucks:newPucks}})
-            
+            dashboardDispatch({type:'createLobbyGame',payload:{game:dbResult}})
+            gameStateDispatch({type:'observingGame'})
             Router.push(`/game/${gameObject.id}`)
             return;
   
             
         } catch (er) {
             console.log("Error", er);
+            dashboardDispatch({type:'error',payload:{er:"🚦Not enough pucks or something...🚦"}})
             return;
         }
 
@@ -179,10 +178,10 @@ const CreateGame: NextPage = () => {
                 <br />
                 <hr className={styles.centerLine}/>
                 <br /> 
-                <div className={styles.inputDiv}>
+                {/* <div className={styles.inputDiv}>
                 <label htmlFor="howMuch">Other Property: </label><br />
                 <input name="other" id="other" type="number" placeholder="1" required/>
-                </div>
+                </div> */}
                 <br />
                 <hr className={styles.blueLine}/>
                 <br />

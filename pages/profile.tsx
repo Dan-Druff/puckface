@@ -10,7 +10,7 @@ import { useGameState } from '../context/GameState';
 import { useDashboard } from '../context/DashboardContext';
 const Profile: NextPage = () => {
     const {gameStateDispatch} = useGameState();
-    const {dashboardDispatch} = useDashboard();
+    const {dashboardDispatch, displayName} = useDashboard();
     const {userData} = useAuth();
     const Router = useRouter();
     const signOutHandler = async() => {
@@ -21,38 +21,42 @@ const Profile: NextPage = () => {
         Router.push('/');
 
     }
+    const historyHandler = () => {
+        console.log("HISTORY");
+    }
     return (
         <AuthRoute>
             <div className={styles.contentContainer}>
             <div className={styles.rinkDiv}>
         
-                <h2>PROFILE</h2>
-                <p>Game State: </p>
+                <h2>{displayName}</h2>
+                <hr className={styles.smallRedLine} /><br />
                 <button className={styles.pfButton} onClick={signOutHandler}>LOGOUT</button>
-                <h3>{userData !== null && userData.userEmail}</h3>
+
+                <hr className={styles.blueLine}/><br />
+                <button className={styles.pfButton} onClick={historyHandler}>HISTORY</button>
+
+          
+                <hr className={styles.centerLine}/>
+
             <div>
-                <h4>Signup method:</h4>
-                <h6>{userData !== null && userData.userProviderId}</h6>
+            <h4>Email:</h4>
+                <p>{userData !== null && userData.userEmail}</p>
+   
             </div>
+            <hr className={styles.blueLine}/><br />
             <div>
-                <h4>UserId:</h4>
-                <h6>{userData !== null && userData.userId}</h6>
+            <h4>UserId:</h4>
+                <p>{userData !== null && userData.userId}</p>
             </div>
-            <div>
-                <h4>Display Name:</h4>
-                <h6>{userData !== null && userData.userName ? userData.userName : "null"}</h6>
-            </div>
-            <div>
-                <h4>Email:</h4>
-                <h6>{userData !== null && userData.userEmail}</h6>
-            </div>
+            <hr className={styles.smallRedLine} /><br />
             <div>
                 <h4>Profile Pic:</h4>
                 {userData !== null && userData.userPhotoLink ? (
                 <Image src={userData.userPhotoLink} width={80} height={80} alt='userPhoto'/>
                 
                 ) : (
-                "null"
+                "No pic on file"
                 )}
             </div>
             

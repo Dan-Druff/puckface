@@ -7,7 +7,9 @@ export const multipliers = {
 }
 export const baseURL = 'https://ipfs.io/ipfs/bafybeiedfdak44r7owq5ytvvgb6cywkpfcnhlauroqqlrr7ta3jt2yqhee/files/';
 
+
 export const PRICE_PER_PACK = 18;
+
 // export type LobbyGameState = 'Initialized' | 'Waiting for Opponent' | 'Waiting for Game' | 'Game Complete'
 export interface CalculatedGameType {
     game:GameType,
@@ -169,6 +171,13 @@ export interface GameType {
     awayTeam:TeamTokens
 
 }
+export type LogActionType = 
+{type:'buyPucks',payload:{howMany:number, when:Date, who:string}} | 
+{type:'buyCards',payload:{when:Date,cost:number,cards:number[]}} | 
+{type:'createGame',payload:{game:GameType}} | 
+{type:'joinGame',payload:{game:GameType}} | 
+{type:'completeGame',payload:{game:GameType}}
+
 export interface NoteType {
     colorClass:string,
     message:string,
@@ -196,7 +205,7 @@ export interface PostLoginReturnType {
     },
     activeGames:GameType[]
 }
-export type DashboardActions = {type:'error',payload:{er:string}} | {type:'setTeams',payload:{game:GameType, myTeam:Team, oppTeam:Team}} | {type:'joinGame',payload:{game:GameType}} | {type:'leavingGame'} | {type:'calculatedGame',payload:{newGame:GameType, newPucks:number}} | {type:'createLobbyGame',payload:{game:GameType, newPucks:number}} | {type:'editPlayer',payload:{posId:GamePosition, player:CardType}} | {type:'cancelEdit'} | {type:'selectPlayer',payload:{tokenId:number, game:GameType}} | {type:'addPack',payload:{guys:DashboardType, newPucks:number}} | {type:'addPucks',payload:{amount:number}} | {type:'cancelNotify'} | {type:'notify',payload:{notObj:NoteType}} | {type:'clear'} | {type:'create',payload:{activeGames:GameType[],dbData:any}} | {type:'login',payload:{displayName:string, dash:DashboardType,games:GameType[],dbData:any}} | {type:'signup',payload:{displayName:string,id:string}}
+export type DashboardActions = {type:'dashboard'} | {type:'error',payload:{er:string}} | {type:'setTeams',payload:{game:GameType, myTeam:Team, oppTeam:Team}} | {type:'joinGame',payload:{game:GameType}} | {type:'leavingGame'} | {type:'calculatedGame',payload:{newGame:GameType, newPucks:number}} | {type:'createLobbyGame',payload:{game:GameType}} | {type:'editPlayer',payload:{posId:GamePosition, player:CardType}} | {type:'cancelEdit'} | {type:'selectPlayer',payload:{tokenId:number, game:GameType}} | {type:'addPack',payload:{guys:DashboardType, newPucks:number}} | {type:'addPucks',payload:{amount:number}} | {type:'cancelNotify'} | {type:'notify',payload:{notObj:NoteType}} | {type:'clear'} | {type:'create',payload:{activeGames:GameType[],dbData:any}} | {type:'login',payload:{displayName:string, dash:DashboardType,games:GameType[],dbData:any}} | {type:'signup',payload:{displayName:string,id:string}}
 
 export type DashDispatch = (action:DashboardActions) => void;
 
@@ -219,7 +228,13 @@ export const blankTeam: Team = {
     d2:d2,
     g:g
 }
-
+const wayne:CardType = {"playerName":"Wayne Gretzky","playerId":"99","tokenId":-10,"rarity":"Unique","pos":"Left Wing","inUse":"lw","image":"https://hamtronmedia.com/media/images/wayne.jpeg","stats":{"goals":0,"assists":0,"plusMinus":0,"wins":0,"shutouts":0},"points":0,"playingTonight":false,"inGame":false};
+const mario:CardType = {"playerName":"Mario Lemieux","playerId":"66","tokenId":-9,"rarity":"Unique","pos":"Center","inUse":"c","image":"https://hamtronmedia.com/media/images/mario.jpeg","stats":{"goals":0,"assists":0,"plusMinus":0,"wins":0,"shutouts":0},"points":0,"playingTonight":false,"inGame":false};
+const gordie:CardType = {"playerName":"Gordie Howe","playerId":"9","tokenId":-8,"rarity":"Unique","pos":"Right Wing","inUse":"rw","image":"https://hamtronmedia.com/media/images/gordie.jpeg","stats":{"goals":0,"assists":0,"plusMinus":0,"wins":0,"shutouts":0},"points":0,"playingTonight":false,"inGame":false};
+const bobby:CardType = {"playerName":"Bobby Orr","playerId":"4","tokenId":-7,"rarity":"Unique","pos":"Defenseman","inUse":"d1","image":"https://hamtronmedia.com/media/images/bobby.jpeg","stats":{"goals":0,"assists":0,"plusMinus":0,"wins":0,"shutouts":0},"points":0,"playingTonight":false,"inGame":false};
+const zdeno:CardType = {"playerName":"Zdeno Chara","playerId":"13","tokenId":-6,"rarity":"Unique","pos":"Defenseman","inUse":"d2","image":"https://hamtronmedia.com/media/images/zdeno.jpeg","stats":{"goals":0,"assists":0,"plusMinus":0,"wins":0,"shutouts":0},"points":0,"playingTonight":false,"inGame":false};
+const patrick:CardType = {"playerName":"Patrick Roy","playerId":"31","tokenId":-5,"rarity":"Unique","pos":"Goalie","inUse":"g","image":"https://hamtronmedia.com/media/images/patrick.jpeg","stats":{"goals":0,"assists":0,"plusMinus":0,"wins":0,"shutouts":0},"points":0,"playingTonight":false,"inGame":false};
+export const dreamTeam:CardType[] = [wayne, mario, gordie, zdeno, bobby, patrick];
 export const DefDashDisp = (action:DashboardActions) => {
     console.log("DEF DASH DISPATCH",action.type);
 }

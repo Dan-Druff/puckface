@@ -220,7 +220,7 @@ const LobbyGameCard = ({game}:{game:GameType}) => {
         <div className={styles.lobbyGameCard}>
             <h4>{game.awayName} 🥊 {game.homeName}</h4>
             <p>{c}</p>
-            <p>${r}</p>
+            <p>${game.value.toString()} each</p>
             <button className={styles.pfButtonSecondary} onClick={() => goToGame(game.id)}>GO TO GAME</button>
         </div>
     )

@@ -42,8 +42,8 @@ const Menus: FunctionComponent<Props> = () => {
                 joinGame();
                 break;
             case 'dashboard':
-                gameStateDispatch({type:'dashboard'})
-
+                gameStateDispatch({type:'dashboard'});
+                dashboardDispatch({type:'dashboard'});
                 Router.push('/dashboard');
                 break;
             case 'home':
@@ -157,6 +157,16 @@ const Menus: FunctionComponent<Props> = () => {
                     <div className={styles.subMenu}>
                         <h2>Select Your Team:</h2>
                         <button className={styles.navButtonSecondary} onClick={() => routeAndPush('joinGame')}>SUBMIT TEAM</button>
+                    </div>
+                }
+                 {gameState.sub === 'store' &&         
+                    <div className={styles.subMenu}>
+                        <h2>PuckFace Store</h2>
+                    </div>
+                }
+                {gameState.sub === 'profile' &&
+                    <div className={styles.subMenu}>
+                        <h2>Puckface Profile:</h2>
                     </div>
                 }
             </>

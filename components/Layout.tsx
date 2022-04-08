@@ -5,7 +5,7 @@ import styles from '../styles/All.module.css';
 import Menus from "./Menus";
 import { useDashboard } from "../context/DashboardContext";
 import Notification from './Notification';
-import { NoteType } from "../utility/constants";
+
 
 
 const Layout: FunctionComponent<ReactNode> = ({children}) => {
@@ -23,8 +23,10 @@ const Layout: FunctionComponent<ReactNode> = ({children}) => {
             <div className={styles.menus}>
                 <Menus/>
             </div>
+         
             <div className={styles.mainDiv}>
                 {children}
+              
             </div>
             {notification !== null && <Notification notObj={notification}/>}
         </div>

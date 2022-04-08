@@ -75,7 +75,7 @@ const GoogleSignIn = () => {
 
   return (
     <div className={styles.googleDiv}>
-    <button type='button' className={styles.pfButtonSecondary} onClick={googleHandler}>Google Login</button>
+    <button type='button' className={styles.pfButton} onClick={googleHandler}>Google Login</button>
   
 
         

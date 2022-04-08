@@ -7,6 +7,7 @@ import AuthRoute from '../hoc/authRoute'
 import LobbyGameCard from '../components/LobbyGameCard'
 import BenchCard from '../components/BenchCard'
 import { useRouter } from 'next/router'
+import Loader from '../components/Loader'
 const Dashboard: NextPage = () => {
     const Router = useRouter();
     const {activeGames, pucks, dashboardDispatch, dashboard, displayName} = useDashboard();
@@ -36,6 +37,11 @@ const Dashboard: NextPage = () => {
     }
     return (
         <AuthRoute>
+            {displayName === 'NA' ? 
+            <div className={styles.contentContainer}>
+                <Loader />
+            </div>
+            :     
             <div className={styles.mainContainer}>
                 <div className={styles.contentContainer}>
                     <h1>{displayName} has &#36;{pucks} Pucks.</h1>
@@ -44,14 +50,17 @@ const Dashboard: NextPage = () => {
              
              {activeGames.length > 0 ? 
              <>
-                <h2>⬇ RECENT GAMES ⬇</h2>
+                <h2>⬇ ACTIVE GAMES ⬇</h2>
                 <div className={styles.contentContainer}>
-                {activeGames.map((g) => {
-                     return (
-                   
-                         <LobbyGameCard key={g.id} game={g}/>
-                     )
-                 })}
+                {activeGames.filter(gam => gam.gameState !== "Complete").map((g) => {
+                    return (
+                        <LobbyGameCard key={g.id} game={g}/>
+                    )
+                })}
+    
+                </div>
+                <div className={styles.contentContainer}>
+                    <h4>(Check out completed games on Profile Page)</h4>
                 </div>
          
              </>
@@ -80,7 +89,8 @@ const Dashboard: NextPage = () => {
                 </div>
 
             {/* <button onClick={() => dashboardDispatch({type:'notify',payload:{notObj:funnyObj}})}>NOTIFY</button> */}
-            </div>
+            </div>}
+        
         </AuthRoute>
     )
 }

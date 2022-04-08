@@ -1,12 +1,14 @@
 import type { NextPage } from 'next'
 import styles from '../styles/All.module.css'
 import { useNHL } from '../context/NHLContext'
+import BenchCard from '../components/BenchCard'
+import {dreamTeam } from '../utility/constants'
 const Home: NextPage = () => {
   const {tonightsGames} = useNHL();
-
+ 
   return (
     <div className={styles.mainContainer}>
-      <h2>TEST APppP</h2>
+    
       {tonightsGames.length > 0 &&
       <div className={styles.contentContainer}>
         {tonightsGames.map((g) => {
@@ -20,6 +22,21 @@ const Home: NextPage = () => {
         })}
       </div>
       }
+        <div className={styles.contentContainer}>
+          <h2>🥅 Login to start givin &#39;er... 🏒</h2>
+        </div>
+        <div className={styles.contentContainer}>
+          <button className={styles.pfButton}>WTF is this?</button>
+        </div>
+        <div className={styles.contentContainer}>
+            <div className={styles.lockerroom}>
+              {dreamTeam.map((card) => {
+                return (
+                  <BenchCard key={card.tokenId} active={false} card={card} func={() => {}} posId='none' />
+                )
+              })}
+            </div>
+          </div>
 
     </div>
   )
