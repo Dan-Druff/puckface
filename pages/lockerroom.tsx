@@ -1,9 +1,38 @@
 import type { NextPage } from 'next'
 import styles from '../styles/All.module.css'
+import BenchCard from '../components/BenchCard'
+import { useDashboard } from '../context/DashboardContext'
+import { useRouter } from 'next/router'
+import { GamePosition } from '../utility/constants'
 const Lockerroom: NextPage = () => {
+    const {dashboard} = useDashboard();
+    const Router = useRouter();
+    const cardSelect = async(posId:GamePosition, tokenId:number) => {
+        try {
+            console.log("You selected card: ", tokenId, posId);
+            Router.push(`/card/${tokenId.toString()}`);
+        } catch (er) {
+            console.log("Card select error: ",er);
+        }
+    }
     return (
         <div className={styles.mainContainer}>
-            <h2>Lockerroom</h2>
+            {dashboard.length > 0 ? 
+                <div className={styles.contentContainer}>
+                    <div className={styles.lockerroom}>
+                    {dashboard.map((card) => {
+                        return (
+                            <BenchCard key={card.tokenId} active={true} card={card} func={cardSelect} posId={card.inUse} />
+                        )
+                    })}
+                    </div>
+                </div>
+            : 
+            <div className={styles.contentContainer}>
+                <h3>NO CARDS YET.</h3>
+            </div>
+            }
+        
         </div>
     )
 }

@@ -353,6 +353,21 @@ hr.smallRedLine {
   border: 6px solid white;
 }
 
+.imageContainer{
+  width: 100%;
+
+
+}
+.imageContainer > div {
+  position: unset !important;
+}
+.image{
+object-fit: contain;
+width: 100% !important;
+position: relative !important;
+height: unset !important;
+
+}
 @media (max-width: 600px) {
   .notification{
     top: 2%;

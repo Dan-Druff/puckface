@@ -169,6 +169,11 @@ const Menus: FunctionComponent<Props> = () => {
                         <h2>Puckface Profile:</h2>
                     </div>
                 }
+                {gameState.sub === 'lockerroom' &&
+                    <div className={styles.subMenu}>
+                      <h2>ALL CARDS:</h2>
+                    </div>
+                }
             </>
         )
     }

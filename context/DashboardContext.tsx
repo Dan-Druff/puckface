@@ -280,6 +280,21 @@ export const calculateGame = async(game:GameType, homeScore:number, awayScore:nu
 export const logOnTheFire = async(log:LogActionType):Promise <boolean> => {
     try {
         // Do something to Log With here. DB solution????
+        switch (log.type) {
+            case 'buyCards':
+                break;
+            case 'buyPucks':
+                break;
+            case 'completeGame':
+                break;
+            case 'createGame':
+                break;
+            case 'joinGame':
+                break;                
+        
+            default:
+                break;
+        }
         return true;
     } catch (er) {
        console.log("Lon On The Fire Error"); 

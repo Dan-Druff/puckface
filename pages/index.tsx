@@ -3,9 +3,13 @@ import styles from '../styles/All.module.css'
 import { useNHL } from '../context/NHLContext'
 import BenchCard from '../components/BenchCard'
 import {dreamTeam } from '../utility/constants'
+import { useRouter } from 'next/router'
 const Home: NextPage = () => {
   const {tonightsGames} = useNHL();
- 
+  const Router = useRouter();
+  const help = () => {
+    Router.push('/wtf');
+  }
   return (
     <div className={styles.mainContainer}>
     
@@ -26,7 +30,7 @@ const Home: NextPage = () => {
           <h2>🥅 Login to start givin &#39;er... 🏒</h2>
         </div>
         <div className={styles.contentContainer}>
-          <button className={styles.pfButton}>WTF is this?</button>
+          <button className={styles.pfButton} onClick={() => help()}>WTF is this?</button>
         </div>
         <div className={styles.contentContainer}>
             <div className={styles.lockerroom}>

@@ -12,21 +12,8 @@ const Dashboard: NextPage = () => {
     const Router = useRouter();
     const {activeGames, pucks, dashboardDispatch, dashboard, displayName} = useDashboard();
     console.log("Player has pucks: ", pucks);
-    const funnyFunction = () => {
-        console.log("Calling funny function");
-    }
-    const canc = () => {
-        dashboardDispatch({type:'cancelNotify'})
-    }
-    const funnyObj:NoteType = {
-        mainTitle:'main butt',
-        cancelTitle:'Cancel',
-        twoButtons:true,
-        message:'Youre a fuckin cunt',
-        colorClass:'M/a',
-        mainFunction:funnyFunction,
-        cancelFunction:canc
-    }
+
+
     const cardSelect = async(posId:GamePosition, tokenId:number) => {
         try {
             console.log("You selected card: ", tokenId, posId);
