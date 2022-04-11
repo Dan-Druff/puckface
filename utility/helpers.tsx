@@ -164,8 +164,8 @@ export const getPlayerFromToken = async(token:number, tonightsGames:NHLGamesArra
         let wins = 0;
         let shutouts = 0;
         let active = false;
-        let url = 'https://ipfs.io/ipfs/bafybeiedfdak44r7owq5ytvvgb6cywkpfcnhlauroqqlrr7ta3jt2yqhee/files/' + token.toString() + '.json';
-
+        // let url = 'https://ipfs.io/ipfs/bafybeiedfdak44r7owq5ytvvgb6cywkpfcnhlauroqqlrr7ta3jt2yqhee/files/' + token.toString() + '.json';
+        let url = getIpfsUrl('json',token);
         let data = await fetch(url);
         let guy = await data.json();
 
@@ -200,7 +200,7 @@ export const getPlayerFromToken = async(token:number, tonightsGames:NHLGamesArra
      
         let player:CardType = {
             tokenId:token,
-            image:guy.image,
+            image:getIpfsUrl('png',token),
             playerId:playerId,
             rarity:guy.attributes[2].value,
             inUse:inUse,
