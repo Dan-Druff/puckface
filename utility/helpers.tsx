@@ -540,3 +540,107 @@ export const makeTeam = (teamArray:CardType[], theTeam:Team) => {
     })
     return teamCopy;
 } 
+export const getIpfsUrl = (type:string, token:number):string => {
+    try {
+        let u = '';
+        if(type === 'json'){
+            if(token > 0 && token < 501){
+                u = 'https://ipfs.io/ipfs/bafybeibvgu32pidnlir5fvgkdum65d6mzb25gol7f5z2hoq6r5jzaf3oz4/';
+            }else if(token > 500 && token < 1001){
+                u = 'https://ipfs.io/ipfs/bafybeigiugrbnji7scw5gz33qa4wuo4ahsk2x5yihbeeq3ridskj5s3fye/';
+            }else if(token > 1000 && token < 1501){
+                u = 'https://ipfs.io/ipfs/bafybeibadwygro3xvwealyug2myi3cqwkwawjxzhdidadd25ow26lnnjvm/';
+            }else if(token > 1500 && token < 2001){
+                u = 'https://ipfs.io/ipfs/bafybeicrelkkzokpiupoj4u5finch7ub6x5ejikv54wkhlpupase46sai4/';
+            }else if(token > 2000 && token < 2501){
+                u = 'https://ipfs.io/ipfs/bafybeigsbrhh2y4lpse2qsavqmfqrhvvhhkuj3a2l6ts3zmkydk24i36we/';
+            }else if(token > 2500 && token < 3001){
+                u = 'https://ipfs.io/ipfs/bafybeicgqxdl3j2n3rhdcvdwrjlfedf4tqstfjdcfpfzut7obuxc4azwne/';
+            }else if(token > 3000 && token < 3501){
+                u = 'https://ipfs.io/ipfs/bafybeiha373ldxxv7j5xb6qk3l3rojaio4fsy4mfnrvskf4wxijnxhqe3a/';
+            }else if(token > 3500 && token < 4001){
+                u = 'https://ipfs.io/ipfs/bafybeic5i4627bt6b2njnnphf5ghvq5rwzk2gmeabv6ieqvf64lsj4wsga/';
+            }else if(token > 4000 && token < 4501){
+                u = 'https://ipfs.io/ipfs/bafybeibrqca6rnxu3enmq7npj4t3yboggigyalvbijmbomdcji3a3rgtsy/';    
+            }else if(token > 4500 && token < 5001){
+                u = 'https://ipfs.io/ipfs/bafybeihucxpfeeoko6twwdaww56ksggq6gip6x647ryxwyife7c33vzbly/';
+            }else if(token > 5000 && token < 5501){
+                u = 'https://ipfs.io/ipfs/bafybeibfr4nbsrjmoxxd66hf2rpm4wnq3alwoijom5vggayaflg6v245iu/';
+            }else if(token > 5500 && token < 6001){
+                u = 'https://ipfs.io/ipfs/bafybeigczujltfkzndhfur73hzzuurlakbau7nbqklk2xtuxervklxclpq/';
+            }else if(token > 6000 && token < 6501){
+                u = 'https://ipfs.io/ipfs/bafybeifqp4qo52lo37gdsti3fiz5jwp5hy5yz5ahl2tsukglktyknoktvq/';
+            }else if(token > 6500 && token < 7001){
+                u = 'https://ipfs.io/ipfs/bafybeihpwgfeos6p55n6eolf5bymy6r7vuerh2z5rzsipn6eqzrww7ju5i/';
+            }else if(token > 7000 && token < 7501){
+                u = 'https://ipfs.io/ipfs/bafybeigg4nyztimobwynrsanuidpqr7m45mca47ki5f46gjkw3tebexy6i/';
+            }else if(token > 7500 && token < 8001){
+                u = 'https://ipfs.io/ipfs/bafybeiehknnby7tggyqnmfrye3bldgnrkxsxbmrq4t5fogd2hiin6g6qzu/';
+            }else if(token > 8000 && token < 8501){
+                u = 'https://ipfs.io/ipfs/bafybeiddb7nwayoj4tiilxxeo7sno4g44vsc4n65cycrg4qi2ale4g5z5e/';
+            }else if(token > 8500 && token < 9001){
+                u = 'https://ipfs.io/ipfs/bafybeihbmwpr64g53kdm7oib6ag24finhwax7atjo5wzamldunc6acy34a/';
+            }else if(token > 9000 && token < 9501){
+                u = 'https://ipfs.io/ipfs/bafybeianpgw6jofg3heyzism4qqqtowaotfeyyvlv25nork56y2wvs35fm/';
+            }else if(token > 9500 && token < 10001){
+                u = 'https://ipfs.io/ipfs/bafybeiah6lnqlcxlrhhrjhrt2kidszacij67fjwxun6s4weu44kekpc2cy/';
+            }else if(token > 10000 && token < 10882){
+                u = 'https://ipfs.io/ipfs/bafybeihg3i6now2es26vp44e2keuin5leufaybnsd32wlxmpm2tw6rf6tq/';
+            }
+            u = `${u}${token.toString()}.json`;
+
+        }
+        if(type === 'png'){
+            if(token > 0 && token < 501){
+                u = 'https://ipfs.io/ipfs/bafybeigudx22ha2w6lf76h5nzxjtylx6nq2aerwk63qonocuixteblbcp4/';
+            }else if(token > 500 && token < 1001){
+                u = 'https://ipfs.io/ipfs/bafybeidzqiyg3aum5qkj2677pxa6npsc6yvbxs6nqfpthrm3ot46s3aibi/';
+            }else if(token > 1000 && token < 1501){
+                u = 'https://ipfs.io/ipfs/bafybeif7cjgn3ibsh3pzmgxjo3nskcrmtmsfyempkb6nyh7xqvq5i464l4/';
+            }else if(token > 1500 && token < 2001){
+                u = 'https://ipfs.io/ipfs/bafybeigqxz7thllsrndq4nqqbrk4pvcfhtva3dy6q62pr66i63jrryuf5a/';
+            }else if(token > 2000 && token < 2501){
+                u = 'https://ipfs.io/ipfs/bafybeigzvaenfc5gihibxvzdemsonpgejsukmk6xkgnf5yhtp67xf2tqba/';
+            }else if(token > 2500 && token < 3001){
+                u = 'https://ipfs.io/ipfs/bafybeiejzb4vw7angcnlojvgggip2j7ghtyzz3hu3tbbw5mx7lg2obum2a/';
+            }else if(token > 3000 && token < 3501){
+                u = 'https://ipfs.io/ipfs/bafybeidysn4nmewdhr5te3wtfvno4klza2okimjuvvbpxdlpj4wd4vvrsq/';
+            }else if(token > 3500 && token < 4001){
+                u = 'https://ipfs.io/ipfs/bafybeieoxwugjvs2xpepgaahxyollywl246yl3rcnumpqzughj2rq4scfq/';
+            }else if(token > 4000 && token < 4501){
+                u = 'https://ipfs.io/ipfs/bafybeihoqo64cxfcx7gnsvb2mgiq5a2v3re3pq4ukxgzkv2iri63oiys7a/';
+            }else if(token > 4500 && token < 5001){
+                u = 'https://ipfs.io/ipfs/bafybeid22wbkpf47z4ijiugvzqvpztkqsmagiqznto5yyu2lm4hwlooype/';
+            }else if(token > 5000 && token < 5501){
+                u = 'https://ipfs.io/ipfs/bafybeidqiknzz5svv3zkbhj3t3h4aitrdgdboiial4jdbhlltaiml5d3oa/';
+            }else if(token > 5500 && token < 6001){
+                u = 'https://ipfs.io/ipfs/bafybeiafwwi6nm3njpmlkmv7bfvkb23y2d2ye7z2u3hpd4dy4fidx3meje/';
+            }else if(token > 6000 && token < 6501){
+                u = 'https://ipfs.io/ipfs/bafybeiedq53tsfscipc5ydy6ivq37k6rngb3irg7siovu7ipwimheoopqq/';
+            }else if(token > 6500 && token < 7001){
+                u = 'https://ipfs.io/ipfs/bafybeiekiutxiwviokiuysecqugunuzgsh5toi2jszm4a3qcbeifhfpvnu/';
+            }else if(token > 7000 && token < 7501){
+                u = 'https://ipfs.io/ipfs/bafybeiabtlg7sdxhwzefn2hnlg5ovcn7qy4ixjlb7jumxto5ikdzna7g5u/';
+            }else if(token > 7500 && token < 8001){
+                u = 'https://ipfs.io/ipfs/bafybeicxhdjosz3gyyyltacialxjiarwetn4yeaqctgzrdgxjqeceh7qr4/';
+            }else if(token > 8000 && token < 8501){
+                u = 'https://ipfs.io/ipfs/bafybeicnquac32qtp4zmuye34z3p4fchtwgpflcv3blhcajsomz7a5m3oa/';
+            }else if(token > 8500 && token < 9001){
+                u = 'https://ipfs.io/ipfs/bafybeibgw5v7wenuqy7ezm73elxo7e2revnv4vbuakztpigurs6br75euu/';
+            }else if(token > 9000 && token < 9501){
+                u = 'https://ipfs.io/ipfs/bafybeib3g4l2fomz2brzw2ov6gganqayxdot5d6j5wqenrcdbroe22kuga/';
+            }else if(token > 9500 && token < 10001){
+                u = 'https://ipfs.io/ipfs/bafybeiez4mw2qdol2ehigrrncosvabtp4of45yjx2jfcerxqm2c4u2gc3e/';
+            }else if(token > 10000 && token < 10501){
+                u = 'https://ipfs.io/ipfs/bafybeifpt4c3bs6bb34ddpjkle6e7wrutoe5osaf352c65b6xtaklfdhgq/';
+            }else if(token > 10500 && token < 10882){
+                u = 'https://ipfs.io/ipfs/bafybeicnwgnkyxrmgt3ymerydoxadis7ensa7o4kpoiuitwujyos5j47g4/';
+            }
+            u = `${u}${token.toString()}.png`;
+        }
+        return u;
+    } catch (er) {
+        console.log("Error getting url", er)
+        return "Error";
+    }
+}

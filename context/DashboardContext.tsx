@@ -1,12 +1,14 @@
 import { createContext, ReactNode, useContext, useReducer, useState, useRef } from "react";
 import { db } from "../firebase/clientApp";
 import {doc,getDoc,setDoc,collection,getDocs} from 'firebase/firestore';
-import { createRandomId,gameIsOver,makeTeam } from "../utility/helpers";
+import { createRandomId,gameIsOver,makeTeam, getIpfsUrl } from "../utility/helpers";
 import { DefJoinGameDB,nobody,baseURL, CardType, Stats,blankGame, blankTeam, Team,  TeamTokens,PostSignupReturnType,PostLoginReturnType,GameType, NoteType, DashboardType,DefDashDisp,DefPostLog,DefGetPlayersFromTokenArray,DefGetPacket,DefCreateGameDB, NHLGame,CalculatedGameType, LogActionType } from "../utility/constants";
 import type { StringBool,DashDispatch,DashboardActions,NHLGamesArray, GamePosition, Rarity, PossibleGameStates } from "../utility/constants";
 import { useNHL } from "./NHLContext";
 import { useAuth } from "./AuthContext";
 const playerMap = require('../utility/playerMap.json');
+const TokenMap = require('../utility/TokenMap.json');
+
 
 export interface AllDashType {
     dashboard:DashboardType,
@@ -567,6 +569,178 @@ export const DashboardProvider = ({children}:{children:ReactNode}) => {
     }
     const [dashboard, dashboardDispatch] = useReducer(dashboardReducer, []);
 
+    // const postLogin2 = async(email:string):Promise <false | PostLoginReturnType> => {
+    //     try {
+    //                // Get USER Info from DB
+    //         const dbRef = doc(db,'users',email);
+    //         const dbRes = await getDoc(dbRef);
+    //         if(dbRes.exists()){
+    //             const dbdata = dbRes.data();
+    //                 // Need to populate activeGames array from the activeGames array from db
+    //             const gameObjectArray = await Promise.all(dbdata.activeGames.map(async(g:string) => {
+    //                        let pGame = await getGame(g);
+    //                     //    pGame.date = pGame.date.toDate();
+    //                        console.log("Converted toDate",pGame);
+    //                        return pGame;
+    //             }))
+    //                 //    console.log("Got games from users card array: ",gameObjectArray);
+    //                    // Create array of NHL team names that are playing tonight
+    //             let playingTeams: string[] = [];
+    //             tonightsGames.forEach((game:NHLGame) => {
+    //                        playingTeams.push(game.awayName);
+    //                        playingTeams.push(game.homeName);
+    //             });
+    //                    // Create array of player objects
+    //                    const dashboardPromises = await Promise.all(dbdata.cards.map(async(token:number) => {
+    //                        // I have the integer of the token. 
+               
+    //                        // Determine if card is in an active game. If so set inuse position and ingameID
+    //                        let inUse:GamePosition = 'none';
+    //                        let inGame = false;
+                         
+    //                        gameObjectArray.forEach((gme) => {
+    //                            // For each game in game array, see if this player is in it. If so, add id.
+    //                            let over = gameIsOver(gme);
+    //                            console.log("Is game over??: ");
+    //                            if(!over){
+    //                                if(gme.awayTeam.lw === token){
+    //                                    // inUse = 'lw';
+           
+    //                                    inGame = gme.id;
+    //                                }
+    //                                if(gme.awayTeam.c === token){
+    //                                    // inUse = 'c';
+    //                                    inGame = gme.id;
+    //                                }
+    //                                if(gme.awayTeam.rw === token){
+    //                                    // inUse = 'rw';
+    //                                    inGame = gme.id;
+    //                                }
+    //                                if(gme.awayTeam.d1 === token){
+    //                                    // inUse = 'd1';
+    //                                    inGame = gme.id;
+    //                                }
+    //                                if(gme.awayTeam.d2 === token){
+    //                                    // inUse = 'd2';
+    //                                    inGame = gme.id;
+    //                                }
+    //                                if(gme.awayTeam.g === token){
+    //                                    // inUse = 'g';
+    //                                    inGame = gme.id;
+    //                                }
+    //                                if(gme.homeTeam.lw === token){
+    //                                    // inUse = 'lw';
+    //                                    inGame = gme.id;
+    //                                }
+    //                                if(gme.homeTeam.c === token){
+    //                                    // inUse = 'c';
+    //                                    inGame = gme.id;
+    //                                }
+    //                                if(gme.homeTeam.rw === token){
+    //                                    // inUse = 'rw';
+    //                                    inGame = gme.id;
+    //                                }
+    //                                if(gme.homeTeam.d1 === token){
+    //                                    // inUse = 'd1';
+    //                                    inGame = gme.id;
+    //                                }
+    //                                if(gme.homeTeam.d2 === token){
+    //                                    // inUse = 'd2';
+    //                                    inGame = gme.id;
+    //                                }
+    //                                if(gme.homeTeam.g === token){
+    //                                    // inUse = 'g';
+    //                                    inGame = gme.id;
+    //                                }
+    //                            }
+                         
+                       
+    //                        })
+    //                        let goals = 0;
+    //                        let assists = 0;
+    //                        let plusMinus = 0;
+    //                        let points = 0;
+    //                        let wins = 0;
+    //                        let shutouts = 0;
+    //                        let active = false;
+    //                        let url = baseURL + token.toString() + '.json';
+    //                        // Get players json object
+    //                        let data = await fetch(url);
+    //                        let guy = await data.json();
+           
+    //                        let playerId = guy.attributes[3].value;
+    //                        let pos = guy.attributes[0].value;
+                           
+    //                        let data2 = await fetch(`https://statsapi.web.nhl.com/api/v1/people/${playerId}/stats?stats=statsSingleSeason&season=20212022`);
+    //                        let playerStats = await data2.json();
+    //                        let teamName = guy.attributes[1].value;
+    //                        if(playingTeams.indexOf(teamName) > -1){
+    //                            // this means the player is playing tonight
+    //                            active = true;
+    //                        }
+    //                        if(playerStats.stats[0].splits[0] !== undefined){
+    //                            plusMinus = playerStats.stats[0].splits[0].stat.plusMinus || playerStats.stats[0].splits[0].stat.plusMinus === typeof 'number' ? playerStats.stats[0].splits[0].stat.plusMinus : 0;
+    //                            assists = playerStats.stats[0].splits[0].stat.assists || playerStats.stats[0].splits[0].stat.assists === typeof 'number' ? playerStats.stats[0].splits[0].stat.assists : 0;
+    //                            wins = playerStats.stats[0].splits[0].stat.wins || playerStats.stats[0].splits[0].stat.wins === typeof 'number' ? playerStats.stats[0].splits[0].stat.wins : 0;
+    //                            shutouts = playerStats.stats[0].splits[0].stat.shutouts || playerStats.stats[0].splits[0].stat.shutouts === typeof 'number' ? playerStats.stats[0].splits[0].stat.shutouts : 0;
+    //                            points = playerStats.stats[0].splits[0].stat.points || playerStats.stats[0].splits[0].stat.points === typeof 'number' ? playerStats.stats[0].splits[0].stat.points : 0;
+    //                            goals = playerStats.stats[0].splits[0].stat.goals || playerStats.stats[0].splits[0].stat.goals === typeof 'number' ? playerStats.stats[0].splits[0].stat.goals : 0;
+    //                        }else{
+    //                            console.log("Errror 263");
+    //                            plusMinus = 0;
+    //                            assists = 0;
+    //                            wins = 0;
+    //                            shutouts = 0;
+    //                            points = 0;
+    //                            goals = 0;
+    //                        }
+    //                        let player:CardType = {
+    //                             tokenId:token,
+    //                             image:guy.image,
+    //                             playerId:playerId,
+    //                             rarity:guy.attributes[2].value,
+    //                             inUse:inUse,
+    //                             playerName:guy.name,
+    //                             points:points,
+    //                             pos:pos,
+    //                             playingTonight:active,
+    //                             inGame:inGame,
+    //                             stats:{
+    //                                 wins:wins,
+    //                                 shutouts:shutouts,
+    //                                 goals:goals,
+    //                                 assists:assists,
+    //                                 plusMinus:plusMinus
+    //                            }
+    //                        }
+    //                        return player;
+           
+           
+           
+           
+           
+    //                    }))
+    //                    return {
+    //                        dashboardPromises:dashboardPromises,
+    //                        dataFromDB:{
+    //                            cards:dbdata.cards,
+    //                            pucks:dbdata.pucks,
+    //                            userId:dbdata.userId,
+    //                            activeGames:dbdata.activeGames,
+    //                            activeLeagues:dbdata.activeLeagues,
+    //                            username:dbdata.username
+    //                         },
+    //                         activeGames:gameObjectArray
+    //                    };
+    //                }else{
+                    
+    //                    throw new Error('🚦DB Doesnt Exist🚦');
+    //                }
+    //     } catch (er) {
+    //        console.log("Some Error: ", er); 
+    //        return false;
+    //     }
+    // }
     const postLogin = async(email:string):Promise <false | PostLoginReturnType> => {
         try {
                    // Get USER Info from DB
@@ -661,7 +835,9 @@ export const DashboardProvider = ({children}:{children:ReactNode}) => {
                            let wins = 0;
                            let shutouts = 0;
                            let active = false;
-                           let url = baseURL + token.toString() + '.json';
+                        //    let url = baseURL + token.toString() + '.json';
+                           let url = getIpfsUrl('json',token);
+                         
                            // Get players json object
                            let data = await fetch(url);
                            let guy = await data.json();
@@ -694,7 +870,7 @@ export const DashboardProvider = ({children}:{children:ReactNode}) => {
                            }
                            let player:CardType = {
                                 tokenId:token,
-                                image:guy.image,
+                                image:getIpfsUrl('png',token),
                                 playerId:playerId,
                                 rarity:guy.attributes[2].value,
                                 inUse:inUse,
@@ -739,6 +915,146 @@ export const DashboardProvider = ({children}:{children:ReactNode}) => {
            return false;
         }
     }
+    // const getPlayersFromTokenArray2 = async(tokenArray:number[]):Promise<DashboardType | false> => {
+    //     try {
+    //         let playingTeams: string[] = [];
+    //         tonightsGames.forEach((game) => {
+    //             playingTeams.push(game.awayName);
+    //             playingTeams.push(game.homeName);
+    //         });
+    //         const packPromises = await Promise.all(tokenArray.map(async(token) => {
+    //             // I have the integer of the token. 
+    
+    //             // Determine if card is in an active game. If so set inuse position and ingameID
+    //             let inUse:GamePosition = 'none';
+    //             let inGame: StringBool = false;
+    //             activeGames.forEach((gme:GameType) => {
+    //                 if(gme.awayTeam.lw === token){
+    //                     inUse = 'lw';
+    //                     inGame = gme.id;
+    //                 }
+    //                 if(gme.awayTeam.c === token){
+    //                     inUse = 'c';
+    //                     inGame = gme.id;
+    //                 }
+    //                 if(gme.awayTeam.rw === token){
+    //                     inUse = 'rw';
+    //                     inGame = gme.id;
+    //                 }
+    //                 if(gme.awayTeam.d1 === token){
+    //                     inUse = 'd1';
+    //                     inGame = gme.id;
+    //                 }
+    //                 if(gme.awayTeam.d2 === token){
+    //                     inUse = 'd2';
+    //                     inGame = gme.id;
+    //                 }
+    //                 if(gme.awayTeam.g === token){
+    //                     inUse = 'g';
+    //                     inGame = gme.id;
+    //                 }
+    //                 if(gme.homeTeam.lw === token){
+    //                     inUse = 'lw';
+
+    //                     inGame = gme.id;
+    //                 }
+    //                 if(gme.homeTeam.c === token){
+    //                     inUse = 'c';
+
+    //                     inGame = gme.id;
+    //                 }
+    //                 if(gme.homeTeam.rw === token){
+    //                     inUse = 'rw';
+
+    //                     inGame = gme.id;
+    //                 }
+    //                 if(gme.homeTeam.d1 === token){
+    //                     inUse = 'd1';
+
+    //                     inGame = gme.id;
+    //                 }
+    //                 if(gme.homeTeam.d2 === token){
+    //                     inUse = 'd2';
+    //                     inGame = gme.id;
+    //                 }
+    //                 if(gme.homeTeam.g === token){
+    //                     inUse = 'g';
+
+    //                     inGame = gme.id;
+    //                 }
+            
+    //             })
+    //             let goals = 0;
+    //             let assists = 0;
+    //             let plusMinus = 0;
+    //             let points = 0;
+    //             let wins = 0;
+    //             let shutouts = 0;
+    //             let active = false;
+    //             let url = baseURL + token.toString() + '.json';
+    //             // Get players json object
+    //             let data = await fetch(url);
+    //             let guy = await data.json();
+    
+    //             let playerId = guy.attributes[3].value;
+    //             let pos = guy.attributes[0].value;
+                
+    //             let data2 = await fetch(`https://statsapi.web.nhl.com/api/v1/people/${playerId}/stats?stats=statsSingleSeason&season=20212022`);
+    //             let playerStats = await data2.json();
+    //             let teamName = guy.attributes[1].value;
+    //             if(playingTeams.indexOf(teamName) > -1){
+    //                 // this means the player is playing tonight
+    //                 active = true;
+    //             }
+    //             if(playerStats.stats[0].splits[0] !== undefined){
+    //                 plusMinus = playerStats.stats[0].splits[0].stat.plusMinus || playerStats.stats[0].splits[0].stat.plusMinus === typeof 'number' ? playerStats.stats[0].splits[0].stat.plusMinus : 0;
+    //                 assists = playerStats.stats[0].splits[0].stat.assists || playerStats.stats[0].splits[0].stat.assists === typeof 'number' ? playerStats.stats[0].splits[0].stat.assists : 0;
+    //                 wins = playerStats.stats[0].splits[0].stat.wins || playerStats.stats[0].splits[0].stat.wins === typeof 'number' ? playerStats.stats[0].splits[0].stat.wins : 0;
+    //                 shutouts = playerStats.stats[0].splits[0].stat.shutouts || playerStats.stats[0].splits[0].stat.shutouts === typeof 'number' ? playerStats.stats[0].splits[0].stat.shutouts : 0;
+    //                 points = playerStats.stats[0].splits[0].stat.points || playerStats.stats[0].splits[0].stat.points === typeof 'number' ? playerStats.stats[0].splits[0].stat.points : 0;
+    //                 goals = playerStats.stats[0].splits[0].stat.goals || playerStats.stats[0].splits[0].stat.goals === typeof 'number' ? playerStats.stats[0].splits[0].stat.goals : 0;
+    //             }else{
+    //                 console.log("Errror 263");
+    //                 plusMinus = 0;
+    //                 assists = 0;
+    //                 wins = 0;
+    //                 shutouts = 0;
+    //                 points = 0;
+    //                 goals = 0;
+    //             }
+    //             let player:CardType = {
+    //                 tokenId:token,
+    //                 image:guy.image,
+    //                 playerId:playerId,
+    //                 rarity:guy.attributes[2].value,
+    //                 inUse:inUse,
+    //                 playerName:guy.name,
+    //                 points:points,
+    //                 pos:pos,
+    //                 playingTonight:active,
+    //                 inGame:inGame,
+    //                 stats:{
+    //                     goals:goals,
+    //                     assists:assists,
+    //                     plusMinus:plusMinus,
+    //                     wins:wins,
+    //                     shutouts:shutouts
+    //                 }
+    //             }
+    //             return player;
+    
+    
+    
+    
+    
+    //         }))
+    //         // dashboardDispatch({type:DASHBOARD_ACTIONS.addPack,payload:{newGuys:packPromises}})
+    //         return packPromises;
+    //     } catch (e) {
+    //         console.log("Error gettingp from t: ",e);
+    //         return false;
+    //     }
+    // }
     const getPlayersFromTokenArray = async(tokenArray:number[]):Promise<DashboardType | false> => {
         try {
             let playingTeams: string[] = [];
@@ -815,7 +1131,8 @@ export const DashboardProvider = ({children}:{children:ReactNode}) => {
                 let wins = 0;
                 let shutouts = 0;
                 let active = false;
-                let url = baseURL + token.toString() + '.json';
+                // let url = baseURL + token.toString() + '.json';
+                let url = getIpfsUrl('json',token);                                
                 // Get players json object
                 let data = await fetch(url);
                 let guy = await data.json();
@@ -848,7 +1165,7 @@ export const DashboardProvider = ({children}:{children:ReactNode}) => {
                 }
                 let player:CardType = {
                     tokenId:token,
-                    image:guy.image,
+                    image:getIpfsUrl('png',token),
                     playerId:playerId,
                     rarity:guy.attributes[2].value,
                     inUse:inUse,
@@ -879,6 +1196,122 @@ export const DashboardProvider = ({children}:{children:ReactNode}) => {
             return false;
         }
     }
+    // const getPacket2 = async(email:string,tokens:number[]):Promise<DashboardType | false> => {
+    //     try {
+    //         const minted = await getMinted();
+    //         if (minted === false) throw new Error('🚦 get minted error 🚦');
+    //         console.log("Got minted: ", minted);
+    //         let f = 0;
+    //         let d = 0;
+    //         let g = 0;
+    //         let r = 0;
+    //         let pack:number[] = [];
+    //         let mintedUpdate = minted;
+    //         let rando = 0;
+    //         let tempTokens = tokens;
+    //         while(f < 3){
+    //             rando = playerMap.forwards[Math.floor(Math.random() * playerMap.forwards.length)];
+    //             if(minted.indexOf(rando) > -1){
+    //                 // this id is used
+    //             }else{
+    //                 // ID good to go
+    //                 pack.push(rando);
+    //                 mintedUpdate.push(rando);
+    //                tempTokens.push(rando);
+    //                 f++;
+    //             }
+    //         }
+    //         while(d < 2){
+    //             rando = playerMap.defense[Math.floor(Math.random() * playerMap.defense.length)];
+    //             if(minted.indexOf(rando) > -1){
+    //                 // this id is used
+    //             }else{
+    //                 // ID good to go
+    //                 pack.push(rando);
+    //                 mintedUpdate.push(rando);
+    //                 tempTokens.push(rando);
+    
+    //                 d++;
+    //             }
+    //         }
+    //         while(g < 1){
+    //             rando = playerMap.goalies[Math.floor(Math.random() * playerMap.goalies.length)];
+    //             if(minted.indexOf(rando) > -1){
+    //                 // this id is used
+    //             }else{
+    //                 // ID good to go
+    //                 pack.push(rando);
+    //                 mintedUpdate.push(rando);
+    //                 tempTokens.push(rando);
+    
+    //                 g++;
+    //             }
+    //         }
+    //         while(r < 2){
+    //             let possibleCharacters = 'dfg';
+    //             let randomCharacter = possibleCharacters.charAt(Math.floor(Math.random() * possibleCharacters.length));
+    //             switch (randomCharacter) {
+    //                 case 'f':
+    //                     rando = playerMap.forwards[Math.floor(Math.random() * playerMap.forwards.length)];
+    //                     if(minted.indexOf(rando) > -1){
+    //                         // this id is used
+    //                     }else{
+    //                         // ID good to go
+    //                         pack.push(rando);
+    //                         mintedUpdate.push(rando);
+    //                         tempTokens.push(rando);
+    
+    //                         r++;
+    //                     }
+    //                     break;
+    //                 case 'd':
+    //                     rando = playerMap.defense[Math.floor(Math.random() * playerMap.defense.length)];
+    //                     if(minted.indexOf(rando) > -1){
+    //                         // this id is used
+    //                     }else{
+    //                         // ID good to go
+    //                         pack.push(rando);
+    //                         mintedUpdate.push(rando);
+    //                         tempTokens.push(rando);
+    
+    //                         r++;
+    //                     }
+    //                     break;
+    //                 case 'g':
+    //                     rando = playerMap.goalies[Math.floor(Math.random() * playerMap.goalies.length)];
+    //                     if(minted.indexOf(rando) > -1){
+    //                         // this id is used
+    //                     }else{
+    //                         // ID good to go
+    //                         pack.push(rando);
+    //                         mintedUpdate.push(rando);
+    //                         tempTokens.push(rando);
+    
+    //                         r++;
+    //                     }
+    //                     break;
+                
+    //                 default:
+    //                     break;
+    //             }
+           
+    //         }
+    //         await updateMintedArray(mintedUpdate, email, tempTokens)
+            
+    //         // const newPlayers = await makeDashboard(pack);
+         
+    //         const newPlayers = await getPlayersFromTokenArray(pack);
+    //         // const newPlayers = await createDashboardFromDBdata(ob,tonightsGames);
+    //         // dispatch({type:ACTIONS.addPack, payload:{newguys:newPlayers}});
+    
+    
+    //         return newPlayers;
+    
+    //     } catch (e) {
+    //         console.log("Is this the one ",e);
+    //         return false;
+    //     }
+    // }
     const getPacket = async(email:string,tokens:number[]):Promise<DashboardType | false> => {
         try {
             const minted = await getMinted();
@@ -893,7 +1326,7 @@ export const DashboardProvider = ({children}:{children:ReactNode}) => {
             let rando = 0;
             let tempTokens = tokens;
             while(f < 3){
-                rando = playerMap.forwards[Math.floor(Math.random() * playerMap.forwards.length)];
+                rando = TokenMap.forwards[Math.floor(Math.random() * TokenMap.forwards.length)];
                 if(minted.indexOf(rando) > -1){
                     // this id is used
                 }else{
@@ -905,7 +1338,7 @@ export const DashboardProvider = ({children}:{children:ReactNode}) => {
                 }
             }
             while(d < 2){
-                rando = playerMap.defense[Math.floor(Math.random() * playerMap.defense.length)];
+                rando = TokenMap.defense[Math.floor(Math.random() * TokenMap.defense.length)];
                 if(minted.indexOf(rando) > -1){
                     // this id is used
                 }else{
@@ -918,7 +1351,7 @@ export const DashboardProvider = ({children}:{children:ReactNode}) => {
                 }
             }
             while(g < 1){
-                rando = playerMap.goalies[Math.floor(Math.random() * playerMap.goalies.length)];
+                rando = TokenMap.goalies[Math.floor(Math.random() * TokenMap.goalies.length)];
                 if(minted.indexOf(rando) > -1){
                     // this id is used
                 }else{
@@ -935,7 +1368,7 @@ export const DashboardProvider = ({children}:{children:ReactNode}) => {
                 let randomCharacter = possibleCharacters.charAt(Math.floor(Math.random() * possibleCharacters.length));
                 switch (randomCharacter) {
                     case 'f':
-                        rando = playerMap.forwards[Math.floor(Math.random() * playerMap.forwards.length)];
+                        rando = TokenMap.forwards[Math.floor(Math.random() * TokenMap.forwards.length)];
                         if(minted.indexOf(rando) > -1){
                             // this id is used
                         }else{
@@ -948,7 +1381,7 @@ export const DashboardProvider = ({children}:{children:ReactNode}) => {
                         }
                         break;
                     case 'd':
-                        rando = playerMap.defense[Math.floor(Math.random() * playerMap.defense.length)];
+                        rando = TokenMap.defense[Math.floor(Math.random() * TokenMap.defense.length)];
                         if(minted.indexOf(rando) > -1){
                             // this id is used
                         }else{
@@ -961,7 +1394,7 @@ export const DashboardProvider = ({children}:{children:ReactNode}) => {
                         }
                         break;
                     case 'g':
-                        rando = playerMap.goalies[Math.floor(Math.random() * playerMap.goalies.length)];
+                        rando = TokenMap.goalies[Math.floor(Math.random() * TokenMap.goalies.length)];
                         if(minted.indexOf(rando) > -1){
                             // this id is used
                         }else{
