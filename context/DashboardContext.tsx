@@ -510,6 +510,8 @@ export const DashboardProvider = ({children}:{children:ReactNode}) => {
                         }
                         // guy.inUse = selectedPosition.current;
                         guy.inGame = gameId;
+                    }else{
+                        guy.inUse = 'none';
                     }
                     if(guy.tokenId === prevPlayer.tokenId){
                         guy.inUse = 'none';
