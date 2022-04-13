@@ -156,7 +156,7 @@ const Game: NextPage = () => {
                     console.log("Returning game page, gameState: ", currentGame.gameState)
                     console.log("team is: ", team);
                     console.log("Oppteam ", oppTeam);
-                    dashboardDispatch({type:'calculatedGame',payload:{newGame:gameResult.game, newPucks:newp}});
+                    dashboardDispatch({type:'calculatedGame',payload:{newGame:gameResult.game, newPucks:newp, winner:gameResult.winner}});
                     return;
                  
                 }

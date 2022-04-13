@@ -382,8 +382,38 @@ export const DashboardProvider = ({children}:{children:ReactNode}) => {
                 setNotification(y);
                 return state;
             case 'calculatedGame':
+            
+                let note : NoteType = {
+                    cancelFunction:cancelNotification,
+                    mainFunction:cancelNotification,
+                    cancelTitle:"Got It",
+                    mainTitle:"Main",
+                    twoButtons: false,
+                    colorClass:'',
+                    message:''
+                }
+                switch (action.payload.winner) {
+                    case 'home':
+                        note.message = `${action.payload.newGame.homeEmail} Wins $${action.payload.newGame.value}! `
+
+               
+                        break;
+                    case 'away':
+               
+                        note.message = `${action.payload.newGame.awayEmail} Wins $${action.payload.newGame.value}! `
+
+                        break;
+                    case 'tie':
+                        note.message = `Tie Game! Your pucks have been returned.`
+
+                        break;        
+                
+                    default:
+                        break;
+                }
                 setPucks(action.payload.newPucks);
                 setCurrentGame(action.payload.newGame);
+                setNotification(note);
                 return state;
             case 'leavingGame':
                 setTeam(blankTeam);
