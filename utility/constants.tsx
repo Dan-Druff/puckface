@@ -35,31 +35,7 @@ export interface StatsReturnType {
 }
 export type StringBool = string | boolean;
 export type GamePosition = 'none' | 'lw' | 'rw' | 'c' | 'd1' | 'd2' | 'g'
-// export const GamePosition = {
-//     NONE:'na',
-//     LW:'lw',
-//     C:'c',
-//     RW:'rw',
-//     D1:'d1',
-//     D2:'d2',
-//     G:'g'
-// }
-// export enum GamePosition {
-//     NONE = "na",
-//     LW = "lw",
-//     C = "c",
-//     RW = "rw",
-//     D1 = "d1",
-//     D2 = "d2",
-//     G = "g"
-// }
-// export type GamePositionType = typeof GamePosition
-// export enum Rarity {
-//     Standard = "Standard",
-//     Rare = "Rare",
-//     Super_Rare = "Super Rare",
-//     Unique = "Unique"
-// }
+
 export type Rarity = 'Standard' | 'Rare' | 'Super Rare' | 'Unique'
 export interface Stats {
     goals:number;
@@ -115,6 +91,10 @@ export interface BenchCardType {
     active:boolean,
     func:(posId:GamePosition, tokenId:number) => void,
     posId:GamePosition
+}
+export interface ExplorerCard {
+    card:CardType,
+    image:string
 }
 
 export interface Team {

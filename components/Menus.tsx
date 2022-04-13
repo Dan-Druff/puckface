@@ -174,6 +174,11 @@ const Menus: FunctionComponent<Props> = () => {
                       <h2>ALL CARDS:</h2>
                     </div>
                 }
+                {gameState.sub === 'tradingBlock' &&  
+                    <div className={styles.subMenu}>
+                      <h2>SHOW CARDS FOR SALE:</h2>
+                    </div>
+                }
             </>
         )
     }

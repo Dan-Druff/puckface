@@ -47,6 +47,7 @@ function gameStateReducer(state:GameState,action:GameStateActions){
             return state;
         case 'tradingBlock':
             state.sub = 'tradingBlock';
+            state.main = 'none'
             return state;     
         case 'createGame':
             state.main = 'lobby';
