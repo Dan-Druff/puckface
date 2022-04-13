@@ -38,11 +38,7 @@ const LobbyGameCard = ({game}:{game:GameType}) => {
                         guy.points = tot.total;
                     }
                    
-                    if(tot){
-                        guy.points = tot.total;
-                    }else{
-                        guy.points = 0;
-                    }
+                   
                    
                     return guy;
                 }else{

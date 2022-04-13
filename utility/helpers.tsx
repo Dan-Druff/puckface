@@ -502,8 +502,8 @@ export const getPlayersPointsFromIdAndDate = async(playerId:string,gameDate:Puck
         return false;
     }
 }
-export const makeTeam = (teamArray:CardType[], theTeam:Team) => {
-    let teamCopy = {
+export const makeTeam = (teamArray:CardType[], theTeam:Team):Team => {
+    let teamCopy:Team = {
         lw:theTeam.lw,
         c:theTeam.c,
         rw:theTeam.rw,
