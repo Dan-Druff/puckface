@@ -134,16 +134,26 @@ const Game: NextPage = () => {
                             if(gameResult.game.homeEmail === userData.userEmail){
                                 let hval = gameResult.game.value * 2;
                                 newp = newp + hval;
+                                homeScore = team.lw.points + team.c.points + team.rw.points + team.d1.points + team.d2.points + team.g.points;
+                                awayScore = oppTeam.lw.points + oppTeam.c.points + oppTeam.rw.points + oppTeam.d1.points + oppTeam.d2.points + oppTeam.g.points;
+                        
+                                //Home team won, set info bubbles...
                             }
                             break;
                         case 'away':
                             if(gameResult.game.awayEmail === userData.userEmail){
                                 let aval = gameResult.game.value * 2;
                                 newp = newp + aval;
+                                awayScore = team.lw.points + team.c.points + team.rw.points + team.d1.points + team.d2.points + team.g.points;
+                                homeScore = oppTeam.lw.points + oppTeam.c.points + oppTeam.rw.points + oppTeam.d1.points + oppTeam.d2.points + oppTeam.g.points;
+                        
                             }
                             break;
                         case 'tie':
                             newp = newp + gameResult.game.value;
+                            awayScore = team.lw.points + team.c.points + team.rw.points + team.d1.points + team.d2.points + team.g.points;
+                            homeScore = oppTeam.lw.points + oppTeam.c.points + oppTeam.rw.points + oppTeam.d1.points + oppTeam.d2.points + oppTeam.g.points;
+                    
                             // if(gameResult.game.homeEmail === userData.userEmail){
                             
                             //     newp = newp + gameResult.game.value;
@@ -153,6 +163,9 @@ const Game: NextPage = () => {
                         default:
                             break;
                     }
+                    infoCop.away.data = awayScore;
+                    infoCop.home.data = homeScore;
+                    setInfoBubbles(infoCop);
                     console.log("Returning game page, gameState: ", currentGame.gameState)
                     console.log("team is: ", team);
                     console.log("Oppteam ", oppTeam);

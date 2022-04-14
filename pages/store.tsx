@@ -1,12 +1,13 @@
 import type { NextPage } from 'next'
 import styles from '../styles/All.module.css'
-import { useDashboard } from '../context/DashboardContext'
+import { useDashboard, logOnTheFire } from '../context/DashboardContext'
 import { useAuth } from '../context/AuthContext'
 import { useGameState } from '../context/GameState'
 import { useRouter } from 'next/router'
 import { useState, useRef } from 'react'
 import { PRICE_PER_PACK } from '../utility/constants'
 import { buyPucks,updateUsersPucksInDB } from '../context/DashboardContext'
+import AuthRoute from '../hoc/authRoute'
 
 const Store: NextPage = () => {
     // buyPucks,setNotification,getPacket,updateUsersPucksInDB,
@@ -28,42 +29,49 @@ const Store: NextPage = () => {
     }
     const puckHandler = async(e:any) => {
         e.preventDefault();
-        const {howMany} = e.target.elements;
-        howManyPucks.current = howMany.value;
-        console.log("Puck Handler",howMany.value);
-        const doIt = async() => {
-                console.log("BUY CARDSSSSSSSS");
-                const numb = Number(howMany.value);
-                const toSave = numb + pucks;
-                if(userData === null || userData.userEmail === null) throw new Error('🚦 Do it error 🚦');
-                const dbSuccess = await buyPucks(toSave,userData.userEmail);
-                if(dbSuccess){
-                    dashboardDispatch({type:'cancelNotify'});
-                    gameStateDispatch({type:'dashboard'});
-                    dashboardDispatch({type:'addPucks',payload:{amount:numb}});
-                    Router.push('/dashboard');
-                    return;
-                }else{
-                    throw new Error('🚦 buy poucks error 🚦');
-                }
-              
-                
-           
+        try {
+            const {howMany} = e.target.elements;
+            howManyPucks.current = howMany.value;
+            console.log("Puck Handler",howMany.value);
+            const doIt = async() => {
+                    console.log("BUY CARDSSSSSSSS");
+                    const numb = Number(howMany.value);
+                    const toSave = numb + pucks;
+                    if(userData === null || userData.userEmail === null) throw new Error('🚦 Do it error 🚦');
+                    const dbSuccess = await buyPucks(toSave,userData.userEmail);
+                    const log = await logOnTheFire({type:'buyPucks',payload:{howMany:numb,when:new Date(),who:userData.userEmail}})
+                    if(dbSuccess && log){
+                        dashboardDispatch({type:'cancelNotify'});
+                        gameStateDispatch({type:'dashboard'});
+                        dashboardDispatch({type:'addPucks',payload:{amount:numb}});
+                        Router.push('/dashboard');
+                        return;
+                    }else{
+                        throw new Error('🚦 buy poucks error 🚦');
+                    }
+                  
+                    
                
-            }
-     
-        let n = {
-                colorClass:'',
-                message:`This will cost ${howMany.value} USD`,
-                twoButtons:true,
-                mainTitle:'BUY',
-                mainFunction:doIt,
-                cancelTitle:'CANCEL',
-                cancelFunction:cancelIt,
-            }
-        dashboardDispatch({type:'notify',payload:{notObj:n}});
-        console.log("Buy some cards");
-        return;
+                   
+                }
+         
+            let n = {
+                    colorClass:'',
+                    message:`This will cost ${howMany.value} USD`,
+                    twoButtons:true,
+                    mainTitle:'BUY',
+                    mainFunction:doIt,
+                    cancelTitle:'CANCEL',
+                    cancelFunction:cancelIt,
+                }
+            dashboardDispatch({type:'notify',payload:{notObj:n}});
+            console.log("Buy some cards");
+            return;
+        } catch (er) {
+            console.log("Error: ", er);
+            return;
+        }
+
     }
     const buyCards = () => {
         try {
@@ -75,6 +83,11 @@ const Store: NextPage = () => {
                     await updateUsersPucksInDB(userData.userEmail,newAmount);
                     const returnedPlayers = await getPacket(userData.userEmail,tokens);
                     if(returnedPlayers === false) throw new Error('🚦 Do it error 🚦');
+                    const tokAray:number[] = [];
+                    returnedPlayers.forEach((guy) => {
+                        tokAray.push(guy.tokenId);
+                    })
+                    await logOnTheFire({type:'buyCards',payload:{who:userData.userEmail,cards:tokAray,cost:PRICE_PER_PACK,when:new Date()}})
                     dashboardDispatch({type:'addPack',payload:{guys:returnedPlayers, newPucks:newAmount}});
                     gameStateDispatch({type:'dashboard'})
                     dashboardDispatch({type:'cancelNotify'});
@@ -125,6 +138,7 @@ const Store: NextPage = () => {
         }
     }
     return (
+        <AuthRoute>
         <div className={styles.mainContainer}>
             <div className={styles.contentContainerColumn}>
                 <h2>STORE</h2>
@@ -176,6 +190,7 @@ const Store: NextPage = () => {
             }
           
         </div>
+        </AuthRoute>
       )
 }
 export default Store

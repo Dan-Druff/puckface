@@ -170,14 +170,28 @@ const Menus: FunctionComponent<Props> = () => {
                     </div>
                 }
                 {gameState.sub === 'lockerroom' &&
-                    <div className={styles.subMenu}>
-                      <h2>ALL CARDS:</h2>
-                    </div>
+                     <div className={styles.subMenu}>
+                     <button className={styles.navButtonSecondary} onClick={() => routeAndPush('lockerroom')}>LOCKERROOM</button>
+                     <button className={styles.navButton} onClick={() => routeAndPush('tradingBlock')}>TRADING BLOCK</button>
+                     <button className={styles.navButton} onClick={() => routeAndPush('freeAgents')}>FREE AGENTS</button>
+                     <button className={styles.navButton} onClick={() => routeAndPush('store')}>STORE</button>
+                 </div>
                 }
                 {gameState.sub === 'tradingBlock' &&  
                     <div className={styles.subMenu}>
-                      <h2>SHOW CARDS FOR SALE:</h2>
-                    </div>
+                      <button className={styles.navButton} onClick={() => routeAndPush('lockerroom')}>LOCKERROOM</button>
+                      <button className={styles.navButtonSecondary} onClick={() => routeAndPush('tradingBlock')}>TRADING BLOCK</button>
+                      <button className={styles.navButton} onClick={() => routeAndPush('freeAgents')}>FREE AGENTS</button>
+                      <button className={styles.navButton} onClick={() => routeAndPush('store')}>STORE</button>
+                  </div>
+                }
+                {gameState.sub === 'freeAgents' &&  
+                    <div className={styles.subMenu}>
+                      <button className={styles.navButton} onClick={() => routeAndPush('lockerroom')}>LOCKERROOM</button>
+                      <button className={styles.navButton} onClick={() => routeAndPush('tradingBlock')}>TRADING BLOCK</button>
+                      <button className={styles.navButtonSecondary} onClick={() => routeAndPush('freeAgents')}>FREE AGENTS</button>
+                      <button className={styles.navButton} onClick={() => routeAndPush('store')}>STORE</button>
+                  </div>
                 }
             </>
         )

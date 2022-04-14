@@ -11,6 +11,7 @@ import BuildABench from '../components/BuildABench';
 import { GameType, CardType, nobody } from '../utility/constants';
 import type { GamePosition, PossibleGameStates } from '../utility/constants';
 import BenchCard from '../components/BenchCard';
+
 const CreateGame: NextPage = () => {
     const Router = useRouter();
     const {userData} = useAuth();
@@ -20,6 +21,7 @@ const CreateGame: NextPage = () => {
     const [buildingTeam, setBuildingTeam] = useState<boolean>(false);
     const [gameObject, setGameObject] = useState<GameType>({open:true,awayEmail:'',awayName:'',homeEmail:'',homeName:'',date:new Date(),id:createRandomId(),value:0,private:false,gameState:'Initialized',homeTeam:{lw:0,c:0,rw:0,d1:0,d2:0,g:0},awayTeam:{lw:0,c:0,rw:0,d1:0,d2:0,g:0}});
     const gameValue = useRef(1);
+
   
     const selectForEdit = (posId:GamePosition, tokenId:number) => {
 

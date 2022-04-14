@@ -4,6 +4,7 @@ import BenchCard from '../components/BenchCard'
 import { useDashboard } from '../context/DashboardContext'
 import { useRouter } from 'next/router'
 import { GamePosition } from '../utility/constants'
+import AuthRoute from '../hoc/authRoute'
 const Lockerroom: NextPage = () => {
     const {dashboard} = useDashboard();
     const Router = useRouter();
@@ -16,7 +17,11 @@ const Lockerroom: NextPage = () => {
         }
     }
     return (
+        <AuthRoute>
         <div className={styles.mainContainer}>
+            <div className={styles.contentContainer}>
+                <h2>ALL CARDS:</h2>
+            </div>
             {dashboard.length > 0 ? 
                 <div className={styles.contentContainer}>
                     <div className={styles.lockerroom}>
@@ -34,6 +39,7 @@ const Lockerroom: NextPage = () => {
             }
         
         </div>
+        </AuthRoute>
     )
 }
 export default Lockerroom

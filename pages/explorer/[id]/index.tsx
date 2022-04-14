@@ -30,25 +30,41 @@ const Explorer: NextPage = () => {
             console.log("rror: ", er);
         }
     }
-    useEffect(() => {
+    // useEffect(() => {
    
-        const init = async() => {
-            try {
-                const co = await getPlayerFromToken(cardIndex,tonightsGames);
-                if(co === false) throw new Error("Error get player from token.");
-                console.log("SAetting card");
-                setCCard(co);
-            } catch (er) {
-                console.log("Error: ", er);
-            }
+    //     const init = async() => {
+    //         try {
+    //             const co = await getPlayerFromToken(cardIndex,tonightsGames);
+    //             if(co === false) throw new Error("Error get player from token.");
+    //             console.log("SAetting card");
+    //             setCCard(co);
+    //         } catch (er) {
+    //             console.log("Error: ", er);
+    //         }
          
+    //     }
+    //     init();
+    
+    //   return () => {
+    
+    //   }
+    // },[cardIndex])
+    useEffect(() => {
+        let didCancel = false;
+        const getData = async() => {
+            if(!didCancel){
+                let player = await getPlayerFromToken(cardIndex, tonightsGames);
+                if(player === false) throw new Error("Error get player from token.");
+                setCCard(player);
+               
+            }
         }
-        init();
+        getData();
     
       return () => {
-    
+        didCancel = true;
       }
-    },[cardIndex])
+    }, [cardIndex])
     
     return (
         <div className={styles.mainContainer}>

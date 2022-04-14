@@ -1,9 +1,11 @@
 import type { NextPage } from 'next'
 import styles from '../styles/All.module.css'
 import { useNHL } from '../context/NHLContext'
+import AuthRoute from '../hoc/authRoute'
 const Leagues: NextPage = () => {
     const {tonightsGames} = useNHL();
     return (
+        <AuthRoute>
         <div className={styles.mainContainer}>
         <h2>Tonights NHL Games:</h2>
         {tonightsGames.length > 0 ? 
@@ -27,6 +29,7 @@ const Leagues: NextPage = () => {
   
   
       </div>
+      </AuthRoute>
     )
 }
 export default Leagues

@@ -1,6 +1,6 @@
 import { createContext, ReactNode, useContext, useReducer, useState, useRef } from "react";
 import { db } from "../firebase/clientApp";
-import {doc,getDoc,setDoc,collection,getDocs,updateDoc} from 'firebase/firestore';
+import {doc,getDoc,setDoc,collection,getDocs,updateDoc, arrayUnion} from 'firebase/firestore';
 import { createRandomId,gameIsOver,makeTeam, getIpfsUrl } from "../utility/helpers";
 import { DefAddToTradeArrayDB,DefJoinGameDB,nobody,baseURL, CardType, Stats,blankGame, blankTeam, Team,  TeamTokens,PostSignupReturnType,PostLoginReturnType,GameType, NoteType, DashboardType,DefDashDisp,DefPostLog,DefGetPlayersFromTokenArray,DefGetPacket,DefCreateGameDB, NHLGame,CalculatedGameType, LogActionType } from "../utility/constants";
 import type { StringBool,DashDispatch,DashboardActions,NHLGamesArray, GamePosition, Rarity, PossibleGameStates } from "../utility/constants";
@@ -92,6 +92,11 @@ export const postSignup = async(email:string, username:string):Promise<false | P
                 dName = username;
             
             }
+           await setDoc(doc(db,'transactions',email),{
+                logs:[],
+                transactions:[]
+            })
+
            return {
                displayName:dName,
                id:rando
@@ -288,8 +293,32 @@ export const logOnTheFire = async(log:LogActionType):Promise <boolean> => {
         // Do something to Log With here. DB solution????
         switch (log.type) {
             case 'buyCards':
+                let bc = {
+                    id:createRandomId(),
+                    type:'buyCards',
+                    cards:log.payload.cards,
+                    when:log.payload.when
+                }
+                const lRef = doc(db,'transactions',log.payload.who);
+                await updateDoc(lRef,{
+                    transactions:arrayUnion(bc)
+                })
                 break;
             case 'buyPucks':
+                let obj = {
+                    id:createRandomId(),
+                    type:'buyPucks',
+                    howMany:log.payload.howMany,
+                    when:log.payload.when
+                }
+                const logRef = doc(db,'transactions',log.payload.who);
+                await updateDoc(logRef,{
+                    transactions:arrayUnion(obj)
+                })
+                // await setDoc(doc(db,'transactions',log.payload.who),{
+                //     transactions:obj
+                // },{merge:true})
+                console.log("LOGGING ON: BUY PUCKS");
                 break;
             case 'completeGame':
                 break;
@@ -630,7 +659,7 @@ export const DashboardProvider = ({children}:{children:ReactNode}) => {
                 setNotification(null);
                 return state;
             case 'addPucks':
-                setPucks(action.payload.amount);
+                setPucks(pucks + action.payload.amount);
                 return state;
             case 'addPack':
                 setPucks(action.payload.newPucks);

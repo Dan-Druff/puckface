@@ -1,15 +1,16 @@
 import type { NextPage } from 'next'
 import styles from '../styles/All.module.css'
 import { useDashboard} from '../context/DashboardContext'
-import { NoteType } from '../utility/constants'
-import type { GamePosition } from '../utility/constants'
+import { useGameState } from '../context/GameState'
 import AuthRoute from '../hoc/authRoute'
 import LobbyGameCard from '../components/LobbyGameCard'
 import BenchCard from '../components/BenchCard'
 import { useRouter } from 'next/router'
 import Loader from '../components/Loader'
+import { GamePosition } from '../utility/constants'
 const Dashboard: NextPage = () => {
     const Router = useRouter();
+    const {gameStateDispatch} = useGameState();
     const {activeGames, pucks, dashboardDispatch, dashboard, displayName} = useDashboard();
     console.log("Player has pucks: ", pucks);
 
@@ -17,6 +18,7 @@ const Dashboard: NextPage = () => {
     const cardSelect = async(posId:GamePosition, tokenId:number) => {
         try {
             console.log("You selected card: ", tokenId, posId);
+            gameStateDispatch({type:'inspect'});
             Router.push(`/card/${tokenId.toString()}`);
         } catch (er) {
             console.log("Card select error: ",er);

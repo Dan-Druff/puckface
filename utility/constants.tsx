@@ -60,7 +60,7 @@ export interface CardType {
   
 
 }
-export type GameStateActions = {type:'inGame'} | {type:'observingGame'} | {type:'createGame'} | {type:'home'} | {type:'dashboard'} | {type:'leagues'} | {type:'lobby'} | {type:'profile'} | {type:'lockerroom'} | {type:'tradingBlock'} | {type:'freeAgents'} | {type:'store'}
+export type GameStateActions = {type:'inspect'} | {type:'inGame'} | {type:'observingGame'} | {type:'createGame'} | {type:'home'} | {type:'dashboard'} | {type:'leagues'} | {type:'lobby'} | {type:'profile'} | {type:'lockerroom'} | {type:'tradingBlock'} | {type:'freeAgents'} | {type:'store'}
 export const defaultState = {main:'none',sub:'none'}
 export type GameStateDispatch = (action:GameStateActions) => void
 
@@ -153,7 +153,7 @@ export interface GameType {
 }
 export type LogActionType = 
 {type:'buyPucks',payload:{howMany:number, when:Date, who:string}} | 
-{type:'buyCards',payload:{when:Date,cost:number,cards:number[]}} | 
+{type:'buyCards',payload:{when:Date,cost:number,cards:number[],who:string}} | 
 {type:'createGame',payload:{game:GameType}} | 
 {type:'joinGame',payload:{game:GameType}} | 
 {type:'completeGame',payload:{game:GameType}}

@@ -3,6 +3,7 @@ import styles from '../styles/All.module.css'
 import { useDashboard,addToFreeAgents,getFreeAgents } from '../context/DashboardContext'
 import BlockCard from '../components/BlockCard'
 import { GamePosition } from '../utility/constants'
+import AuthRoute from '../hoc/authRoute'
 
 const TradingBlock: NextPage = () => {
     const {addToTradeArrayDB, tradeArray,dashboardDispatch, dashboard} = useDashboard();
@@ -29,14 +30,20 @@ const TradingBlock: NextPage = () => {
         }
     }
     return (
+        <AuthRoute>
         <div className={styles.mainContainer}>
-          
+           <div className={styles.contentContainer}>
+                <h2>TRADING BLOCK</h2>
+                
+            </div>
             <div className={styles.contentContainer}>
        
             {tradeArray.length > 0 ? 
             <>
+           
             <div className={styles.contentContainer}>
-                <h2>GUYS TO TRADE:</h2>
+                <h2>Guys To Trade:</h2>
+                
             </div>
             <div className={styles.contentContainer}>
                 <div className={styles.lockerroom}>
@@ -63,6 +70,7 @@ const TradingBlock: NextPage = () => {
                     </div>
             </div>
         </div>
+        </AuthRoute>
     )
 }
 export default TradingBlock

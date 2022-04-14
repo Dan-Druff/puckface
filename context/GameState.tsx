@@ -8,6 +8,10 @@ const GameStateContext = createContext<{gameState:GameState;gameStateDispatch:Ga
 function gameStateReducer(state:GameState,action:GameStateActions){
 
     switch (action.type) {
+        case 'inspect':
+            state.main = 'none';
+            state.sub = 'dashboard';
+            return state;
         case 'inGame':
             state.main = 'none';
             state.sub = 'inGame';
@@ -36,6 +40,7 @@ function gameStateReducer(state:GameState,action:GameStateActions){
             state.sub = 'profile';
             return state;  
         case 'freeAgents':
+            state.main = 'none';
             state.sub = 'freeAgents';
             return state;
         case 'lockerroom':
