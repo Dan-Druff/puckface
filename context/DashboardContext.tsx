@@ -345,6 +345,8 @@ export const getFreeAgents = async():Promise<any | false> => {
             console.log("Arrays is: ", agents.array);
       
             return agents.array;
+        }else{
+            throw new Error("Error exresExists");
         }
       
     } catch (er) {
@@ -357,7 +359,7 @@ export const addToFreeAgents = async(token:number,by:string,ask:string, value:nu
     try {
         const fao = {
             ask:ask,
-            token:token,
+            tokenId:token,
             by:by,
             value:value
         }

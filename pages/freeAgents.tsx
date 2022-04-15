@@ -2,35 +2,44 @@ import type { NextPage } from 'next'
 import styles from '../styles/All.module.css'
 import AuthRoute from '../hoc/authRoute'
 import { useState, useEffect } from 'react'
-import { CardType } from '../utility/constants'
+import { CardType, FreeAgentType } from '../utility/constants'
 import { useDashboard, getFreeAgents } from '../context/DashboardContext'
 import { getPlayerFromToken } from '../utility/helpers';
 import { useNHL } from '../context/NHLContext'
-import BenchCard from '../components/BenchCard'
+// import BenchCard from '../components/BenchCard'
+import FreeAgentCard from '../components/FreeAgentCard';
+
 const FreeAgents: NextPage = () => {
     const {tonightsGames} = useNHL();
     const {tradeArray} = useDashboard();
-    const [cards, setcards] = useState<CardType[]>([]);
-
+    // const [cards, setcards] = useState<CardType[]>([]);
+    const [cards,setCards] = useState<FreeAgentType[]>([]);
     useEffect(() => {
         const initFreeAgents = async() => {
             let allCards:CardType[] = [];
             let free = await getFreeAgents();
             if(free === false) throw new Error("Error getting free aganets");
-            // console.log("UE IS: ", free);
-            // free.forEach(async(token:number) => {
-            //     let p = await getPlayerFromToken(token, tonightsGames);
-            //     if (p === false) throw new Error("Error getting player from token");
-            //     allCards.push(p);
-            // })
-            const rez = await Promise.all(free.map(async(tok:any) => {
-              let py = await getPlayerFromToken(tok.token, tonightsGames);
+      
+            const rez = await Promise.all(free.map(async(agent:any) => {
+              let py = await getPlayerFromToken(agent.tokenId, tonightsGames);
               if (py === false) throw new Error("Error getting player from token");
-                return py;
+              let o:FreeAgentType = {
+                  ask:agent.ask,
+                  by:agent.by,
+                  tokenId:py.tokenId,
+                  image:py.image,
+                  playerId:py.playerId,
+                  playerName:py.playerName,
+                  rarity:py.rarity,
+                  pos:py.pos,
+                  value:agent.value
+
+              }
+                return o;
 
             }))
             console.log("SETTING ALL CARDS: ", rez);
-            setcards(rez);
+            setCards(rez);
          
         }
         initFreeAgents();
@@ -49,7 +58,8 @@ const FreeAgents: NextPage = () => {
                 <div className={styles.lockerroom}>
                     {cards.map((c) => {
                         return (
-                            <BenchCard key={c.tokenId} card={c} posId='none' func={() => {}} active={true}/>
+                            <FreeAgentCard key={c.tokenId} agent={c}/>
+                            // <BenchCard key={c.tokenId} card={c} posId='none' func={() => {}} active={true}/>
                         )
                     })}
                 </div>

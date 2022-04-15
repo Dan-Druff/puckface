@@ -60,6 +60,20 @@ export interface CardType {
   
 
 }
+export type AskType = 'either' | 'sell' | 'trade';
+export interface FreeAgentType {
+    ask:AskType;
+    by:string;
+    tokenId:number;
+    value:number;
+    image:string;
+    playerId:string;
+    playerName:string;
+    rarity:Rarity;
+    pos:string;
+
+
+}
 export type GameStateActions = {type:'inspect'} | {type:'inGame'} | {type:'observingGame'} | {type:'createGame'} | {type:'home'} | {type:'dashboard'} | {type:'leagues'} | {type:'lobby'} | {type:'profile'} | {type:'lockerroom'} | {type:'tradingBlock'} | {type:'freeAgents'} | {type:'store'}
 export const defaultState = {main:'none',sub:'none'}
 export type GameStateDispatch = (action:GameStateActions) => void
@@ -91,6 +105,10 @@ export interface BenchCardType {
     active:boolean,
     func:(posId:GamePosition, tokenId:number) => void,
     posId:GamePosition
+}
+export interface FreeAgentCardType {
+    agent:FreeAgentType,
+    
 }
 export interface LoaderType {
     message:string

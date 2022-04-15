@@ -6,11 +6,13 @@ import { GamePosition,nobody, CardType } from '../utility/constants'
 import AuthRoute from '../hoc/authRoute'
 import { useAuth } from '../context/AuthContext'
 import { useRef, useState } from 'react'
+import FreeAgentCard from '../components/FreeAgentCard'
 
 
 const TradingBlock: NextPage = () => {
     const {addToTradeArrayDB, tradeArray,dashboardDispatch, dashboard} = useDashboard();
     const {userData} = useAuth();
+    const [addCard, setAddCard] = useState<boolean>(false);
     const [options,setOptions] = useState<boolean>(false);
     const [typeOfTrade, setTypeOfTrade] = useState<{value:string}>({value:'sell'});
     const [currentGuy, setCurrentGuy] = useState<CardType>(nobody);
@@ -114,19 +116,7 @@ const TradingBlock: NextPage = () => {
                     </>
                     }
                     </div>
-                    {/* <label htmlFor="howMuch">SELL VALUE:  </label> */}
-                
-                    {/* {typeOfTrade.value !== 'trade' ?   
-                    <div className={styles.inputDiv}>
-                    <label htmlFor="howMuch">SELL VALUE:  </label><br />
-                    <input name="howMuch" id="howMuch" type="number" placeholder="1" required/>
-                    </div>
-                    :
-                    <div className={styles.inputDiv}>
-                    <label htmlFor="howMuch">SELL VALUE:  </label><br />
-                    <input name="howMuch" id="howMuch" type="number" placeholder="1" required/>
-                    </div>
-                    } */}
+           
                   <br />
                     <hr className={styles.blueLine}/><br />
                     <button className={styles.pfButton} type="submit">ADD CARD</button>
@@ -148,7 +138,7 @@ const TradingBlock: NextPage = () => {
             <>
            
             <div className={styles.contentContainer}>
-                <h2>Guys To Trade:</h2>
+                <h2>⬇️ My cards on the block: ⬇️</h2>
                 
             </div>
             <div className={styles.contentContainer}>
@@ -165,16 +155,21 @@ const TradingBlock: NextPage = () => {
             <p>No Guys On the trading block</p>
             }
             </div>
+            {addCard ? 
             <div className={styles.contentContainer}>
-                <h2>ALL GUYS:</h2>
-            <div className={styles.lockerroom}>
+                <h2>⬇️ SELECT CARD TO SELL / TRADE ⬇️</h2>
+                <div className={styles.lockerroom}>
                     {dashboard.map((card) => {
-                        return (
-                            <BlockCard key={card.tokenId} active={true} card={card} func={cardSelect} posId={card.inUse} />
-                        )
-                    })}
-                    </div>
+                         return (
+                             <BlockCard key={card.tokenId} active={true} card={card} func={cardSelect} posId={card.inUse} />
+                         )
+                     })}
+                 </div>
             </div>
+            : 
+            <button className={styles.pfButton} onClick={() => setAddCard(true)}>ADD CARD TO SELL OR TRADE</button>
+            }
+      
             </>
             }
         </div>

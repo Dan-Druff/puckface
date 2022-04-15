@@ -1,7 +1,7 @@
 import React, {FunctionComponent} from 'react';
 import { useRouter } from "next/router"
 import styles from '../styles/All.module.css';
-export type Pages = 'joinGame' | 'createGame' | 'dashboard' | 'lobby' | 'profile' | 'leagues' | 'store' | 'login' | 'signup' | 'home' | 'freeAgents' | 'tradingBlock' | 'lockerroom'
+export type Pages = 'explorer' |'joinGame' | 'createGame' | 'dashboard' | 'lobby' | 'profile' | 'leagues' | 'store' | 'login' | 'signup' | 'home' | 'freeAgents' | 'tradingBlock' | 'lockerroom'
 // import {MainState,GameStateActions,useGameState} from '../context/GameState';
 // import type {GameStateDispatch,GameState, GameStateActions} from '../context/GameState';
 import {useGameState} from '../context/GameState';
@@ -38,6 +38,9 @@ const Menus: FunctionComponent<Props> = () => {
 
     const routeAndPush = (page:Pages) => {
         switch (page) {
+            case 'explorer':
+                Router.push('/explorer/3432')
+                break;
             case 'joinGame':
                 joinGame();
                 break;
@@ -106,6 +109,8 @@ const Menus: FunctionComponent<Props> = () => {
          
 
                     <button className={styles.navButton} onClick={() => routeAndPush('home')}>HOME</button>
+                    <button className={styles.navButton} onClick={() => routeAndPush('explorer')}>EXPLORE</button>
+
                     <button className={styles.navButton} onClick={() => routeAndPush('signup')}>SIGNUP</button>
                     <button className={styles.navButton} onClick={() => routeAndPush('login')}>LOGIN</button>
         
