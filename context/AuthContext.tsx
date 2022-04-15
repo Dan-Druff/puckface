@@ -56,7 +56,7 @@ export const AuthProvider = ({children}:{children:ReactNode}) => {
     if(loading){
         return (
             <div className={styles.contentContainer}>
-                <Loader />
+                <Loader message='Loading...' />
             </div>
         )
     }

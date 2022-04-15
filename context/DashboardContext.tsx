@@ -353,12 +353,21 @@ export const getFreeAgents = async():Promise<any | false> => {
     }
     
 }
-export const addToFreeAgents = async(tokenArray:number[]):Promise <boolean> => {
+export const addToFreeAgents = async(token:number,by:string,ask:string, value:number):Promise <boolean> => {
     try {
-        
-        const upRes = await setDoc(doc(db,'freeAgents','cards'),{
-            array:tokenArray
-        },{merge:true})
+        const fao = {
+            ask:ask,
+            token:token,
+            by:by,
+            value:value
+        }
+        const fRef = doc(db,'freeAgents','cards');
+        await updateDoc(fRef,{
+            array:arrayUnion(fao)
+        })
+        // const upRes = await setDoc(doc(db,'freeAgents','cards'),{
+        //     array:tokenArray
+        // },{merge:true})
         return true;
 
       
@@ -663,6 +672,7 @@ export const DashboardProvider = ({children}:{children:ReactNode}) => {
                 return state;
             case 'addPack':
                 setPucks(action.payload.newPucks);
+                
                 return [...action.payload.guys, ...state];    
                 default:
                 return state;

@@ -8,7 +8,7 @@ import { useState, useRef } from 'react'
 import { PRICE_PER_PACK } from '../utility/constants'
 import { buyPucks,updateUsersPucksInDB } from '../context/DashboardContext'
 import AuthRoute from '../hoc/authRoute'
-
+import Loader from '../components/Loader'
 const Store: NextPage = () => {
     // buyPucks,setNotification,getPacket,updateUsersPucksInDB,
     const {tokens,pucks,dashboardDispatch, displayName, getPacket} = useDashboard();
@@ -16,6 +16,7 @@ const Store: NextPage = () => {
     const {userData} = useAuth();
     const [buyPuckPage, setBuyPuckPage] = useState<boolean>(false);
     const [buyCardPage, setBuyCardPage] = useState<boolean>(false);
+    const [load,setLoad] = useState<boolean>(false);
     const Router = useRouter();
     const howManyPucks = useRef(0);
     const cancelOut = () => {
@@ -30,6 +31,7 @@ const Store: NextPage = () => {
     const puckHandler = async(e:any) => {
         e.preventDefault();
         try {
+        
             const {howMany} = e.target.elements;
             howManyPucks.current = howMany.value;
             console.log("Puck Handler",howMany.value);
@@ -75,27 +77,48 @@ const Store: NextPage = () => {
     }
     const buyCards = () => {
         try {
+         
             setBuyCardPage(true);
             const doIt = async() => {
-                console.log("BUY CARDSSSSSSSS");
-                let newAmount = pucks - PRICE_PER_PACK;
-                if(userData !== null && userData.userEmail !== null){
-                    await updateUsersPucksInDB(userData.userEmail,newAmount);
-                    const returnedPlayers = await getPacket(userData.userEmail,tokens);
-                    if(returnedPlayers === false) throw new Error('🚦 Do it error 🚦');
-                    const tokAray:number[] = [];
-                    returnedPlayers.forEach((guy) => {
-                        tokAray.push(guy.tokenId);
-                    })
-                    await logOnTheFire({type:'buyCards',payload:{who:userData.userEmail,cards:tokAray,cost:PRICE_PER_PACK,when:new Date()}})
-                    dashboardDispatch({type:'addPack',payload:{guys:returnedPlayers, newPucks:newAmount}});
-                    gameStateDispatch({type:'dashboard'})
+                try {
+                    setLoad(true);
                     dashboardDispatch({type:'cancelNotify'});
-                    Router.push('/dashboard');
+                    console.log("BUY CARDSSSSSSSS");
+                    let newAmount = pucks - PRICE_PER_PACK;
+                    if(userData !== null && userData.userEmail !== null){
+                        await updateUsersPucksInDB(userData.userEmail,newAmount);
+                        const returnedPlayers = await getPacket(userData.userEmail,tokens);
+                        if(returnedPlayers === false) throw new Error('🚦 Do it error 🚦');
+                        const tokAray:number[] = [];
+                        returnedPlayers.forEach((guy) => {
+                            tokAray.push(guy.tokenId);
+                        })
+                        await logOnTheFire({type:'buyCards',payload:{who:userData.userEmail,cards:tokAray,cost:PRICE_PER_PACK,when:new Date()}})
+                        dashboardDispatch({type:'addPack',payload:{guys:returnedPlayers, newPucks:newAmount}});
+                        gameStateDispatch({type:'dashboard'})
+                        
+                        setLoad(false);
+                        Router.push('/dashboard');
+    
+                    }else{
+                        throw new Error('🚦 User Data is effed 🚦');
+                    }
+                } catch (er) {
+                    console.log("Get cards error", er);
+                    setLoad(false);
+                    let erm = {
+                        colorClass:'',
+                        message:'Sorry, something went wrong getting cards',
+                        twoButtons:false,
+                        mainTitle:'CANCEL',
+                        mainFunction:cancelIt,
+                        cancelTitle:'CANCEL',
+                        cancelFunction:cancelIt,
+                    }
+                    dashboardDispatch({type:'notify',payload:{notObj:erm}})
 
-                }else{
-                    throw new Error('🚦 User Data is effed 🚦');
                 }
+      
                 
    
 
@@ -137,60 +160,70 @@ const Store: NextPage = () => {
             return;
         }
     }
-    return (
-        <AuthRoute>
-        <div className={styles.mainContainer}>
-            <div className={styles.contentContainerColumn}>
-                <h2>STORE</h2>
-                <p>You have {pucks} pucks.</p>
-            </div>
-            {!buyCardPage && !buyPuckPage &&  
+    if(load){
+        return (
             <div className={styles.contentContainer}>
-
-                <button className={styles.pfButtonSecondary} onClick={() => setBuyPuckPage(true)}>BUY PUCKS</button>
-                <button className={styles.pfButtonSecondary} onClick={() => buyCards()}>BUY CARDS</button>
+                <Loader message="Getting Cards..." />
             </div>
-            }
-            {buyCardPage && 
-            <div className={styles.contentContainer}>
-                <h2>Buys Cards</h2>
-            </div>
-            }
-            {buyPuckPage && 
-            <div className={styles.contentContainer}>
-            <div className={styles.rinkDiv}>
-                <form onSubmit={puckHandler}>
-                    <h2>Buy Pucks:</h2>
-                    <hr className={styles.smallRedLine} /><br />
-                    <div className={styles.inputDiv}>
-                    <label htmlFor="howMany">How Many?:</label><br />
-                    <input name="howMany" id="howMany" type="number" placeholder="0" required/>
-                    </div><br />
-                    <hr className={styles.blueLine}/><br />
-                    {/* <div className={styles.inputDiv}>
-                    <label htmlFor="howMuch">Other Property: </label><br />
-                    <input name="other" id="other" type="number" placeholder="0" required/>
-                    </div> */}
-                    <br />
-                    <hr className={styles.centerLine}/>
-                    <br /> 
-                    <button className={styles.pfButton} type="submit">BUY PUCKS</button>
+            
+        )
+    }else{
+        return (
+            <AuthRoute>
+            <div className={styles.mainContainer}>
+                <div className={styles.contentContainerColumn}>
+                    <h2>STORE</h2>
+                    <p>You have {pucks} pucks.</p>
+                </div>
+                {!buyCardPage && !buyPuckPage &&  
+                <div className={styles.contentContainer}>
     
-                    <br />
-                    <hr className={styles.blueLine}/>
-                    <br />
-                    <button className={styles.pfButton} onClick={cancelOut} type="button">Cancel</button>
-    
-                    <br /><br />
-                    <hr className={styles.smallRedLine} />
-                    <br />
-                </form>
+                    <button className={styles.pfButtonSecondary} onClick={() => setBuyPuckPage(true)}>BUY PUCKS</button>
+                    <button className={styles.pfButtonSecondary} onClick={() => buyCards()}>BUY CARDS</button>
+                </div>
+                }
+                {buyCardPage && 
+                <div className={styles.contentContainer}>
+                    <h2>Buys Cards</h2>
+                </div>
+                }
+                {buyPuckPage && 
+                <div className={styles.contentContainer}>
+                <div className={styles.rinkDiv}>
+                    <form onSubmit={puckHandler}>
+                        <h2>Buy Pucks:</h2>
+                        <hr className={styles.smallRedLine} /><br />
+                        <div className={styles.inputDiv}>
+                        <label htmlFor="howMany">How Many?:</label><br />
+                        <input name="howMany" id="howMany" type="number" placeholder="0" required/>
+                        </div><br />
+                        <hr className={styles.blueLine}/><br />
+                        {/* <div className={styles.inputDiv}>
+                        <label htmlFor="howMuch">Other Property: </label><br />
+                        <input name="other" id="other" type="number" placeholder="0" required/>
+                        </div> */}
+                        <br />
+                        <hr className={styles.centerLine}/>
+                        <br /> 
+                        <button className={styles.pfButton} type="submit">BUY PUCKS</button>
+        
+                        <br />
+                        <hr className={styles.blueLine}/>
+                        <br />
+                        <button className={styles.pfButton} onClick={cancelOut} type="button">Cancel</button>
+        
+                        <br /><br />
+                        <hr className={styles.smallRedLine} />
+                        <br />
+                    </form>
+                </div>
+                </div>
+                }
+              
             </div>
-            </div>
-            }
-          
-        </div>
-        </AuthRoute>
-      )
+            </AuthRoute>
+          )
+    }
+  
 }
 export default Store

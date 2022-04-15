@@ -28,7 +28,7 @@ const Dashboard: NextPage = () => {
         <AuthRoute>
             {displayName === 'NA' ? 
             <div className={styles.contentContainer}>
-                <Loader />
+                <Loader message="Loading Dashboard..." />
             </div>
             :     
             <div className={styles.mainContainer}>

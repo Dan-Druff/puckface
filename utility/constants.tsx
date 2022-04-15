@@ -92,6 +92,9 @@ export interface BenchCardType {
     func:(posId:GamePosition, tokenId:number) => void,
     posId:GamePosition
 }
+export interface LoaderType {
+    message:string
+}
 export interface ExplorerCard {
     card:CardType,
     image:string

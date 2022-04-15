@@ -1,8 +1,9 @@
 import styles from '../styles/Loader.module.css';
-const Loader = () => {
+import { LoaderType } from '../utility/constants';
+const Loader = (props:LoaderType) => {
     return (
         <div className={styles.mainContainer}>
-            <p>LOADING...</p>
+            <h3>{props.message}</h3>
             <div className={styles.ldscircle}><div></div></div>
         </div>
     )

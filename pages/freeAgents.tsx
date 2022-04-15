@@ -23,8 +23,8 @@ const FreeAgents: NextPage = () => {
             //     if (p === false) throw new Error("Error getting player from token");
             //     allCards.push(p);
             // })
-            const rez = await Promise.all(free.map(async(tok:number) => {
-              let py = await getPlayerFromToken(tok, tonightsGames);
+            const rez = await Promise.all(free.map(async(tok:any) => {
+              let py = await getPlayerFromToken(tok.token, tonightsGames);
               if (py === false) throw new Error("Error getting player from token");
                 return py;
 
@@ -43,7 +43,7 @@ const FreeAgents: NextPage = () => {
     return (
         <AuthRoute>
         <div className={styles.mainContainer}>
-            <h2>free agnets</h2>
+            <h2>FREE AGENTS:</h2>
             {cards.length > 0 ? 
             <div className={styles.contentContainer}>
                 <div className={styles.lockerroom}>
@@ -55,7 +55,7 @@ const FreeAgents: NextPage = () => {
                 </div>
             </div>
             : 
-            <h2>NO AVAILABLE PLAYERS</h2>
+            <h2>NO CURRENT FREE AGENTS</h2>
             }
         </div>
         </AuthRoute>

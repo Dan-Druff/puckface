@@ -26,9 +26,9 @@ const Home: NextPage = () => {
         })}
       </div>
       }
-        <div className={styles.contentContainer}>
+        {/* <div className={styles.contentContainer}>
           <h2>🥅 Login to start givin &#39;er... 🏒</h2>
-        </div>
+        </div> */}
         <div className={styles.contentContainer}>
           <button className={styles.pfButton} onClick={() => help()}>WTF is this?</button>
         </div>
