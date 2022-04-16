@@ -116,7 +116,7 @@ const Menus: FunctionComponent<Props> = () => {
         
                 </div>
                 <div className={styles.subMenu}>
-                        <h2>Welcome to PUCKFACE</h2>
+                        <h2>PUCKFACE</h2>
                 </div>
             </>
     )

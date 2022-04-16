@@ -89,14 +89,17 @@ const Store: NextPage = () => {
                         await updateUsersPucksInDB(userData.userEmail,newAmount);
                         const returnedPlayers = await getPacket(userData.userEmail,tokens);
                         if(returnedPlayers === false) throw new Error('🚦 Do it error 🚦');
+                        console.log("Got returned players... ", returnedPlayers);
                         const tokAray:number[] = [];
                         returnedPlayers.forEach((guy) => {
                             tokAray.push(guy.tokenId);
                         })
                         await logOnTheFire({type:'buyCards',payload:{who:userData.userEmail,cards:tokAray,cost:PRICE_PER_PACK,when:new Date()}})
+                        console.log("LOG ON THE FIRE DONe")
                         dashboardDispatch({type:'addPack',payload:{guys:returnedPlayers, newPucks:newAmount}});
+                        console.log("DASHBOARD DISPATCH")
                         gameStateDispatch({type:'dashboard'})
-                        
+                        console.log("Gamestate dispatch");
                         setLoad(false);
                         Router.push('/dashboard');
     

@@ -108,7 +108,7 @@ export interface BenchCardType {
 }
 export interface FreeAgentCardType {
     agent:FreeAgentType,
-    
+
 }
 export interface LoaderType {
     message:string
@@ -207,7 +207,7 @@ export interface PostLoginReturnType {
     },
     activeGames:GameType[]
 }
-export type DashboardActions = {type:'addToTradingBlock',payload:{tokenId:number}} | {type:'dashboard'} | {type:'error',payload:{er:string}} | {type:'setTeams',payload:{game:GameType, myTeam:Team, oppTeam:Team}} | {type:'joinGame',payload:{game:GameType}} | {type:'leavingGame'} | {type:'calculatedGame',payload:{newGame:GameType, newPucks:number, winner:string}} | {type:'createLobbyGame',payload:{game:GameType}} | {type:'editPlayer',payload:{posId:GamePosition, player:CardType}} | {type:'cancelEdit'} | {type:'selectPlayer',payload:{tokenId:number, game:GameType}} | {type:'addPack',payload:{guys:DashboardType, newPucks:number}} | {type:'addPucks',payload:{amount:number}} | {type:'cancelNotify'} | {type:'notify',payload:{notObj:NoteType}} | {type:'clear'} | {type:'create',payload:{activeGames:GameType[],dbData:any}} | {type:'login',payload:{displayName:string, dash:DashboardType,games:GameType[],dbData:any}} | {type:'signup',payload:{displayName:string,id:string}}
+export type DashboardActions = {type:'boughtAgent',payload:{agent:FreeAgentType, card:CardType}} | {type:'addToTradingBlock',payload:{tokenId:number}} | {type:'dashboard'} | {type:'error',payload:{er:string}} | {type:'setTeams',payload:{game:GameType, myTeam:Team, oppTeam:Team}} | {type:'joinGame',payload:{game:GameType}} | {type:'leavingGame'} | {type:'calculatedGame',payload:{newGame:GameType, newPucks:number, winner:string}} | {type:'createLobbyGame',payload:{game:GameType}} | {type:'editPlayer',payload:{posId:GamePosition, player:CardType}} | {type:'cancelEdit'} | {type:'selectPlayer',payload:{tokenId:number, game:GameType}} | {type:'addPack',payload:{guys:DashboardType, newPucks:number}} | {type:'addPucks',payload:{amount:number}} | {type:'cancelNotify'} | {type:'notify',payload:{notObj:NoteType}} | {type:'clear'} | {type:'create',payload:{activeGames:GameType[],dbData:any}} | {type:'login',payload:{displayName:string, dash:DashboardType,games:GameType[],dbData:any}} | {type:'signup',payload:{displayName:string,id:string}}
 
 export type DashDispatch = (action:DashboardActions) => void;
 
@@ -256,5 +256,8 @@ export const DefJoinGameDB = async():Promise<GameType | false> => {
     return false;
 }
 export const DefAddToTradeArrayDB = async(tokenId:number):Promise<boolean> => {
+    return false;
+}
+export const DefBuyFreeAgent = async(agent:FreeAgentType):Promise<boolean> => {
     return false;
 }

@@ -1,8 +1,8 @@
 import { createContext, ReactNode, useContext, useReducer, useState, useRef } from "react";
 import { db } from "../firebase/clientApp";
-import {doc,getDoc,setDoc,collection,getDocs,updateDoc, arrayUnion} from 'firebase/firestore';
+import {doc,getDoc,setDoc,collection,getDocs,updateDoc, arrayUnion, arrayRemove} from 'firebase/firestore';
 import { createRandomId,gameIsOver,makeTeam, getIpfsUrl } from "../utility/helpers";
-import { DefAddToTradeArrayDB,DefJoinGameDB,nobody,baseURL, CardType, Stats,blankGame, blankTeam, Team,  TeamTokens,PostSignupReturnType,PostLoginReturnType,GameType, NoteType, DashboardType,DefDashDisp,DefPostLog,DefGetPlayersFromTokenArray,DefGetPacket,DefCreateGameDB, NHLGame,CalculatedGameType, LogActionType } from "../utility/constants";
+import { DefBuyFreeAgent,DefAddToTradeArrayDB,DefJoinGameDB,nobody,baseURL, CardType, Stats,blankGame, blankTeam, Team,  TeamTokens,PostSignupReturnType,PostLoginReturnType,GameType, NoteType, DashboardType,DefDashDisp,DefPostLog,DefGetPlayersFromTokenArray,DefGetPacket,DefCreateGameDB, NHLGame,CalculatedGameType, LogActionType, FreeAgentType } from "../utility/constants";
 import type { StringBool,DashDispatch,DashboardActions,NHLGamesArray, GamePosition, Rarity, PossibleGameStates } from "../utility/constants";
 import { useNHL } from "./NHLContext";
 import { useAuth } from "./AuthContext";
@@ -31,7 +31,8 @@ export interface AllDashType {
     createGameInDB:(game:GameType) => Promise<GameType | false>,
     joinGameInDB:() => Promise<GameType | false>,
     tradeArray:number[],
-    addToTradeArrayDB:(tokenId:number) => Promise<boolean>
+    addToTradeArrayDB:(tokenId:number) => Promise<boolean>,
+    buyFreeAgent:(agent:FreeAgentType) => Promise<boolean>
 }
 // -----------------------------Types UP ^------------------------------
 // FUNCTIONS THAT DONT NEED STATE--------------------
@@ -140,10 +141,12 @@ export const updateMintedArray = async(mintedArray:number[],email:string,usersTo
         const userRes = await setDoc(doc(db,'users',email),{
             cards:usersTokenArray
         },{ merge: true });
+        console.log("SET USER DOC");
         // set minted tokens array
         const mintedRes = await setDoc(doc(db,'minted','cards'),{
             array:mintedArray
         })
+        console.log("SET MINTED ARRAY");
         return true;
     } catch (e) {
         console.log("Update Mint Array Error: ", e);
@@ -160,6 +163,18 @@ export const buyPucks = async(amount:number, email:string):Promise <boolean> => 
     } catch (er) {
         console.log("Error: ", er);
         return false;
+    }
+}
+export const buyACard = async(agent:FreeAgentType) => {
+    try {
+        // subtract pucks from users db
+        
+        // addTokenNumber to users db
+
+
+        
+    } catch (er) {
+        console.log("ERROR: ", er);
     }
 }
 export const getLobbyGames = async():Promise <GameType[] | false> => {
@@ -380,7 +395,7 @@ export const addToFreeAgents = async(token:number,by:string,ask:string, value:nu
    
 }
 // ----------------------------- <MEAT AND POTOTOS> -----------------------------
-const DashboardContext = createContext<AllDashType>({dashboard:[], pucks:0, dashboardDispatch:DefDashDisp,displayName:'NA',activeGames:[],activeLeagues:[],tokens:[],editing:false, notification:null, postLogin:DefPostLog, getPlayersFromTokenArray:DefGetPlayersFromTokenArray,getPacket:DefGetPacket, availableGuys:[], currentGame:blankGame, team:blankTeam, oppTeam:blankTeam, prevPlayer:nobody,createGameInDB:DefCreateGameDB,joinGameInDB:DefJoinGameDB,tradeArray:[],addToTradeArrayDB:DefAddToTradeArrayDB});
+const DashboardContext = createContext<AllDashType>({dashboard:[], pucks:0, dashboardDispatch:DefDashDisp,displayName:'NA',activeGames:[],activeLeagues:[],tokens:[],editing:false, notification:null, postLogin:DefPostLog, getPlayersFromTokenArray:DefGetPlayersFromTokenArray,getPacket:DefGetPacket, availableGuys:[], currentGame:blankGame, team:blankTeam, oppTeam:blankTeam, prevPlayer:nobody,createGameInDB:DefCreateGameDB,joinGameInDB:DefJoinGameDB,tradeArray:[],addToTradeArrayDB:DefAddToTradeArrayDB,buyFreeAgent:DefBuyFreeAgent});
 
 export const DashboardProvider = ({children}:{children:ReactNode}) => {
     const {tonightsGames} = useNHL();
@@ -405,6 +420,11 @@ export const DashboardProvider = ({children}:{children:ReactNode}) => {
 
     function dashboardReducer(state:DashboardType, action:DashboardActions){
         switch (action.type) {
+            case 'boughtAgent':
+                setPucks(pucks - action.payload.agent.value);
+                setTokens([action.payload.agent.tokenId, ...tokens]);
+
+                return [action.payload.card,...state];
             case 'addToTradingBlock':
                 setTradeArray([action.payload.tokenId,...tradeArray]);
                 return state;
@@ -446,7 +466,7 @@ export const DashboardProvider = ({children}:{children:ReactNode}) => {
             case 'joinGame':
               
                 let y:NoteType = {
-                    message:'Game has been set. Do some date calculations or something?',
+                    message:'Game has been set, Good Luck! All games are calculated and paid out at Midnight PST.',
                     twoButtons:false,
                     cancelFunction:cancelNotification,
                     cancelTitle:'GOT IT',
@@ -664,7 +684,9 @@ export const DashboardProvider = ({children}:{children:ReactNode}) => {
                 setEditing(false);
                 return state;   
             case 'notify':
-                setNotification(action.payload.notObj);
+                let obv = action.payload.notObj;
+                obv.cancelFunction = cancelNotification;
+                setNotification(obv);
                 return state;   
             case 'cancelNotify':
                 setNotification(null);
@@ -861,6 +883,7 @@ export const DashboardProvider = ({children}:{children:ReactNode}) => {
 
     const getPlayersFromTokenArray = async(tokenArray:number[]):Promise<DashboardType | false> => {
         try {
+            console.log("Getting players from token Array.");
             let playingTeams: string[] = [];
             tonightsGames.forEach((game) => {
                 playingTeams.push(game.awayName);
@@ -936,11 +959,12 @@ export const DashboardProvider = ({children}:{children:ReactNode}) => {
                 let shutouts = 0;
                 let active = false;
                 // let url = baseURL + token.toString() + '.json';
+                console.log("About to fetch IPFS");
                 let url = getIpfsUrl('json',token);                                
                 // Get players json object
                 let data = await fetch(url);
                 let guy = await data.json();
-    
+                console.log("Got IPFS");
                 let playerId = guy.attributes[3].value;
                 let pos = guy.attributes[0].value;
                 
@@ -986,6 +1010,7 @@ export const DashboardProvider = ({children}:{children:ReactNode}) => {
                         shutouts:shutouts
                     }
                 }
+                console.log("Got a promise...");
                 return player;
     
     
@@ -1016,6 +1041,7 @@ export const DashboardProvider = ({children}:{children:ReactNode}) => {
             let tempTokens = tokens;
             while(f < 3){
                 rando = TokenMap.forwards[Math.floor(Math.random() * TokenMap.forwards.length)];
+                console.log("Forwards: ", rando);
                 if(minted.indexOf(rando) > -1){
                     // this id is used
                 }else{
@@ -1028,6 +1054,8 @@ export const DashboardProvider = ({children}:{children:ReactNode}) => {
             }
             while(d < 2){
                 rando = TokenMap.defense[Math.floor(Math.random() * TokenMap.defense.length)];
+                console.log("Defense: ", rando);
+
                 if(minted.indexOf(rando) > -1){
                     // this id is used
                 }else{
@@ -1041,6 +1069,8 @@ export const DashboardProvider = ({children}:{children:ReactNode}) => {
             }
             while(g < 1){
                 rando = TokenMap.goalies[Math.floor(Math.random() * TokenMap.goalies.length)];
+                console.log("Goalie: ", rando);
+
                 if(minted.indexOf(rando) > -1){
                     // this id is used
                 }else{
@@ -1055,6 +1085,7 @@ export const DashboardProvider = ({children}:{children:ReactNode}) => {
             while(r < 2){
                 let possibleCharacters = 'dfg';
                 let randomCharacter = possibleCharacters.charAt(Math.floor(Math.random() * possibleCharacters.length));
+                console.log("Random ", randomCharacter);
                 switch (randomCharacter) {
                     case 'f':
                         rando = TokenMap.forwards[Math.floor(Math.random() * TokenMap.forwards.length)];
@@ -1101,16 +1132,24 @@ export const DashboardProvider = ({children}:{children:ReactNode}) => {
                 }
            
             }
-            await updateMintedArray(mintedUpdate, email, tempTokens)
+            let mintRes = await updateMintedArray(mintedUpdate, email, tempTokens)
+            if(mintRes){
+                const newPlayers = await getPlayersFromTokenArray(pack);
+                console.log("Returning new players: ", newPlayers);
+                return newPlayers;
+            }else{
+                throw new Error("Error Mint Result");
+            }
             
+
             // const newPlayers = await makeDashboard(pack);
          
-            const newPlayers = await getPlayersFromTokenArray(pack);
+            
             // const newPlayers = await createDashboardFromDBdata(ob,tonightsGames);
             // dispatch({type:ACTIONS.addPack, payload:{newguys:newPlayers}});
     
     
-            return newPlayers;
+            
     
         } catch (e) {
             console.log("Is this the one ",e);
@@ -1239,6 +1278,55 @@ export const DashboardProvider = ({children}:{children:ReactNode}) => {
         }
     
     }
+    const buyFreeAgent = async(agent:FreeAgentType):Promise<boolean> => {
+        try {
+            // subtract pucks from buyers db 
+            if(userData === null || userData.userEmail === null) throw new Error("No one signed in");
+            let newPuckVal = pucks - agent.value;
+            if (newPuckVal < 0)throw new Error("Not enough pucks to do the thing");
+            const updRes = await updateUsersPucksInDB(userData.userEmail,newPuckVal);
+            if(updRes){
+                // add pucks to sellers db
+                const dbRef = doc(db,'users',agent.by);
+                const dbRes = await getDoc(dbRef);
+                if(dbRes.exists()){
+                    const dbdata = dbRes.data();
+                    let pux = dbdata.pucks;
+                    pux = pux + agent.value;
+                    const sellRes = await updateUsersPucksInDB(agent.by,pux);
+                    if(sellRes){
+                        // add token to buyers db
+                        const lRef = doc(db,'users',userData.userEmail);
+                        await updateDoc(lRef,{
+                            cards:arrayUnion(agent.tokenId)
+                        })
+
+                        // remove token from sellers db
+                        const sRef = doc(db,'users',agent.by);
+                        await updateDoc(sRef,{
+                            cards:arrayRemove(agent.tokenId)
+                        })
+                        return true;
+
+                    }else{
+                        throw new Error("Failed to update sellers DB pucks.SET")
+                    }
+                }else{
+                    throw new Error("Failed to update sellers DB pucks.RETREIVE");
+                }
+                
+            }else{
+                throw new Error("Failed to update DB pucks.");
+            }
+            
+            
+           
+            
+        } catch (er) {
+            console.log("ERROR BUYING FREE AGENT", er);
+            return false;
+        }
+    }
     let allVal = {
         dashboard:dashboard,
         pucks:pucks,
@@ -1260,7 +1348,8 @@ export const DashboardProvider = ({children}:{children:ReactNode}) => {
         createGameInDB:createGameInDB,
         joinGameInDB:joinGameInDB,
         tradeArray:tradeArray,
-        addToTradeArrayDB:addToTradeArrayDB
+        addToTradeArrayDB:addToTradeArrayDB,
+        buyFreeAgent:buyFreeAgent
     }
     return (
         <DashboardContext.Provider value={allVal}>{children}</DashboardContext.Provider>

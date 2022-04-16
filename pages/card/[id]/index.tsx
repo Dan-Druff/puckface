@@ -18,6 +18,7 @@ const Card: NextPage = () => {
     const idint = Number(id);
     const card = dashboard.filter(g => g.tokenId === idint);
     const pname = card[0].playerName;
+    const prare = card[0].rarity;
     const prev = () => {
         let curr = dashboard.findIndex(obj => {
           return obj.tokenId === idint;
@@ -230,13 +231,15 @@ const Card: NextPage = () => {
         <button className={styles.pfButtonSecondary} onClick={() => prev()}>PREV CARD</button>
         <button className={styles.pfButtonSecondary} onClick={() => nxt()}>NEXT CARD</button>
         </div>
-        <h2>{pname}</h2>
-        <div className={styles.contentContainerColumn}>
+        <h2>{prare} {pname}</h2>
+        <div className={styles.contentContainer}>
       
        <img className={styles.cardImage} src={card[0].image}/>
-       {card[0].pos === 'Goalie' ? <p>Wins: {card[0].stats.wins.toString()} Shutouts: {card[0].stats.shutouts.toString()}</p> : <p>Goals: {card[0].stats.goals.toString()} Assists: {card[0].stats.assists.toString()}</p>}
-       
+       <div className={styles.contentContainerColumn}>
+       {card[0].pos === 'Goalie' ? <p>Wins: {card[0].stats.wins.toString()} Shutouts: {card[0].stats.shutouts.toString()}</p> : <p>Goals: {card[0].stats.goals.toString()} Assists: {card[0].stats.assists.toString()} +/-: {card[0].stats.plusMinus.toString()}</p>}
+       <p>What data do I want to see here?</p>
        <p>Recent Games...</p>
+       <p>Player History and stuff...</p>
        {card[0].inGame && 
        <div>
           <p>Currently In game: {card[0].inGame}</p>
@@ -244,8 +247,15 @@ const Card: NextPage = () => {
        </div>
    
        }
-       <p>Player History and stuff...</p>
        </div>
+
+   
+      
+       </div>
+       <div className={styles.contentContainer}>
+        <button className={styles.pfButtonSecondary} onClick={() => prev()}>PREV CARD</button>
+        <button className={styles.pfButtonSecondary} onClick={() => nxt()}>NEXT CARD</button>
+        </div>
        </div>
     )
 }
