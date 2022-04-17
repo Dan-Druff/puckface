@@ -111,7 +111,7 @@ const Store: NextPage = () => {
                     setLoad(false);
                     let erm = {
                         colorClass:'',
-                        message:'Sorry, something went wrong getting cards',
+                        message:'Sorry, something went wrong getting cards. Logout, then refresh the home page, then log back in.',
                         twoButtons:false,
                         mainTitle:'CANCEL',
                         mainFunction:cancelIt,

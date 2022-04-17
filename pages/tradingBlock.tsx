@@ -2,21 +2,39 @@ import type { NextPage } from 'next'
 import styles from '../styles/All.module.css'
 import { useDashboard,addToFreeAgents,getFreeAgents } from '../context/DashboardContext'
 import BlockCard from '../components/BlockCard'
-import { GamePosition,nobody, CardType } from '../utility/constants'
+import { GamePosition,nobody, CardType,FreeAgentType, AskType } from '../utility/constants'
 import AuthRoute from '../hoc/authRoute'
 import { useAuth } from '../context/AuthContext'
-import { useRef, useState } from 'react'
-import FreeAgentCard from '../components/FreeAgentCard'
+import { useEffect, useRef, useState } from 'react'
+import BenchCard from '../components/BenchCard';
 
 
 const TradingBlock: NextPage = () => {
     const {addToTradeArrayDB, tradeArray,dashboardDispatch, dashboard} = useDashboard();
     const {userData} = useAuth();
+    const [myAgents, setMyAgents] = useState<FreeAgentType[]>([]);
     const [addCard, setAddCard] = useState<boolean>(false);
     const [options,setOptions] = useState<boolean>(false);
     const [typeOfTrade, setTypeOfTrade] = useState<{value:string}>({value:'sell'});
     const [currentGuy, setCurrentGuy] = useState<CardType>(nobody);
     const tradeValue = useRef(2);
+    const getMyAgents = async():Promise<false | FreeAgentType[]> => {
+        try {
+            if(userData === null || userData.userEmail === null)throw new Error("Error user data.");
+            
+            const freeA = await getFreeAgents();
+            if(Array.isArray(freeA)){
+
+                return freeA.filter(fa => fa.by === userData.userEmail);
+            }else{
+                throw new Error("Error getting agents");
+            }
+           
+        } catch (er) {
+            console.log("Error getting my agents",er);
+            return false;
+        }
+    }
     const cardSelect = (posId:GamePosition,tokenId:number) => {
         try {
             const arrayOfGuyIWant = dashboard.filter(g => g.tokenId === tokenId);
@@ -35,9 +53,33 @@ const TradingBlock: NextPage = () => {
             const addAgent = await addToFreeAgents(currentGuy.tokenId, userData.userEmail,typeOfTrade.value,Number(howMuch.value));
             if(addAgent){
                 const addRes = await addToTradeArrayDB(currentGuy.tokenId);
-                if(!addRes)throw new Error("Error adding to trade array db");
+                if(addRes === false)throw new Error("Error adding to trade array db");
                 dashboardDispatch({type:'addToTradingBlock',payload:{tokenId:currentGuy.tokenId}});
                 setOptions(false);
+                let ask : AskType = 'sell';
+                switch (typeOfTrade.value) {
+                    case 'trade':
+                        ask = 'trade';
+                        break;
+                    case 'either':
+                        ask = 'either';
+                        break;
+                    default:
+                        break;
+                }
+  
+                let obj:FreeAgentType = {
+                    by:userData.userEmail,
+                    ask:ask,
+                    image:currentGuy.image,
+                    playerId:currentGuy.playerId,
+                    playerName:currentGuy.playerName,
+                    pos:currentGuy.pos,
+                    rarity:currentGuy.rarity,
+                    tokenId:currentGuy.tokenId,
+                    value:Number(howMuch.value)
+                }
+                setMyAgents([obj,...myAgents]);
             }else{
                 throw new Error("Error adding agent");
             }
@@ -56,29 +98,19 @@ const TradingBlock: NextPage = () => {
         console.log("SEt trade type to: ", e.target.value);
         setTypeOfTrade({value:e.target.value});
     }
-    const doTheAdd = async(posId:GamePosition,tokenId:number) => {
-        try {
-            console.log("DO THE ADD...");
-            let agents = await getFreeAgents();
-            if(agents === false) throw new Error("Error getting agents");
-            agents.push(tokenId);
-            if(userData === null || userData.userEmail === null) throw new Error("No user data");
-            const updRes = await addToFreeAgents(tokenId,userData.userEmail,'sell',12);
-          
-            const addRes = await addToTradeArrayDB(tokenId);
-           
-            if(addRes && updRes){
-                dashboardDispatch({type:'addToTradingBlock',payload:{tokenId:tokenId}});
-            }else{
-                throw new Error("🚦Could not update db🚦");
-            }
-         
-            return;
-        } catch (er) {
-            console.log("Error", er);
-            return;
+
+    useEffect(() => {
+        const initMyAgents = async() => {
+            const myAge = await getMyAgents();
+            if(myAge === false)throw new Error("Error initting my agents");
+            setMyAgents(myAge);
         }
-    }
+        initMyAgents();
+      return () => {
+    
+      }
+    }, [])
+    
     return (
         <AuthRoute>
         <div className={styles.mainContainer}>
@@ -143,11 +175,22 @@ const TradingBlock: NextPage = () => {
             </div>
             <div className={styles.contentContainer}>
                 <div className={styles.lockerroom}>
-                {dashboard.filter(c => tradeArray.includes(c.tokenId)).map((cd) => {
+                    {myAgents.length > 0 ? 
+                    <>
+                        {myAgents.map((ag) => {
+                            return (
+                                <BlockCard key={ag.tokenId} agent={ag}/>
+                            )
+                        })}
+                    </>
+                    : 
+                    <p>No Agents Listed</p>
+                    }
+                {/* {dashboard.filter(c => tradeArray.includes(c.tokenId)).map((cd) => {
                 return (
                     <BlockCard key={cd.tokenId} card={cd} active={true} func={() => {}} posId='none' />
                 )
-            })}
+            })} */}
                 </div>
             </div>
             </>
@@ -161,7 +204,7 @@ const TradingBlock: NextPage = () => {
                 <div className={styles.lockerroom}>
                     {dashboard.map((card) => {
                          return (
-                             <BlockCard key={card.tokenId} active={true} card={card} func={cardSelect} posId={card.inUse} />
+                             <BenchCard key={card.tokenId} active={true} card={card} func={cardSelect} posId={card.inUse} />
                          )
                      })}
                  </div>

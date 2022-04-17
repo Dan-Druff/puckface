@@ -165,18 +165,7 @@ export const buyPucks = async(amount:number, email:string):Promise <boolean> => 
         return false;
     }
 }
-export const buyACard = async(agent:FreeAgentType) => {
-    try {
-        // subtract pucks from users db
-        
-        // addTokenNumber to users db
 
-
-        
-    } catch (er) {
-        console.log("ERROR: ", er);
-    }
-}
 export const getLobbyGames = async():Promise <GameType[] | false> => {
     try {
         const lobbySnapshot = await getDocs(collection(db,'lobbyGames'));
@@ -253,6 +242,7 @@ export const calculateGame = async(game:GameType, homeScore:number, awayScore:nu
 
                 
                 
+            
 
             }
         }
@@ -393,6 +383,24 @@ export const addToFreeAgents = async(token:number,by:string,ask:string, value:nu
         return false;
     }
    
+}
+export const removeFromFreeAgents = async(token:number):Promise<boolean> => {
+    try {
+        let agents = await getFreeAgents();
+        if(Array.isArray(agents)){
+            const newAgents = agents.filter(a => a.tokenId !== token)
+            await setDoc(doc(db,'freeAgents','cards'),{
+                array:newAgents
+            })
+            return true;
+        }else{
+            throw new Error("Error with agents array")
+        }
+   
+    } catch (er) {
+        console.log("Error removing from free agents");
+        return false;
+    }
 }
 // ----------------------------- <MEAT AND POTOTOS> -----------------------------
 const DashboardContext = createContext<AllDashType>({dashboard:[], pucks:0, dashboardDispatch:DefDashDisp,displayName:'NA',activeGames:[],activeLeagues:[],tokens:[],editing:false, notification:null, postLogin:DefPostLog, getPlayersFromTokenArray:DefGetPlayersFromTokenArray,getPacket:DefGetPacket, availableGuys:[], currentGame:blankGame, team:blankTeam, oppTeam:blankTeam, prevPlayer:nobody,createGameInDB:DefCreateGameDB,joinGameInDB:DefJoinGameDB,tradeArray:[],addToTradeArrayDB:DefAddToTradeArrayDB,buyFreeAgent:DefBuyFreeAgent});
@@ -1304,7 +1312,8 @@ export const DashboardProvider = ({children}:{children:ReactNode}) => {
                         // remove token from sellers db
                         const sRef = doc(db,'users',agent.by);
                         await updateDoc(sRef,{
-                            cards:arrayRemove(agent.tokenId)
+                            cards:arrayRemove(agent.tokenId),
+                            tradeArray:arrayRemove(agent.tokenId)
                         })
                         return true;
 

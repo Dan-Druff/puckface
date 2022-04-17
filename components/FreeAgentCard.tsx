@@ -1,12 +1,15 @@
 import styles from '../styles/All.module.css';
 import Image from 'next/image'
-import { useDashboard } from '../context/DashboardContext';
+import { useDashboard, removeFromFreeAgents } from '../context/DashboardContext';
 import { FreeAgentCardType, FreeAgentType, NoteType } from '../utility/constants';
 import { getPlayerFromToken } from '../utility/helpers';
 import { useNHL } from '../context/NHLContext';
-
+import { useRouter } from 'next/router';
+import { useGameState } from '../context/GameState';
 const FreeAgentCard = (props:FreeAgentCardType) => {
+    const Router = useRouter();
     const {tonightsGames} = useNHL();
+    const {gameStateDispatch} = useGameState();
     const {buyFreeAgent, dashboardDispatch} = useDashboard();
     const buyCard = async(agent:FreeAgentType) => {
         try {
@@ -24,11 +27,22 @@ const FreeAgentCard = (props:FreeAgentCardType) => {
                     mainTitle:"COOL!",
                     twoButtons:false,
                     colorClass:"",
-                    message:`You just got a ${newCard.rarity} ${newCard.playerName} for $${agent.value}. Check it out on your dashboard`
+                    message:`You just got a ${newCard.rarity} ${newCard.playerName} for $${agent.value}.`
                 }
-                dashboardDispatch({type:'notify',payload:{notObj:nt}});
-
-                return;
+                const freeUpdate = await removeFromFreeAgents(newCard.tokenId);
+                if(freeUpdate){
+                    dashboardDispatch({type:'notify',payload:{notObj:nt}});
+                    gameStateDispatch({type:'dashboard'});
+                    // can i router push here under nptify?
+                    Router.push('/dashboard');
+                    return;
+                }else{
+                    throw new Error("Error removing free agent");
+                }
+          
+                
+          
+       
             }else{
                 throw new Error("Error buying free agent");
             }
