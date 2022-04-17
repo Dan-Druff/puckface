@@ -76,7 +76,7 @@ const Game: NextPage = () => {
                     homeScore = team.lw.points + team.c.points + team.rw.points + team.d1.points + team.d2.points + team.g.points;
                     awayScore = oppTeam.lw.points + oppTeam.c.points + oppTeam.rw.points + oppTeam.d1.points + oppTeam.d2.points + oppTeam.g.points;
             
-                }else{
+                }else if(userData.userEmail === currentGame.awayEmail){
                     infoCop.home.head = currentGame.homeName;
                     infoCop.away.head = currentGame.awayName;
                     awayScore = team.lw.points + team.c.points + team.rw.points + team.d1.points + team.d2.points + team.g.points;

@@ -1,16 +1,61 @@
-import { SetStateAction } from "react";
-export const multipliers = {
-    standard:1,
-    rare:1.5,
-    superRare:2,
-    unique:3
-}
-export const baseURL = 'https://ipfs.io/ipfs/bafybeiedfdak44r7owq5ytvvgb6cywkpfcnhlauroqqlrr7ta3jt2yqhee/files/';
+// import { SetStateAction } from "react";
+// ----------------- TYPES -------------------
+export const defaultState = {main:'none',sub:'none'}
+export type GameState = typeof defaultState
+export type StringBool = string | boolean;
+export type GamePosition = 'none' | 'lw' | 'rw' | 'c' | 'd1' | 'd2' | 'g'
+export type Rarity = 'Standard' | 'Rare' | 'Super Rare' | 'Unique'
+export type AskType = 'either' | 'sell' | 'trade';
+export type GameStateDispatch = (action:GameStateActions) => void
+export type PossibleGameStates = 'Waiting for Opponent' | 'Waiting for Game' | 'Complete' | 'Initialized'
+export type NHLGamesArray = NHLGame[];
+export type DashboardType = CardType[];
+export type DashDispatch = (action:DashboardActions) => void;
 
+// ---------------  ACTION TYPES -------------
+export type GameStateActions = 
+{type:'inspect'} | 
+{type:'inGame'} | 
+{type:'observingGame'} | 
+{type:'createGame'} | 
+{type:'home'} | 
+{type:'dashboard'} | 
+{type:'leagues'} | 
+{type:'lobby'} | 
+{type:'profile'} | 
+{type:'lockerroom'} | 
+{type:'tradingBlock'} | 
+{type:'freeAgents'} | 
+{type:'store'}
 
-export const PRICE_PER_PACK = 18;
+export type DashboardActions = 
+{type:'boughtAgent',payload:{agent:FreeAgentType, card:CardType}} | 
+{type:'addToTradingBlock',payload:{tokenId:number}} | 
+{type:'dashboard'} | {type:'error',payload:{er:string}} | 
+{type:'setTeams',payload:{game:GameType, myTeam:Team, oppTeam:Team}} | 
+{type:'joinGame',payload:{game:GameType}} | 
+{type:'leavingGame'} | 
+{type:'calculatedGame',payload:{newGame:GameType, newPucks:number, winner:string}} | 
+{type:'createLobbyGame',payload:{game:GameType}} | 
+{type:'editPlayer',payload:{posId:GamePosition, player:CardType}} | 
+{type:'cancelEdit'} | {type:'selectPlayer',payload:{tokenId:number, game:GameType}} | 
+{type:'addPack',payload:{guys:DashboardType, newPucks:number}} | 
+{type:'addPucks',payload:{amount:number}} | 
+{type:'cancelNotify'} | 
+{type:'notify',payload:{notObj:NoteType}} | 
+{type:'clear'} | 
+{type:'create',payload:{activeGames:GameType[],dbData:any}} | 
+{type:'login',payload:{displayName:string, dash:DashboardType,games:GameType[],dbData:any}} | 
+{type:'signup',payload:{displayName:string,id:string}}
 
-// export type LobbyGameState = 'Initialized' | 'Waiting for Opponent' | 'Waiting for Game' | 'Game Complete'
+export type LogActionType = 
+{type:'buyPucks',payload:{howMany:number, when:Date, who:string}} | 
+{type:'buyCards',payload:{when:Date,cost:number,cards:number[],who:string}} | 
+{type:'createGame',payload:{game:GameType}} | 
+{type:'joinGame',payload:{game:GameType}} | 
+{type:'completeGame',payload:{game:GameType}}
+
+// ----------------- INTERFACES ------------------
 export interface CalculatedGameType {
     game:GameType,
     winner:string
@@ -33,10 +78,6 @@ export interface StatsReturnType {
     wins:number,
     total:number,
 }
-export type StringBool = string | boolean;
-export type GamePosition = 'none' | 'lw' | 'rw' | 'c' | 'd1' | 'd2' | 'g'
-
-export type Rarity = 'Standard' | 'Rare' | 'Super Rare' | 'Unique'
 export interface Stats {
     goals:number;
     assists:number;
@@ -44,7 +85,6 @@ export interface Stats {
     wins:number;
     shutouts:number;
 }
-
 export interface CardType {
     playerName: string;
     playerId: string;
@@ -60,7 +100,6 @@ export interface CardType {
   
 
 }
-export type AskType = 'either' | 'sell' | 'trade';
 export interface FreeAgentType {
     ask:AskType;
     by:string;
@@ -74,11 +113,6 @@ export interface FreeAgentType {
 
 
 }
-export type GameStateActions = {type:'inspect'} | {type:'inGame'} | {type:'observingGame'} | {type:'createGame'} | {type:'home'} | {type:'dashboard'} | {type:'leagues'} | {type:'lobby'} | {type:'profile'} | {type:'lockerroom'} | {type:'tradingBlock'} | {type:'freeAgents'} | {type:'store'}
-export const defaultState = {main:'none',sub:'none'}
-export type GameStateDispatch = (action:GameStateActions) => void
-
-export type GameState = typeof defaultState
 export interface BubbleType {
     head:string,
     data:number
@@ -117,7 +151,6 @@ export interface ExplorerCard {
     card:CardType,
     image:string
 }
-
 export interface Team {
     lw:CardType,
     c:CardType,
@@ -135,20 +168,6 @@ export interface NHLGame {
     homeRecord:string,
     description:string
 }
-export type NHLGamesArray = NHLGame[];
-// export enum GameStates {
-//     waitForOpp = "Waiting for Opponent",
-//     waitForGame = "Waiting for Game",
-//     complete = "Completed",
-//     init = "Initialized"
-// }
-export type PossibleGameStates = 'Waiting for Opponent' | 'Waiting for Game' | 'Complete' | 'Initialized'
-// export const GameStates = {
-//     waitForOpp : "Waiting for Opponent",
-//     waitForGame : "Waiting for Game",
-//     complete : "Completed",
-//     init : "Initialized"
-// }
 export interface TeamTokens {
     lw:number,
     c:number,
@@ -172,13 +191,6 @@ export interface GameType {
     awayTeam:TeamTokens
 
 }
-export type LogActionType = 
-{type:'buyPucks',payload:{howMany:number, when:Date, who:string}} | 
-{type:'buyCards',payload:{when:Date,cost:number,cards:number[],who:string}} | 
-{type:'createGame',payload:{game:GameType}} | 
-{type:'joinGame',payload:{game:GameType}} | 
-{type:'completeGame',payload:{game:GameType}}
-
 export interface NoteType {
     colorClass:string,
     message:string,
@@ -192,8 +204,6 @@ export interface PostSignupReturnType {
     displayName:string,
     id:string
 }
-export type DashboardType = CardType[];
-
 export interface PostLoginReturnType {
     dashboardPromises:DashboardType,
     dataFromDB:{
@@ -207,10 +217,7 @@ export interface PostLoginReturnType {
     },
     activeGames:GameType[]
 }
-export type DashboardActions = {type:'boughtAgent',payload:{agent:FreeAgentType, card:CardType}} | {type:'addToTradingBlock',payload:{tokenId:number}} | {type:'dashboard'} | {type:'error',payload:{er:string}} | {type:'setTeams',payload:{game:GameType, myTeam:Team, oppTeam:Team}} | {type:'joinGame',payload:{game:GameType}} | {type:'leavingGame'} | {type:'calculatedGame',payload:{newGame:GameType, newPucks:number, winner:string}} | {type:'createLobbyGame',payload:{game:GameType}} | {type:'editPlayer',payload:{posId:GamePosition, player:CardType}} | {type:'cancelEdit'} | {type:'selectPlayer',payload:{tokenId:number, game:GameType}} | {type:'addPack',payload:{guys:DashboardType, newPucks:number}} | {type:'addPucks',payload:{amount:number}} | {type:'cancelNotify'} | {type:'notify',payload:{notObj:NoteType}} | {type:'clear'} | {type:'create',payload:{activeGames:GameType[],dbData:any}} | {type:'login',payload:{displayName:string, dash:DashboardType,games:GameType[],dbData:any}} | {type:'signup',payload:{displayName:string,id:string}}
-
-export type DashDispatch = (action:DashboardActions) => void;
-
+// ---------------- GAME REALATED CONSTANTS------------------
 export const blankGame:GameType = {awayEmail:'',awayName:'',awayTeam:{c:0,lw:0,rw:0,d1:0,d2:0,g:0},date:new Date(),gameState:'Initialized',homeEmail:'',homeName:'blank home',homeTeam:{c:0,lw:0,rw:0,d1:0,d2:0,g:0},id:'blank',open:true,private:false,value:0}
 export const lw:CardType = {"playerName":"Def F","playerId":"31","tokenId":-1,"rarity":"Standard","pos":"lw","inUse":"none","image":"https://hamtronmedia.com/media/images/spongebob.jpeg","stats":{"goals":0,"assists":0,"plusMinus":0,"wins":0,"shutouts":0,},"points":0,"playingTonight":false,"inGame":false};
 export const c:CardType = {"playerName":"Def F","playerId":"31","tokenId":-2,"rarity":"Standard","pos":"c","inUse":"none","image":"https://hamtronmedia.com/media/images/spongebob.jpeg","stats":{"goals":0,"assists":0,"plusMinus":0,"wins":0,"shutouts":0,},"points":0,"playingTonight":false,"inGame":false};
@@ -237,6 +244,8 @@ const bobby:CardType = {"playerName":"Bobby Orr","playerId":"4","tokenId":-7,"ra
 const zdeno:CardType = {"playerName":"Zdeno Chara","playerId":"13","tokenId":-6,"rarity":"Unique","pos":"Defenseman","inUse":"d2","image":"https://hamtronmedia.com/media/images/zdeno.jpeg","stats":{"goals":0,"assists":0,"plusMinus":0,"wins":0,"shutouts":0},"points":0,"playingTonight":false,"inGame":false};
 const patrick:CardType = {"playerName":"Patrick Roy","playerId":"31","tokenId":-5,"rarity":"Unique","pos":"Goalie","inUse":"g","image":"https://hamtronmedia.com/media/images/patrick.jpeg","stats":{"goals":0,"assists":0,"plusMinus":0,"wins":0,"shutouts":0},"points":0,"playingTonight":false,"inGame":false};
 export const dreamTeam:CardType[] = [wayne, mario, gordie, zdeno, bobby, patrick];
+
+// --------------------DEFAULT FUNCTIONS --------------------
 export const DefDashDisp = (action:DashboardActions) => {
     console.log("DEF DASH DISPATCH",action.type);
 }
@@ -261,3 +270,12 @@ export const DefAddToTradeArrayDB = async(tokenId:number):Promise<boolean> => {
 export const DefBuyFreeAgent = async(agent:FreeAgentType):Promise<boolean> => {
     return false;
 }
+//------------  ACTUAL CONSTANTS -----------
+export const multipliers = {
+    standard:1,
+    rare:1.5,
+    superRare:2,
+    unique:3
+}
+export const baseURL = 'https://ipfs.io/ipfs/bafybeiedfdak44r7owq5ytvvgb6cywkpfcnhlauroqqlrr7ta3jt2yqhee/files/';
+export const PRICE_PER_PACK = 18;
