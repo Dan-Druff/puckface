@@ -118,6 +118,15 @@
   align-items: center;
   width: 35%;
 }
+.offerDiv{
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  /* padding: 1%; */
+  justify-content: center;
+  align-items: center;
+  width: 65%;
+}
 .cardRow {
   display: flex;
   justify-content: center;
@@ -151,6 +160,30 @@
   align-items: center;
   justify-content: center;
   border: 1px solid whitesmoke;
+  gap: 6px;
+  padding: 4px;
+  /* border-radius: 25px; */
+}
+.benchCardSelected {
+  width: 28%;
+  height: 25%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgb(57, 238, 41);
+  gap: 6px;
+  padding: 4px;
+  /* border-radius: 25px; */
+}
+.benchCardUnSelected {
+  width: 28%;
+  height: 25%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  /* border: 1px solid rgb(57, 238, 41); */
   gap: 6px;
   padding: 4px;
   /* border-radius: 25px; */

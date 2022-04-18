@@ -50,7 +50,7 @@ const GoogleSignIn = () => {
                         throw new Error('🚦Google Res error 2🚦')
                     }else{
                         
-                        dashboardDispatch({type:'login',payload:{displayName:googleRes.user.email,dash:postLog.dashboardPromises,dbData:postLog.dataFromDB,games:postLog.activeGames}})
+                        dashboardDispatch({type:'login',payload:{messages:postLog.messages,displayName:googleRes.user.email,dash:postLog.dashboardPromises,dbData:postLog.dataFromDB,games:postLog.activeGames}})
                         gameStateDispatch({type:'dashboard'})
 
                         Router.push("/dashboard")

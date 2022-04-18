@@ -45,7 +45,7 @@ export type DashboardActions =
 {type:'notify',payload:{notObj:NoteType}} | 
 {type:'clear'} | 
 {type:'create',payload:{activeGames:GameType[],dbData:any}} | 
-{type:'login',payload:{displayName:string, dash:DashboardType,games:GameType[],dbData:any}} | 
+{type:'login',payload:{messages:MessageType[],displayName:string, dash:DashboardType,games:GameType[],dbData:any}} | 
 {type:'signup',payload:{displayName:string,id:string}}
 
 export type LogActionType = 
@@ -53,7 +53,12 @@ export type LogActionType =
 {type:'buyCards',payload:{when:Date,cost:number,cards:number[],who:string}} | 
 {type:'createGame',payload:{game:GameType}} | 
 {type:'joinGame',payload:{game:GameType}} | 
-{type:'completeGame',payload:{game:GameType}}
+{type:'completeGame',payload:{game:GameType}} |
+{type:'sellCard',payload:{id:string,value:number,when:Date,by:string,tokenIds:number[],state:string}} |
+{type:'tradeCard',payload:{}} |
+{type:'sellOrTradeCard',payload:{}} |
+{type:'buyFreeAgent',payload:{id:string, value:number, when:Date, tokenIds:number[],state:string, by:string, to:string}} |
+{type:'freeAgentOffer',payload:{id:string,value:number, tokenIds:number[],when:Date,state:string, by:string, to:string}}
 
 // ----------------- INTERFACES ------------------
 export interface CalculatedGameType {
@@ -110,7 +115,7 @@ export interface FreeAgentType {
     playerName:string;
     rarity:Rarity;
     pos:string;
-
+    id:string;
 
 }
 export interface BubbleType {
@@ -134,14 +139,28 @@ export interface BuildABenchType {
     prevPlayer:CardType,
     game:GameType,
 }
+export interface BuildOfferType {
+    guys:DashboardType,
+    add:(token:number) => void,
+    remove:(token:number) => void,
+    offeredTokens:number[],
+    dismiss:() => void,
+    doAdd:() => void
+}
 export interface BenchCardType {
     card:CardType,
     active:boolean,
     func:(posId:GamePosition, tokenId:number) => void,
     posId:GamePosition
 }
+export interface OfferCardType {
+    card:CardType,
+    selected:boolean,
+    func:(card:CardType) => void
+}
 export interface FreeAgentCardType {
     agent:FreeAgentType,
+    setOffer:(agent:FreeAgentType) => void
 
 }
 export interface LoaderType {
@@ -204,6 +223,16 @@ export interface PostSignupReturnType {
     displayName:string,
     id:string
 }
+export interface MessageType {
+    message:string,
+    by:string,
+    when:Date,
+    type:string,
+    value:number,
+    tokens:number[],
+    regarding:string,
+    id:string
+}
 export interface PostLoginReturnType {
     dashboardPromises:DashboardType,
     dataFromDB:{
@@ -215,7 +244,8 @@ export interface PostLoginReturnType {
         userId:string,
         tradeArray:number[]
     },
-    activeGames:GameType[]
+    activeGames:GameType[],
+    messages:MessageType[]
 }
 // ---------------- GAME REALATED CONSTANTS------------------
 export const blankGame:GameType = {awayEmail:'',awayName:'',awayTeam:{c:0,lw:0,rw:0,d1:0,d2:0,g:0},date:new Date(),gameState:'Initialized',homeEmail:'',homeName:'blank home',homeTeam:{c:0,lw:0,rw:0,d1:0,d2:0,g:0},id:'blank',open:true,private:false,value:0}

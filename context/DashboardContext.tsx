@@ -2,11 +2,35 @@ import { createContext, ReactNode, useContext, useReducer, useState, useRef } fr
 import { db } from "../firebase/clientApp";
 import {doc,getDoc,setDoc,collection,getDocs,updateDoc, arrayUnion, arrayRemove} from 'firebase/firestore';
 import { createRandomId,gameIsOver,makeTeam, getIpfsUrl } from "../utility/helpers";
-import { DefBuyFreeAgent,DefAddToTradeArrayDB,DefJoinGameDB,nobody,baseURL, CardType, Stats,blankGame, blankTeam, Team,  TeamTokens,PostSignupReturnType,PostLoginReturnType,GameType, NoteType, DashboardType,DefDashDisp,DefPostLog,DefGetPlayersFromTokenArray,DefGetPacket,DefCreateGameDB, NHLGame,CalculatedGameType, LogActionType, FreeAgentType } from "../utility/constants";
-import type { StringBool,DashDispatch,DashboardActions,NHLGamesArray, GamePosition, Rarity, PossibleGameStates } from "../utility/constants";
+import type { StringBool,DashDispatch,DashboardActions, GamePosition } from "../utility/constants";
 import { useNHL } from "./NHLContext";
 import { useAuth } from "./AuthContext";
-const playerMap = require('../utility/playerMap.json');
+import { 
+    MessageType,
+    DefBuyFreeAgent,
+    DefAddToTradeArrayDB,
+    DefJoinGameDB,
+    nobody, 
+    CardType,
+    blankGame, 
+    blankTeam, 
+    Team, 
+    PostSignupReturnType,
+    PostLoginReturnType,
+    GameType, 
+    NoteType, 
+    DashboardType,
+    DefDashDisp,
+    DefPostLog,
+    DefGetPlayersFromTokenArray,
+    DefGetPacket,
+    DefCreateGameDB, 
+    NHLGame,
+    CalculatedGameType, 
+    LogActionType, 
+    FreeAgentType 
+} from "../utility/constants";
+// const playerMap = require('../utility/playerMap.json');
 const TokenMap = require('../utility/TokenMap.json');
 
 
@@ -32,7 +56,8 @@ export interface AllDashType {
     joinGameInDB:() => Promise<GameType | false>,
     tradeArray:number[],
     addToTradeArrayDB:(tokenId:number) => Promise<boolean>,
-    buyFreeAgent:(agent:FreeAgentType) => Promise<boolean>
+    buyFreeAgent:(agent:FreeAgentType) => Promise<boolean>,
+    messages:MessageType[]
 }
 // -----------------------------Types UP ^------------------------------
 // FUNCTIONS THAT DONT NEED STATE--------------------
@@ -95,7 +120,8 @@ export const postSignup = async(email:string, username:string):Promise<false | P
             }
            await setDoc(doc(db,'transactions',email),{
                 logs:[],
-                transactions:[]
+                transactions:[],
+                messages:[]
             })
 
            return {
@@ -165,7 +191,6 @@ export const buyPucks = async(amount:number, email:string):Promise <boolean> => 
         return false;
     }
 }
-
 export const getLobbyGames = async():Promise <GameType[] | false> => {
     try {
         const lobbySnapshot = await getDocs(collection(db,'lobbyGames'));
@@ -297,6 +322,62 @@ export const logOnTheFire = async(log:LogActionType):Promise <boolean> => {
     try {
         // Do something to Log With here. DB solution????
         switch (log.type) {
+            case 'sellCard':
+                let objToSave = {
+                    type:log.type,
+                    tokenIds:log.payload.tokenIds,
+                    id:log.payload.id,
+                    value:log.payload.value,
+                    when:log.payload.when,
+                    by:log.payload.by,
+                    state:log.payload.state,
+                    to:''
+                }
+                const sellCardRef = doc(db,'transactions',log.payload.by);
+                await updateDoc(sellCardRef,{
+                    transactions:arrayUnion(objToSave)
+                })
+                break;
+            case 'tradeCard':
+                break;
+            case 'sellOrTradeCard':
+                break;
+            case 'freeAgentOffer':
+                break;
+            case 'buyFreeAgent':
+                // update sellers transactions object
+                const ref = doc(db,'transactions',log.payload.by);
+                const res = await getDoc(ref);
+                if(res.exists()){
+                    const txData = res.data();
+                    let txEdit = txData.transactions.filter(t => t.id === log.payload.id);
+                    txEdit[0].state = 'closed';
+                    txEdit[0].to = log.payload.to;
+                    txEdit[0].when = log.payload.when;
+                    let updTx = txData.transactions.filter(t => t.id !== log.payload.id);
+                    updTx.push(txEdit[0]);
+                    await updateDoc(ref,{
+                        transactions:updTx
+                    })
+                    // add log object to buyers transactions
+                    const bought = {
+                        type:'boughtAgent',
+                        tokenIds:log.payload.tokenIds,
+                        value:log.payload.value,
+                        when:log.payload.when,
+                        id:log.payload.id,
+                        by:log.payload.by,
+                        state:"closed"
+                    }
+                   const buyerRef = doc(db,'transactions',log.payload.to);
+                   await updateDoc(buyerRef,{
+                       transactions:arrayUnion(bought)
+                   })
+                }else{
+                    throw new Error("Doc doesnt exist");
+                }
+                
+                break;                
             case 'buyCards':
                 let bc = {
                     id:createRandomId(),
@@ -360,13 +441,14 @@ export const getFreeAgents = async():Promise<any | false> => {
     }
     
 }
-export const addToFreeAgents = async(token:number,by:string,ask:string, value:number):Promise <boolean> => {
+export const addToFreeAgents = async(token:number,by:string,ask:string, value:number, id:string):Promise <boolean> => {
     try {
         const fao = {
             ask:ask,
             tokenId:token,
             by:by,
-            value:value
+            value:value,
+            id:id
         }
         const fRef = doc(db,'freeAgents','cards');
         await updateDoc(fRef,{
@@ -402,8 +484,50 @@ export const removeFromFreeAgents = async(token:number):Promise<boolean> => {
         return false;
     }
 }
+export const sendMsgToUser = async(msg:MessageType,to:string):Promise<boolean> => {
+    try {
+        const mref = doc(db,'transactions',to);
+        await updateDoc(mref,{
+            messages:arrayUnion(msg)
+        })
+        return true;
+    } catch (er) {
+        console.log("Error sending message", er);
+        return false;
+    }
+}
+export const getUsersMessages = async(user:string):Promise<false | MessageType[]> => {
+    try {
+        let retData :MessageType[] = [];
+        const uData = doc(db,'transactions',user);
+        const txRes = await getDoc(uData);
+        if(txRes.exists()){
+            const txData = txRes.data();
+            txData.messages.forEach((m:any) => {
+                let o:MessageType = {
+                    by:m.by,
+                    id:m.id,
+                    message:m.message,
+                    regarding:m.regarding,
+                    tokens:m.tokens,
+                    type:m.type,
+                    value:m.value,
+                    when:m.when
+                }
+                retData.push(o);
+            })
+            return retData;
+        }else{
+            throw new Error("Error getting users messages");
+        }
+       
+    } catch (er) {
+        console.log("Error getting users messages", er);
+        return false;
+    }
+}
 // ----------------------------- <MEAT AND POTOTOS> -----------------------------
-const DashboardContext = createContext<AllDashType>({dashboard:[], pucks:0, dashboardDispatch:DefDashDisp,displayName:'NA',activeGames:[],activeLeagues:[],tokens:[],editing:false, notification:null, postLogin:DefPostLog, getPlayersFromTokenArray:DefGetPlayersFromTokenArray,getPacket:DefGetPacket, availableGuys:[], currentGame:blankGame, team:blankTeam, oppTeam:blankTeam, prevPlayer:nobody,createGameInDB:DefCreateGameDB,joinGameInDB:DefJoinGameDB,tradeArray:[],addToTradeArrayDB:DefAddToTradeArrayDB,buyFreeAgent:DefBuyFreeAgent});
+const DashboardContext = createContext<AllDashType>({dashboard:[], pucks:0, dashboardDispatch:DefDashDisp,displayName:'NA',activeGames:[],activeLeagues:[],tokens:[],editing:false, notification:null, postLogin:DefPostLog, getPlayersFromTokenArray:DefGetPlayersFromTokenArray,getPacket:DefGetPacket, availableGuys:[], currentGame:blankGame, team:blankTeam, oppTeam:blankTeam, prevPlayer:nobody,createGameInDB:DefCreateGameDB,joinGameInDB:DefJoinGameDB,tradeArray:[],addToTradeArrayDB:DefAddToTradeArrayDB,buyFreeAgent:DefBuyFreeAgent,messages:[]});
 
 export const DashboardProvider = ({children}:{children:ReactNode}) => {
     const {tonightsGames} = useNHL();
@@ -421,6 +545,7 @@ export const DashboardProvider = ({children}:{children:ReactNode}) => {
     const [oppTeam, setOppTeam] = useState<Team>(blankTeam);
     const [prevPlayer, setPrevPlayer] = useState<CardType>(nobody);
     const [tradeArray,setTradeArray] = useState<number[]>([]);
+    const [messages,setMessages] = useState<MessageType[]>([]);
     const selectedPosition = useRef('');
     const cancelNotification = () => {
         setNotification(null);
@@ -680,6 +805,7 @@ export const DashboardProvider = ({children}:{children:ReactNode}) => {
                 setEditing(false);
                 setActiveLeagues(action.payload.dbData.activeLeagues);
                 setDisplayName(action.payload.displayName)
+                setMessages(action.payload.messages);
                 return action.payload.dash;
             case 'signup':
                 const dispName = action.payload.displayName;
@@ -711,7 +837,6 @@ export const DashboardProvider = ({children}:{children:ReactNode}) => {
         }
     }
     const [dashboard, dashboardDispatch] = useReducer(dashboardReducer, []);
-
 
     const postLogin = async(email:string):Promise <false | PostLoginReturnType> => {
         try {
@@ -866,6 +991,11 @@ export const DashboardProvider = ({children}:{children:ReactNode}) => {
            
            
                        }))
+                      
+                       let msg = await getUsersMessages(email);
+                       if(msg === false){
+                            msg = [];
+                       }
                        return {
                            dashboardPromises:dashboardPromises,
                            dataFromDB:{
@@ -877,7 +1007,8 @@ export const DashboardProvider = ({children}:{children:ReactNode}) => {
                                username:dbdata.username,
                                tradeArray:dbdata.tradeArray
                             },
-                            activeGames:gameObjectArray
+                            activeGames:gameObjectArray,
+                            messages:msg
                        };
                    }else{
                     
@@ -888,7 +1019,6 @@ export const DashboardProvider = ({children}:{children:ReactNode}) => {
            return false;
         }
     }
-
     const getPlayersFromTokenArray = async(tokenArray:number[]):Promise<DashboardType | false> => {
         try {
             console.log("Getting players from token Array.");
@@ -1033,7 +1163,6 @@ export const DashboardProvider = ({children}:{children:ReactNode}) => {
             return false;
         }
     }
-
     const getPacket = async(email:string,tokens:number[]):Promise<DashboardType | false> => {
         try {
             const minted = await getMinted();
@@ -1358,7 +1487,8 @@ export const DashboardProvider = ({children}:{children:ReactNode}) => {
         joinGameInDB:joinGameInDB,
         tradeArray:tradeArray,
         addToTradeArrayDB:addToTradeArrayDB,
-        buyFreeAgent:buyFreeAgent
+        buyFreeAgent:buyFreeAgent,
+        messages:messages
     }
     return (
         <DashboardContext.Provider value={allVal}>{children}</DashboardContext.Provider>

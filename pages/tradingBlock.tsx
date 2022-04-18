@@ -1,12 +1,13 @@
 import type { NextPage } from 'next'
 import styles from '../styles/All.module.css'
-import { useDashboard,addToFreeAgents,getFreeAgents } from '../context/DashboardContext'
+import { useDashboard,addToFreeAgents,getFreeAgents, logOnTheFire } from '../context/DashboardContext'
 import BlockCard from '../components/BlockCard'
-import { GamePosition,nobody, CardType,FreeAgentType, AskType } from '../utility/constants'
+import { GamePosition,nobody, CardType,FreeAgentType, AskType, LogActionType } from '../utility/constants'
 import AuthRoute from '../hoc/authRoute'
 import { useAuth } from '../context/AuthContext'
 import { useEffect, useRef, useState } from 'react'
 import BenchCard from '../components/BenchCard';
+import { createRandomId } from '../utility/helpers'
 
 
 const TradingBlock: NextPage = () => {
@@ -50,7 +51,8 @@ const TradingBlock: NextPage = () => {
             const {howMuch} = e.target.elements;
             console.log("How much: ", howMuch.value);
             if(userData === null || userData.userEmail === null)throw new Error("Error User Data");
-            const addAgent = await addToFreeAgents(currentGuy.tokenId, userData.userEmail,typeOfTrade.value,Number(howMuch.value));
+            const num = createRandomId();
+            const addAgent = await addToFreeAgents(currentGuy.tokenId, userData.userEmail,typeOfTrade.value,Number(howMuch.value),num);
             if(addAgent){
                 const addRes = await addToTradeArrayDB(currentGuy.tokenId);
                 if(addRes === false)throw new Error("Error adding to trade array db");
@@ -58,8 +60,12 @@ const TradingBlock: NextPage = () => {
                 setOptions(false);
                 let ask : AskType = 'sell';
                 switch (typeOfTrade.value) {
+                    case 'sell':
+                  
+                        break;
                     case 'trade':
                         ask = 'trade';
+                   
                         break;
                     case 'either':
                         ask = 'either';
@@ -67,7 +73,21 @@ const TradingBlock: NextPage = () => {
                     default:
                         break;
                 }
-  
+              
+                const log :LogActionType = {
+                    type:'sellCard',
+                    payload:{
+                        tokenIds:[currentGuy.tokenId],
+                        id:num,
+                        value:Number(howMuch.value),
+                        when:new Date(),
+                        by:userData.userEmail,
+                        state:'open'
+
+                    }
+               
+
+                }
                 let obj:FreeAgentType = {
                     by:userData.userEmail,
                     ask:ask,
@@ -77,8 +97,11 @@ const TradingBlock: NextPage = () => {
                     pos:currentGuy.pos,
                     rarity:currentGuy.rarity,
                     tokenId:currentGuy.tokenId,
-                    value:Number(howMuch.value)
+                    value:Number(howMuch.value),
+                    id:num
                 }
+                const logRes = await logOnTheFire(log);
+                if(logRes === false) throw new Error("Error logging");
                 setMyAgents([obj,...myAgents]);
             }else{
                 throw new Error("Error adding agent");
@@ -179,7 +202,7 @@ const TradingBlock: NextPage = () => {
                     <>
                         {myAgents.map((ag) => {
                             return (
-                                <BlockCard key={ag.tokenId} agent={ag}/>
+                                <BlockCard key={ag.tokenId} agent={ag} setOffer={() => {}}/>
                             )
                         })}
                     </>

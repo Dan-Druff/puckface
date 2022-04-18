@@ -1,13 +1,15 @@
 import styles from '../styles/All.module.css';
 import Image from 'next/image'
-import { useDashboard, removeFromFreeAgents } from '../context/DashboardContext';
-import { FreeAgentCardType, FreeAgentType, NoteType } from '../utility/constants';
+import { useDashboard, removeFromFreeAgents,logOnTheFire } from '../context/DashboardContext';
+import { FreeAgentCardType, FreeAgentType, LogActionType, NoteType } from '../utility/constants';
 import { getPlayerFromToken } from '../utility/helpers';
 import { useNHL } from '../context/NHLContext';
 import { useRouter } from 'next/router';
 import { useGameState } from '../context/GameState';
+import { useAuth } from '../context/AuthContext';
 const FreeAgentCard = (props:FreeAgentCardType) => {
     const Router = useRouter();
+    const {userData} = useAuth();
     const {tonightsGames} = useNHL();
     const {gameStateDispatch} = useGameState();
     const {buyFreeAgent, dashboardDispatch} = useDashboard();
@@ -33,7 +35,22 @@ const FreeAgentCard = (props:FreeAgentCardType) => {
                 if(freeUpdate){
                     dashboardDispatch({type:'notify',payload:{notObj:nt}});
                     gameStateDispatch({type:'dashboard'});
-                    // can i router push here under nptify?
+                    // NEED TO ADD A TRANSACTION HERE
+                    if(userData === null || userData.userEmail === null)throw new Error("Error user data");
+                    const log:LogActionType = {
+                        type:'buyFreeAgent',
+                        payload:{
+                            id:agent.id,
+                            by:agent.by,
+                            state:'closed',
+                            tokenIds:[newCard.tokenId],
+                            value:agent.value,
+                            when:new Date(),
+                            to:userData.userEmail
+                        }
+                    }
+                    const logResult = await logOnTheFire(log);
+                    if(logResult === false) throw new Error("LOG WENT WRIONG");
                     Router.push('/dashboard');
                     return;
                 }else{
@@ -53,14 +70,7 @@ const FreeAgentCard = (props:FreeAgentCardType) => {
             return;
         }
     }
-    const makeOffer = async() => {
-        try {
-            return;
-        } catch (er) {
-            console.log("makeOfferd Error", er);
-            return;
-        }
-    }
+ 
 
     return (
         <div className={styles.benchCard}>
@@ -71,7 +81,7 @@ const FreeAgentCard = (props:FreeAgentCardType) => {
             <p>{props.agent.rarity} {props.agent.playerName}</p>
             <p>${props.agent.value}</p>
             <button className={styles.pfButton} onClick={() => buyCard(props.agent)}>BUY CARD</button>
-            <button className={styles.pfButton}>MAKE OFFER</button>
+            <button className={styles.pfButton} onClick={() => props.setOffer(props.agent)}>MAKE OFFER</button>
 
             
             </div>

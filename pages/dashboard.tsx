@@ -11,7 +11,7 @@ import { GamePosition } from '../utility/constants'
 const Dashboard: NextPage = () => {
     const Router = useRouter();
     const {gameStateDispatch} = useGameState();
-    const {activeGames, pucks, dashboardDispatch, dashboard, displayName} = useDashboard();
+    const {activeGames, pucks, dashboardDispatch, dashboard, displayName,messages} = useDashboard();
     console.log("Player has pucks: ", pucks);
 
 
@@ -34,6 +34,9 @@ const Dashboard: NextPage = () => {
             <div className={styles.mainContainer}>
                 <div className={styles.contentContainer}>
                     <h1>{displayName} has &#36;{pucks} Pucks.</h1>
+                </div>
+                <div className={styles.contentContainer}>
+                    {messages.length > 0 ? <h3>You have {messages.length} messages.</h3>: <h3>You have NO messages.</h3>}
                 </div>
                 <div className={styles.contentContainerColumn}>
              

@@ -26,7 +26,7 @@ const EmailPasswordAuthLogin = () => {
             throw new Error('🚦Google Res error 2🚦')
         }else{
             
-            dashboardDispatch({type:'login',payload:{displayName:postLog.dataFromDB.username,dash:postLog.dashboardPromises,dbData:postLog.dataFromDB,games:postLog.activeGames}})
+            dashboardDispatch({type:'login',payload:{messages:postLog.messages, displayName:postLog.dataFromDB.username,dash:postLog.dashboardPromises,dbData:postLog.dataFromDB,games:postLog.activeGames}})
             gameStateDispatch({type:'dashboard'})
             Router.push("/dashboard")
             return;
