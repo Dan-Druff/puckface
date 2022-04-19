@@ -2,14 +2,16 @@ import type { NextPage } from 'next'
 import styles from '../styles/All.module.css'
 import AuthRoute from '../hoc/authRoute'
 import { useState, useEffect } from 'react'
-import { CardType, FreeAgentType, MessageType } from '../utility/constants'
-import { useDashboard, getFreeAgents,sendMsgToUser } from '../context/DashboardContext'
+import { CardType, FreeAgentType, LogActionType, MessageType, NoteType } from '../utility/constants'
+import { useDashboard, getFreeAgents,sendMsgToUser, logOnTheFire } from '../context/DashboardContext'
 import { createRandomId, getPlayerFromToken } from '../utility/helpers';
 import { useNHL } from '../context/NHLContext'
 import { useAuth } from '../context/AuthContext'
+import { useRouter } from 'next/router'
 // import BenchCard from '../components/BenchCard'
 import FreeAgentCard from '../components/FreeAgentCard';
 import BuildAnOffer from '../components/BuildAnOffer'
+import { useGameState } from '../context/GameState'
 
 const FreeAgents: NextPage = () => {
     const {userData} = useAuth();
@@ -20,7 +22,8 @@ const FreeAgents: NextPage = () => {
     const [cards,setCards] = useState<FreeAgentType[]>([]);
     const [offeredTokens, setOfferedTokens] = useState<number[]>([]);
     const [currentAgent,setCurrentAgent] = useState<FreeAgentType | false>(false);
-
+    const {gameStateDispatch} = useGameState();
+    const Router = useRouter();
 
     const cancelOffer = () => {
         setOfferedTokens([]);
@@ -57,6 +60,32 @@ const FreeAgents: NextPage = () => {
             const m = await sendMsgToUser(mg,currentAgent.by);
             if(m){
                 console.log("Message sent to user: ", currentAgent.by);
+                const n:NoteType = {
+                    cancelFunction:() => {},
+                    mainFunction:() => {},
+                    mainTitle:'None',
+                    cancelTitle:'COOL',
+                    colorClass:'',
+                    message:'Offer has been sent to seller. Standby...',
+                    twoButtons:false
+                }
+                const l:LogActionType = {
+                    type:'freeAgentOffer',
+                    payload:{
+                        by:userData.userEmail,
+                        id:currentAgent.id,
+                        state:'open',
+                        to:currentAgent.by,
+                        tokenIds:offeredTokens,
+                        value:Number(offerValue.value),
+                        when:new Date()                    
+                    }
+                }
+                const postLog = await logOnTheFire(l);
+                if(postLog === false)throw new Error("Error logging");
+                dashboardDispatch({type:'notify',payload:{notObj:n}})
+                gameStateDispatch({type:'dashboard'});
+                Router.push('/dashboard');
             }else{
                 throw new Error("Error sending message.");
             }

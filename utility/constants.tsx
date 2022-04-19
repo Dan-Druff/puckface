@@ -11,6 +11,7 @@ export type PossibleGameStates = 'Waiting for Opponent' | 'Waiting for Game' | '
 export type NHLGamesArray = NHLGame[];
 export type DashboardType = CardType[];
 export type DashDispatch = (action:DashboardActions) => void;
+export type MessageTypeStrings = 'counterOffer' | 'declineOffer' | 'acceptOffer'
 
 // ---------------  ACTION TYPES -------------
 export type GameStateActions = 
@@ -46,7 +47,8 @@ export type DashboardActions =
 {type:'clear'} | 
 {type:'create',payload:{activeGames:GameType[],dbData:any}} | 
 {type:'login',payload:{messages:MessageType[],displayName:string, dash:DashboardType,games:GameType[],dbData:any}} | 
-{type:'signup',payload:{displayName:string,id:string}}
+{type:'signup',payload:{displayName:string,id:string}} |
+{type:'clearMessage',payload:{id:string}}
 
 export type LogActionType = 
 {type:'buyPucks',payload:{howMany:number, when:Date, who:string}} | 
@@ -58,7 +60,8 @@ export type LogActionType =
 {type:'tradeCard',payload:{}} |
 {type:'sellOrTradeCard',payload:{}} |
 {type:'buyFreeAgent',payload:{id:string, value:number, when:Date, tokenIds:number[],state:string, by:string, to:string}} |
-{type:'freeAgentOffer',payload:{id:string,value:number, tokenIds:number[],when:Date,state:string, by:string, to:string}}
+{type:'freeAgentOffer',payload:{id:string,value:number, tokenIds:number[],when:Date,state:string, by:string, to:string}} |
+{type:'declineFreeAgentOffer',payload:{id:string}}
 
 // ----------------- INTERFACES ------------------
 export interface CalculatedGameType {
@@ -232,6 +235,12 @@ export interface MessageType {
     tokens:number[],
     regarding:string,
     id:string
+}
+export interface MessageCompType {
+    msg:MessageType,
+    accept:(msg:MessageType) => void,
+    decline:(msg:MessageType) => void,
+    counter:(msg:MessageType) => void    
 }
 export interface PostLoginReturnType {
     dashboardPromises:DashboardType,

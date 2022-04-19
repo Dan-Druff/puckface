@@ -343,6 +343,21 @@ export const logOnTheFire = async(log:LogActionType):Promise <boolean> => {
             case 'sellOrTradeCard':
                 break;
             case 'freeAgentOffer':
+                const faRef = doc(db,'transactions',log.payload.by);
+                const ou = {
+                    type:log.type,
+                    by:log.payload.by,
+                    id:log.payload.id,
+                    state:log.payload.state,
+                    to:log.payload.to,
+                    tokenIds:log.payload.tokenIds,
+                    value:log.payload.value,
+                    when:log.payload.when
+                }
+                await updateDoc(faRef,{
+
+                    transactions:arrayUnion(ou)
+                })
                 break;
             case 'buyFreeAgent':
                 // update sellers transactions object
@@ -526,6 +541,21 @@ export const getUsersMessages = async(user:string):Promise<false | MessageType[]
         return false;
     }
 }
+export const clearMsgByIdAndUser = async(id:string,user:string):Promise<boolean> => {
+    try {
+        const allMsg = await getUsersMessages(user);
+        if(allMsg === false)throw new Error("Error getting msgs");
+        const newMsg = allMsg.filter(m => m.id !== id);
+        const mref = doc(db,'transactions',user);
+        await updateDoc(mref,{
+            messages:newMsg
+        })
+        return true;
+    } catch (er) {
+        console.log("ERROR clearing mesg: ", er);
+        return false;
+    }
+}
 // ----------------------------- <MEAT AND POTOTOS> -----------------------------
 const DashboardContext = createContext<AllDashType>({dashboard:[], pucks:0, dashboardDispatch:DefDashDisp,displayName:'NA',activeGames:[],activeLeagues:[],tokens:[],editing:false, notification:null, postLogin:DefPostLog, getPlayersFromTokenArray:DefGetPlayersFromTokenArray,getPacket:DefGetPacket, availableGuys:[], currentGame:blankGame, team:blankTeam, oppTeam:blankTeam, prevPlayer:nobody,createGameInDB:DefCreateGameDB,joinGameInDB:DefJoinGameDB,tradeArray:[],addToTradeArrayDB:DefAddToTradeArrayDB,buyFreeAgent:DefBuyFreeAgent,messages:[]});
 
@@ -553,6 +583,9 @@ export const DashboardProvider = ({children}:{children:ReactNode}) => {
 
     function dashboardReducer(state:DashboardType, action:DashboardActions){
         switch (action.type) {
+            case 'clearMessage':
+                setMessages(messages.filter(m => m.id !== action.payload.id));
+                return state;
             case 'boughtAgent':
                 setPucks(pucks - action.payload.agent.value);
                 setTokens([action.payload.agent.tokenId, ...tokens]);

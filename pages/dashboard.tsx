@@ -1,19 +1,100 @@
 import type { NextPage } from 'next'
 import styles from '../styles/All.module.css'
-import { useDashboard} from '../context/DashboardContext'
+import { logOnTheFire, sendMsgToUser, useDashboard,clearMsgByIdAndUser} from '../context/DashboardContext'
 import { useGameState } from '../context/GameState'
 import AuthRoute from '../hoc/authRoute'
 import LobbyGameCard from '../components/LobbyGameCard'
 import BenchCard from '../components/BenchCard'
 import { useRouter } from 'next/router'
 import Loader from '../components/Loader'
-import { GamePosition } from '../utility/constants'
+import { GamePosition,MessageType, LogActionType } from '../utility/constants'
+import { useAuth } from '../context/AuthContext'
+import Message from '../components/Message';
+import { createRandomId } from '../utility/helpers'
 const Dashboard: NextPage = () => {
     const Router = useRouter();
+    const {userData} = useAuth();
     const {gameStateDispatch} = useGameState();
     const {activeGames, pucks, dashboardDispatch, dashboard, displayName,messages} = useDashboard();
     console.log("Player has pucks: ", pucks);
+    const acceptMessage = async(msg:MessageType) => {
+        try {
+            console.log("ACEPPTING MSG: ", msg.id);
+            //REMOVE PUCkS AND TOKENS FROM OFFERER
+            // ADD AGENT TO OFFERER
+            // Add pucks and tokens to accepters db
+            // add pucks & tokens to accepters state
+            // create and send message
+            // create and send offerers log
+            // create and send accepters log
+            // notify and route to dashboard
+            return true;
+        } catch (er) {
+            console.log("Error: ", er);
+            return false;
+        }
+       
+    }
+    const declineMessage = async(msg:MessageType) => {
+    
+        try {
+            console.log("DECLINING MSG: ", msg.id);
+            // Create Message object
+            if(userData === null || userData.userEmail === null)throw new Error("Error userdata");
+            const m : MessageType = {
+                by:userData.userEmail,
+                id:createRandomId(),
+                message:"No Thanks",
+                regarding:msg.id,
+                tokens:[],
+                type:"declineOffer",
+                value:0,
+                when:new Date()
+            }
+            // send message object
+            const mRes = await sendMsgToUser(m,msg.by);
+            if(mRes === false)throw new Error("Error sending message");
 
+            // Deal with old transaction? BEST WAY TO CLOSE STATE OF FREE AGENT OFFER IN DB??
+
+            // create log
+            const l : LogActionType = {
+                type:'declineFreeAgentOffer',
+                payload:{
+                    id:msg.id
+                }
+            }
+            // send log
+            const logRes = await logOnTheFire(l);
+            if(logRes === false)throw new Error("Error Logging");
+
+            // remove message from db  
+            const c = await clearMsgByIdAndUser(msg.id,userData.userEmail);
+            if(c === false)throw new Error("Error clearing message");
+            
+            // remove message from state
+            dashboardDispatch({type:'clearMessage',payload:{id:msg.id}});
+
+            
+            return true;
+        } catch (er) {
+            console.log("Error: ", er);
+            return false;
+        }
+
+
+    }
+    const counterMessage = (msg:MessageType) => {
+        try {
+            console.log("COUNTERING MSG: ", msg.id);
+ 
+            return true;
+        } catch (er) {
+            console.log("Error: ", er);
+            return false;
+        }
+
+    }
 
     const cardSelect = async(posId:GamePosition, tokenId:number) => {
         try {
@@ -35,8 +116,20 @@ const Dashboard: NextPage = () => {
                 <div className={styles.contentContainer}>
                     <h1>{displayName} has &#36;{pucks} Pucks.</h1>
                 </div>
-                <div className={styles.contentContainer}>
-                    {messages.length > 0 ? <h3>You have {messages.length} messages.</h3>: <h3>You have NO messages.</h3>}
+                <div className={styles.contentContainerColumn}>
+                    <h3>MESSAGES:</h3>
+                    {messages.length > 0 ? 
+                    <>
+                        
+                        {messages.map((msg) => {
+                            return (
+                                <Message key={msg.id} msg={msg} accept={acceptMessage} decline={declineMessage} counter={counterMessage}/>
+                            )
+                        })}
+                    </>
+                    : 
+                    <h3>You have NO messages.</h3>
+                    }
                 </div>
                 <div className={styles.contentContainerColumn}>
              
