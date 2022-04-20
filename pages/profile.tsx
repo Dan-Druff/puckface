@@ -22,7 +22,14 @@ const Profile: NextPage = () => {
 
     }
     const historyHandler = () => {
-        console.log("HISTORY");
+
+        try {
+            console.log("HISTORY");
+            if(userData === null || userData.userEmail === null)throw new Error("No user data");
+            Router.push(`/history/${userData.userEmail}`); 
+        } catch (er) {
+            console.log("ERROR HISTORY HANDLER", er);
+        }
     }
     return (
         <AuthRoute>

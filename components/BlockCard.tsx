@@ -15,6 +15,9 @@ const BlockCard = (props:FreeAgentCardType) => {
             {/* <div className={styles.imageContainer}>
            <Image width={665} height={665} src={props.card.image} className={styles.image} layout="fill" alt="altPic"/>
             </div> */}
+            <p>{props.agent.ask}</p>
+            <p>{props.agent.rarity} {props.agent.playerName} {props.agent.tokenId}</p>
+            <p>${props.agent.value}</p>
            <button className={styles.pfButton} onClick={() => editFreeAgent(props.agent)}>CHANGE</button>
             
             </div>

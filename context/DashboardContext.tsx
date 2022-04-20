@@ -488,6 +488,24 @@ export const getUsersMessages = async(user:string):Promise<false | MessageType[]
         return false;
     }
 }
+export const getUsersTxAndMsg = async(email:string):Promise<any> => {
+    try {
+        const umRef = doc(db,'transactions',email);
+        const umRes = await getDoc(umRef);
+        if(umRes.exists()){
+            const ur = umRes.data();
+            return {
+                messages:ur.messages,
+                transactions:ur.transactions
+            }
+        }else{
+           throw new Error("Error getusersmsgandtx"); 
+        }
+    } catch (er) {
+        console.log("Error get users tx and msg");
+        return false;
+    }
+}
 export const clearMsgByIdAndUser = async(id:string,user:string):Promise<boolean> => {
     try {
         const allMsg = await getUsersMessages(user);
@@ -698,81 +716,81 @@ export const logOnTheFire = async(log:LogActionType):Promise <boolean> => {
        return false;
     }
 }
-export const txFreeAgent = async(agents:FreeAgentType[], id:string,to:string,from:string):Promise<number | false> => {
-    try {
-        let myArraySearch = agents.filter(a => a.id === id);
-        let tokenId = myArraySearch[0].tokenId;
-        let newFAArray = agents.filter(a => a.id !== id);
-        const freeAgentsRef = doc(db,'freeAgents','cards');
-        const fromRef = doc(db,'users',from);
-        const toRef = doc(db,'users',to);
+// export const txFreeAgent = async(agents:FreeAgentType[], id:string,to:string,from:string):Promise<number | false> => {
+//     try {
+//         let myArraySearch = agents.filter(a => a.id === id);
+//         let tokenId = myArraySearch[0].tokenId;
+//         let newFAArray = agents.filter(a => a.id !== id);
+//         const freeAgentsRef = doc(db,'freeAgents','cards');
+//         const fromRef = doc(db,'users',from);
+//         const toRef = doc(db,'users',to);
 
-        await updateDoc(freeAgentsRef,{
-            array:newFAArray
-        })
-        // await updateDoc(fromRef,{
-        //     cards:arrayRemove(tokenId)
-        // })
-        // await updateDoc(toRef,{
-        //     cards:arrayUnion(tokenId)
-        // })
-        return tokenId;
-    } catch (er) {
-        console.log("Error txFreeAgent", er);
-        return false;
-    }
-}
-export const transferFreeAgent = async(id:string, to:string, from:string):Promise<number | false> => {
-    try {
-        const fas = await getFreeAgents();
-        if(Array.isArray(fas)){
-            console.log("In Transfer freeagents, fas is array...", fas);
-            let na = fas.filter(f => f.id === id);
-            let tokenId = na[0].tokenId;
-            let newFA = fas.filter(f => f.id !== id);
-            const od = doc(db,'freeAgents','cards');
-            await updateDoc(od,{
-                array:newFA
-            })
-            console.log("Trying to remove " + tokenId + " from " + from);
-            let uTok = await getUsersTokensFromDB(from);
-            let ti = uTok.indexOf(tokenId);
-            if(ti > -1){
-                uTok.splice(ti,1);
-            }
+//         await updateDoc(freeAgentsRef,{
+//             array:newFAArray
+//         })
+//         // await updateDoc(fromRef,{
+//         //     cards:arrayRemove(tokenId)
+//         // })
+//         // await updateDoc(toRef,{
+//         //     cards:arrayUnion(tokenId)
+//         // })
+//         return tokenId;
+//     } catch (er) {
+//         console.log("Error txFreeAgent", er);
+//         return false;
+//     }
+// }
+// export const transferFreeAgent = async(id:string, to:string, from:string):Promise<number | false> => {
+//     try {
+//         const fas = await getFreeAgents();
+//         if(Array.isArray(fas)){
+//             console.log("In Transfer freeagents, fas is array...", fas);
+//             let na = fas.filter(f => f.id === id);
+//             let tokenId = na[0].tokenId;
+//             let newFA = fas.filter(f => f.id !== id);
+//             const od = doc(db,'freeAgents','cards');
+//             await updateDoc(od,{
+//                 array:newFA
+//             })
+//             console.log("Trying to remove " + tokenId + " from " + from);
+//             let uTok = await getUsersTokensFromDB(from);
+//             let ti = uTok.indexOf(tokenId);
+//             if(ti > -1){
+//                 uTok.splice(ti,1);
+//             }
      
-            // const userRes = await setDoc(doc(db,'users',from),{
-            //     cards:uTok
+//             // const userRes = await setDoc(doc(db,'users',from),{
+//             //     cards:uTok
                 
-            // },{ merge: true });
-            const seller = doc(db,'users',from);
-            console.log("By updating doc with this array: ", uTok);
-            await updateDoc(seller,{
-                cards:uTok
-            })
-            // const seller = doc(db,'users',from);
-            // await updateDoc(seller,{
-            //     cards:arrayRemove(tokenId)
-            // })
-            console.log("Trying to add " + tokenId + " to " + to);
+//             // },{ merge: true });
+//             const seller = doc(db,'users',from);
+//             console.log("By updating doc with this array: ", uTok);
+//             await updateDoc(seller,{
+//                 cards:uTok
+//             })
+//             // const seller = doc(db,'users',from);
+//             // await updateDoc(seller,{
+//             //     cards:arrayRemove(tokenId)
+//             // })
+//             console.log("Trying to add " + tokenId + " to " + to);
 
-            const ur = doc(db,'users',to);
-            await updateDoc(ur,{
-                cards:arrayUnion(tokenId)
-            })
-            return tokenId;
-            // remove free agent token from db
+//             const ur = doc(db,'users',to);
+//             await updateDoc(ur,{
+//                 cards:arrayUnion(tokenId)
+//             })
+//             return tokenId;
+//             // remove free agent token from db
 
-            //remove free agent token from state
-        }else{
-            throw new Error("Error getting free agents");
-        }
+//             //remove free agent token from state
+//         }else{
+//             throw new Error("Error getting free agents");
+//         }
        
-    } catch (er) {
-        console.log("Error transferring free agent",er);
-        return false;
-    }
-}
+//     } catch (er) {
+//         console.log("Error transferring free agent",er);
+//         return false;
+//     }
+// }
 
 // ----------------------------- <MEAT AND POTOTOS> -----------------------------
 const DashboardContext = createContext<AllDashType>({dashboard:[], pucks:0, dashboardDispatch:DefDashDisp,displayName:'NA',activeGames:[],activeLeagues:[],tokens:[],editing:false, notification:null, postLogin:DefPostLog, getPlayersFromTokenArray:DefGetPlayersFromTokenArray,getPacket:DefGetPacket, availableGuys:[], currentGame:blankGame, team:blankTeam, oppTeam:blankTeam, prevPlayer:nobody,createGameInDB:DefCreateGameDB,joinGameInDB:DefJoinGameDB,tradeArray:[],addToTradeArrayDB:DefAddToTradeArrayDB,buyFreeAgent:DefBuyFreeAgent,messages:[]});
