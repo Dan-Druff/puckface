@@ -56,14 +56,14 @@ const Message = (props:MessageCompType) => {
                 <p>{props.msg.type}</p>
                 <p>Regarding: {props.msg.regarding}</p>
                 <hr className={styles.blueLine}/>
-                <p>OFFER:</p>
+                <p>OFFER ACCEPTED</p>
                 <p>${props.msg.value} {JSON.stringify(props.msg.tokens)}</p>
                 <hr className={styles.centerLine}/>
-                <button className={styles.pfButton} onClick={() => props.accept(props.msg)}>ACCEPT</button>
+                <p>SHOW OFFER DETAILS</p>
                 <hr className={styles.blueLine}/>
-                <button className={styles.pfButton} onClick={() => props.decline(props.msg)}>DECLINE</button>
+                <p>DETAILS 2</p>
                 <hr className={styles.smallRedLine}/>
-                <button className={styles.pfButton} onClick={() => props.counter(props.msg)}>COUNTER</button>
+                <button className={styles.pfButton} onClick={() => props.exit(props.msg)}>COOL</button>
     
       
         </div>

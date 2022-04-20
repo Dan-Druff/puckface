@@ -133,9 +133,74 @@ export const postSignup = async(email:string, username:string):Promise<false | P
        return false;
     }
 }
+export const confirmUserData = async(email:string):Promise<any> => {
+    try {
+        const uRef = doc(db,'users',email);
+        const uRes = await getDoc(uRef);
+        if(uRes.exists()){
+           
+          
+            return uRes.data();
+
+        }else{
+            throw new Error("Error Getting pucks");
+        }
+    } catch (er) {
+        console.log("Error", er);
+        return false;
+    }
+}
+export const getUsersPucksFromDB = async(email:string):Promise<number> => {
+    try {
+        const uRef = doc(db,'users',email);
+        const uRes = await getDoc(uRef);
+        if(uRes.exists()){
+            const uData = uRes.data();
+            const r:number = uData.pucks;
+            return r;
+
+        }else{
+            throw new Error("Error Getting pucks");
+        }
+        
+    } catch (er) {
+        console.log("Error setting users pucks")
+        return 0;
+    }
+}
+export const getUsersTokensFromDB = async(email:string):Promise<number[]> => {
+    try {
+        const uRef = doc(db,'users',email);
+        const uRes = await getDoc(uRef);
+        if(uRes.exists()){
+            const uData = uRes.data();
+            const r:number[] = uData.cards;
+            return r;
+
+        }else{
+            throw new Error("Error Getting pucks");
+        }
+   
+    } catch (er) {
+        console.log("Error getting users tokens",er);
+        return [];
+    }
+}
 export const updateUsersPucksInDB = async(email:string,pucks:number):Promise<boolean> => {
     try {
         const userRes = await setDoc(doc(db,'users',email),{
+            pucks:pucks
+        },{ merge: true });
+        return true;
+    } catch (er) {
+        console.log("UUPID ERROR: ", er);
+        return false;
+    }
+}
+export const updateUsersPucksAndTokensInDB = async(email:string,pucks:number,tokens:number[]):Promise<boolean> => {
+    try {
+        const userRes = await setDoc(doc(db,'users',email),{
+            cards:tokens,
             pucks:pucks
         },{ merge: true });
         return true;
@@ -318,10 +383,206 @@ export const calculateGame = async(game:GameType, homeScore:number, awayScore:nu
         return false;
     }
 }
+export const getFreeAgents = async():Promise<any | false> => {
+    try {
+        const existing = doc(db,'freeAgents','cards');
+        const exRes = await getDoc(existing);
+        if(exRes.exists()){
+            let agents = exRes.data();
+            console.log("Arrays is: ", agents.array);
+      
+            return agents.array;
+        }else{
+            throw new Error("Error exresExists");
+        }
+      
+    } catch (er) {
+        console.log("Error: ", er);
+        return false;
+    }
+    
+}
+export const addToFreeAgents = async(token:number,by:string,ask:string, value:number, id:string):Promise <boolean> => {
+    try {
+        const fao = {
+            ask:ask,
+            tokenId:token,
+            by:by,
+            value:value,
+            id:id
+        }
+        const fRef = doc(db,'freeAgents','cards');
+        await updateDoc(fRef,{
+            array:arrayUnion(fao)
+        })
+        // const upRes = await setDoc(doc(db,'freeAgents','cards'),{
+        //     array:tokenArray
+        // },{merge:true})
+        return true;
+
+      
+    } catch (er) {
+        console.log("Error", er);
+        return false;
+    }
+   
+}
+export const removeFromFreeAgents = async(token:number):Promise<boolean> => {
+    try {
+        let agents = await getFreeAgents();
+        if(Array.isArray(agents)){
+            const newAgents = agents.filter(a => a.tokenId !== token)
+            await setDoc(doc(db,'freeAgents','cards'),{
+                array:newAgents
+            })
+            return true;
+        }else{
+            throw new Error("Error with agents array")
+        }
+   
+    } catch (er) {
+        console.log("Error removing from free agents");
+        return false;
+    }
+}
+export const sendMsgToUser = async(msg:MessageType,to:string):Promise<boolean> => {
+    try {
+        const mref = doc(db,'transactions',to);
+        await updateDoc(mref,{
+            messages:arrayUnion(msg)
+        })
+        return true;
+    } catch (er) {
+        console.log("Error sending message", er);
+        return false;
+    }
+}
+export const getUsersMessages = async(user:string):Promise<false | MessageType[]> => {
+    try {
+        let retData :MessageType[] = [];
+        const uData = doc(db,'transactions',user);
+        const txRes = await getDoc(uData);
+        if(txRes.exists()){
+            const txData = txRes.data();
+            txData.messages.forEach((m:any) => {
+                let o:MessageType = {
+                    by:m.by,
+                    id:m.id,
+                    message:m.message,
+                    regarding:m.regarding,
+                    tokens:m.tokens,
+                    type:m.type,
+                    value:m.value,
+                    when:m.when,
+                    state:m.state
+                }
+                retData.push(o);
+            })
+            return retData;
+        }else{
+            throw new Error("Error getting users messages");
+        }
+       
+    } catch (er) {
+        console.log("Error getting users messages", er);
+        return false;
+    }
+}
+export const clearMsgByIdAndUser = async(id:string,user:string):Promise<boolean> => {
+    try {
+        const allMsg = await getUsersMessages(user);
+        if(allMsg === false)throw new Error("Error getting msgs");
+        // const newMsg = allMsg.filter(m => m.id !== id);
+        const nm = allMsg.map((mg:any) => {
+            if(mg.id === id){
+                mg.state = 'closed';
+            }
+            return mg;
+        })
+        const mref = doc(db,'transactions',user);
+        await updateDoc(mref,{
+            messages:nm
+        })
+        return true;
+    } catch (er) {
+        console.log("ERROR clearing mesg: ", er);
+        return false;
+    }
+}
+export const clearTxByIdAndUser = async(id:string,user:string):Promise<boolean> => {
+    try {
+        const uD = doc(db,'transactions',user);
+        const uDres = await getDoc(uD);
+        if(uDres.exists()){
+            let data = uDres.data();
+            let txs = data.transactions;
+            txs = txs.map((t:any) => {
+                if(t.id === id){
+                    t.state = 'closed';
+                }
+                return t;
+            })
+            await updateDoc(uD,{
+                transactions:txs
+            })
+
+        }else{
+            throw new Error("Thing does not exist");
+        }
+        return true;
+    } catch (er) {
+        console.log("Error clearing tx", er);
+        return false;
+    }
+}
 export const logOnTheFire = async(log:LogActionType):Promise <boolean> => {
     try {
         // Do something to Log With here. DB solution????
         switch (log.type) {
+            case 'acceptedOffer':
+                let ots = {
+                    type:log.type,
+                    by:log.payload.by,
+                    from:log.payload.from,
+                    regarding:log.payload.regarding,
+                    id:log.payload.id,
+                    tokens:log.payload.tokens,
+                    value:log.payload.value,
+                    when:log.payload.when,
+                    state:'closed'
+                }
+                const accRef = doc(db,'transactions',log.payload.from);
+                const accRes = await getDoc(accRef);
+                if(accRes.exists()){
+                    const data = accRes.data()
+                    let newTx = data.transactions;
+                    if(Array.isArray(newTx)){
+                        newTx = newTx.map((item) => {
+                            if(item.id === log.payload.regarding){
+                                item.state = 'closed'
+                            }
+                            return item;
+                        })
+                        newTx.push(ots);
+                        await updateDoc(accRef,{
+                            transactions:newTx
+                        })
+                    }
+                }
+            
+                const cleared = await clearTxByIdAndUser(log.payload.regarding,log.payload.from);
+                if(cleared === false)throw new Error("Error clearing tx for offerer");
+
+                const recRef = doc(db,'transactions',log.payload.by);
+                await updateDoc(recRef,{
+                    transactions:arrayUnion(ots)
+                })
+
+                break;
+            case 'declineFreeAgentOffer':
+                // should i call the clear tx func here
+                // also should i create and save a tx obj? 
+                break;
             case 'sellCard':
                 let objToSave = {
                     type:log.type,
@@ -437,125 +698,82 @@ export const logOnTheFire = async(log:LogActionType):Promise <boolean> => {
        return false;
     }
 }
-export const getFreeAgents = async():Promise<any | false> => {
+export const txFreeAgent = async(agents:FreeAgentType[], id:string,to:string,from:string):Promise<number | false> => {
     try {
-        const existing = doc(db,'freeAgents','cards');
-        const exRes = await getDoc(existing);
-        if(exRes.exists()){
-            let agents = exRes.data();
-            console.log("Arrays is: ", agents.array);
-      
-            return agents.array;
-        }else{
-            throw new Error("Error exresExists");
-        }
-      
-    } catch (er) {
-        console.log("Error: ", er);
-        return false;
-    }
-    
-}
-export const addToFreeAgents = async(token:number,by:string,ask:string, value:number, id:string):Promise <boolean> => {
-    try {
-        const fao = {
-            ask:ask,
-            tokenId:token,
-            by:by,
-            value:value,
-            id:id
-        }
-        const fRef = doc(db,'freeAgents','cards');
-        await updateDoc(fRef,{
-            array:arrayUnion(fao)
-        })
-        // const upRes = await setDoc(doc(db,'freeAgents','cards'),{
-        //     array:tokenArray
-        // },{merge:true})
-        return true;
+        let myArraySearch = agents.filter(a => a.id === id);
+        let tokenId = myArraySearch[0].tokenId;
+        let newFAArray = agents.filter(a => a.id !== id);
+        const freeAgentsRef = doc(db,'freeAgents','cards');
+        const fromRef = doc(db,'users',from);
+        const toRef = doc(db,'users',to);
 
-      
-    } catch (er) {
-        console.log("Error", er);
-        return false;
-    }
-   
-}
-export const removeFromFreeAgents = async(token:number):Promise<boolean> => {
-    try {
-        let agents = await getFreeAgents();
-        if(Array.isArray(agents)){
-            const newAgents = agents.filter(a => a.tokenId !== token)
-            await setDoc(doc(db,'freeAgents','cards'),{
-                array:newAgents
-            })
-            return true;
-        }else{
-            throw new Error("Error with agents array")
-        }
-   
-    } catch (er) {
-        console.log("Error removing from free agents");
-        return false;
-    }
-}
-export const sendMsgToUser = async(msg:MessageType,to:string):Promise<boolean> => {
-    try {
-        const mref = doc(db,'transactions',to);
-        await updateDoc(mref,{
-            messages:arrayUnion(msg)
+        await updateDoc(freeAgentsRef,{
+            array:newFAArray
         })
-        return true;
+        // await updateDoc(fromRef,{
+        //     cards:arrayRemove(tokenId)
+        // })
+        // await updateDoc(toRef,{
+        //     cards:arrayUnion(tokenId)
+        // })
+        return tokenId;
     } catch (er) {
-        console.log("Error sending message", er);
+        console.log("Error txFreeAgent", er);
         return false;
     }
 }
-export const getUsersMessages = async(user:string):Promise<false | MessageType[]> => {
+export const transferFreeAgent = async(id:string, to:string, from:string):Promise<number | false> => {
     try {
-        let retData :MessageType[] = [];
-        const uData = doc(db,'transactions',user);
-        const txRes = await getDoc(uData);
-        if(txRes.exists()){
-            const txData = txRes.data();
-            txData.messages.forEach((m:any) => {
-                let o:MessageType = {
-                    by:m.by,
-                    id:m.id,
-                    message:m.message,
-                    regarding:m.regarding,
-                    tokens:m.tokens,
-                    type:m.type,
-                    value:m.value,
-                    when:m.when
-                }
-                retData.push(o);
+        const fas = await getFreeAgents();
+        if(Array.isArray(fas)){
+            console.log("In Transfer freeagents, fas is array...", fas);
+            let na = fas.filter(f => f.id === id);
+            let tokenId = na[0].tokenId;
+            let newFA = fas.filter(f => f.id !== id);
+            const od = doc(db,'freeAgents','cards');
+            await updateDoc(od,{
+                array:newFA
             })
-            return retData;
+            console.log("Trying to remove " + tokenId + " from " + from);
+            let uTok = await getUsersTokensFromDB(from);
+            let ti = uTok.indexOf(tokenId);
+            if(ti > -1){
+                uTok.splice(ti,1);
+            }
+     
+            // const userRes = await setDoc(doc(db,'users',from),{
+            //     cards:uTok
+                
+            // },{ merge: true });
+            const seller = doc(db,'users',from);
+            console.log("By updating doc with this array: ", uTok);
+            await updateDoc(seller,{
+                cards:uTok
+            })
+            // const seller = doc(db,'users',from);
+            // await updateDoc(seller,{
+            //     cards:arrayRemove(tokenId)
+            // })
+            console.log("Trying to add " + tokenId + " to " + to);
+
+            const ur = doc(db,'users',to);
+            await updateDoc(ur,{
+                cards:arrayUnion(tokenId)
+            })
+            return tokenId;
+            // remove free agent token from db
+
+            //remove free agent token from state
         }else{
-            throw new Error("Error getting users messages");
+            throw new Error("Error getting free agents");
         }
        
     } catch (er) {
-        console.log("Error getting users messages", er);
+        console.log("Error transferring free agent",er);
         return false;
     }
 }
-export const clearMsgByIdAndUser = async(id:string,user:string):Promise<boolean> => {
-    try {
-        const allMsg = await getUsersMessages(user);
-        if(allMsg === false)throw new Error("Error getting msgs");
-        const newMsg = allMsg.filter(m => m.id !== id);
-        const mref = doc(db,'transactions',user);
-        await updateDoc(mref,{
-            messages:newMsg
-        })
-        return true;
-    } catch (er) {
-        console.log("ERROR clearing mesg: ", er);
-        return false;
-    }
-}
+
 // ----------------------------- <MEAT AND POTOTOS> -----------------------------
 const DashboardContext = createContext<AllDashType>({dashboard:[], pucks:0, dashboardDispatch:DefDashDisp,displayName:'NA',activeGames:[],activeLeagues:[],tokens:[],editing:false, notification:null, postLogin:DefPostLog, getPlayersFromTokenArray:DefGetPlayersFromTokenArray,getPacket:DefGetPacket, availableGuys:[], currentGame:blankGame, team:blankTeam, oppTeam:blankTeam, prevPlayer:nobody,createGameInDB:DefCreateGameDB,joinGameInDB:DefJoinGameDB,tradeArray:[],addToTradeArrayDB:DefAddToTradeArrayDB,buyFreeAgent:DefBuyFreeAgent,messages:[]});
 
@@ -583,7 +801,15 @@ export const DashboardProvider = ({children}:{children:ReactNode}) => {
 
     function dashboardReducer(state:DashboardType, action:DashboardActions){
         switch (action.type) {
+            case 'acceptOffer':
+                setTokens(action.payload.tokens);
+                setPucks(action.payload.pucks);
+                let nDash = state.filter(n => n.tokenId !== action.payload.removeToken);
+                
+                return [...action.payload.cards, ...nDash];
             case 'clearMessage':
+                // the discarded msg is still in db marked as closed.
+                // I can safely clear it from state, and still retreive data later
                 setMessages(messages.filter(m => m.id !== action.payload.id));
                 return state;
             case 'boughtAgent':
@@ -1041,7 +1267,7 @@ export const DashboardProvider = ({children}:{children:ReactNode}) => {
                                tradeArray:dbdata.tradeArray
                             },
                             activeGames:gameObjectArray,
-                            messages:msg
+                            messages:msg.filter(m => m.state === "open")
                        };
                    }else{
                     

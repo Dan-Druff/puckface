@@ -166,7 +166,7 @@ const Store: NextPage = () => {
     if(load){
         return (
             <div className={styles.contentContainer}>
-                <Loader message="Generating Cards..." />
+                <Loader message="Generating Cards. This can take a minute..." />
             </div>
             
         )
