@@ -55,7 +55,8 @@ const FreeAgents: NextPage = () => {
                 tokens:offeredTokens,
                 type:"counterOffer",
                 when:new Date(),
-                state:'open'
+                state:'open',
+                tx:false
             }
             console.log("GOING TO RETURN: ", mg);
             const m = await sendMsgToUser(mg,currentAgent.by);

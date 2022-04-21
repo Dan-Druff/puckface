@@ -12,6 +12,8 @@ export type NHLGamesArray = NHLGame[];
 export type DashboardType = CardType[];
 export type DashDispatch = (action:DashboardActions) => void;
 export type MessageTypeStrings = 'counterOffer' | 'declineOffer' | 'acceptOffer'
+export type TxTypeStrings = 'counterOffer' | 'declineOffer' | 'acceptedOffer' | 'buyCards' | 'buyPucks' | 'sellCard' | 'freeAgentOffer' | 'createGame' | 'joinGame' | 'winGame' | 'loseGame' | 'tieGame' | 'boughtCard'
+
 
 // ---------------  ACTION TYPES -------------
 export type GameStateActions = 
@@ -237,7 +239,8 @@ export interface MessageType {
     tokens:number[],
     regarding:string,
     id:string,
-    state:string
+    state:string,
+    tx:boolean
 }
 export interface MessageCompType {
     msg:MessageType,
@@ -259,6 +262,23 @@ export interface PostLoginReturnType {
     },
     activeGames:GameType[],
     messages:MessageType[]
+}
+export interface TxType {
+    by:string,
+    from:string,
+    to:string,
+    id:string,
+    regarding:string,
+    state:string,
+    tokens:number[],
+    type:TxTypeStrings,
+    value:number,
+    when:Date,
+    freeAgentToken?:number,
+    tx:boolean,
+    mBool?:boolean,
+    mString?:string,
+    mNum?:number
 }
 // ---------------- GAME REALATED CONSTANTS------------------
 export const blankGame:GameType = {awayEmail:'',awayName:'',awayTeam:{c:0,lw:0,rw:0,d1:0,d2:0,g:0},date:new Date(),gameState:'Initialized',homeEmail:'',homeName:'blank home',homeTeam:{c:0,lw:0,rw:0,d1:0,d2:0,g:0},id:'blank',open:true,private:false,value:0}

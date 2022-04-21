@@ -167,7 +167,8 @@ const Dashboard: NextPage = () => {
                             tokens:[],
                             type:'acceptedOffer',
                             value:0,
-                            when:new Date()
+                            when:new Date(),
+                            tx:false
                         }
                         const ur = await sendMsgToUser(mto, msg.by);
                         if(ur === false)throw new Error("Error sending message to user");
@@ -252,7 +253,8 @@ const Dashboard: NextPage = () => {
                 type:"declineOffer",
                 value:0,
                 when:new Date(),
-                state:'open'
+                state:'open',
+                tx:false
             }
 
             // send message object

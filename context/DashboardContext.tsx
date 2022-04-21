@@ -28,7 +28,8 @@ import {
     NHLGame,
     CalculatedGameType, 
     LogActionType, 
-    FreeAgentType 
+    FreeAgentType,
+    TxType 
 } from "../utility/constants";
 // const playerMap = require('../utility/playerMap.json');
 const TokenMap = require('../utility/TokenMap.json');
@@ -474,7 +475,8 @@ export const getUsersMessages = async(user:string):Promise<false | MessageType[]
                     type:m.type,
                     value:m.value,
                     when:m.when,
-                    state:m.state
+                    state:m.state,
+                    tx:m.tx
                 }
                 retData.push(o);
             })
@@ -488,16 +490,59 @@ export const getUsersMessages = async(user:string):Promise<false | MessageType[]
         return false;
     }
 }
-export const getUsersTxAndMsg = async(email:string):Promise<any> => {
+export const getUsersTxAndMsg = async(email:string):Promise<TxType[] | false> => {
     try {
         const umRef = doc(db,'transactions',email);
         const umRes = await getDoc(umRef);
         if(umRes.exists()){
             const ur = umRes.data();
-            return {
-                messages:ur.messages,
-                transactions:ur.transactions
-            }
+            let retArr : TxType[] = [];
+            ur.messages.forEach((m:any) => {
+                console.log("Im in the message and it is: ", m);
+                let it: TxType = {
+                    by:typeof m.by === 'string' ? m.by : '',
+                    from:typeof m.from === 'string' ? m.from : '',
+                    id:m.id,
+                    regarding:typeof m.regarding === 'string' ? m.regarding : '',
+                    state:m.state,
+                    to:typeof m.to === 'string' ? m.to : '',
+                    tokens:Array.isArray(m.tokens) ? m.tokens : [],
+                    tx:m.tx,
+                    type:m.type,
+                    value:typeof m.value === 'number' ? m.value : 0,
+                    when:m.when,
+                    freeAgentToken:typeof m.freeAgentToken === 'number' ? m.freeAgentToken : 0,
+                    mBool:typeof m.mBool === 'boolean' ? m.mBool : false,
+                    mNum:typeof m.mNum === 'number' ? m.mNum : 0,
+                    mString:typeof m.mNum === 'string' ? m.mString : ''
+                }
+                retArr.push(it);
+            })
+            ur.transactions.forEach((t:any) => {
+                let it: TxType = {
+                    by:typeof t.by === 'string' ? t.by : '',
+                    from:typeof t.from === 'string' ? t.from : '',
+                    id:t.id,
+                    regarding:typeof t.regarding === 'string' ? t.regarding : '',
+                    state:t.state,
+                    to:typeof t.to === 'string' ? t.to : '',
+                    tokens:Array.isArray(t.tokens) ? t.tokens : [],
+                    tx:t.tx,
+                    type:t.type,
+                    value:typeof t.value === 'number' ? t.value : 0,
+                    when:t.when,
+                    freeAgentToken:typeof t.freeAgentToken === 'number' ? t.freeAgentToken : 0,
+                    mBool:typeof t.mBool === 'boolean' ? t.mBool : false,
+                    mNum:typeof t.mNum === 'number' ? t.mNum : 0,
+                    mString:typeof t.mNum === 'string' ? t.mString : ''
+                }
+                retArr.push(it);
+            })
+            return retArr;
+            // return {
+            //     messages:ur.messages,
+            //     transactions:ur.transactions
+            // }
         }else{
            throw new Error("Error getusersmsgandtx"); 
         }
@@ -553,6 +598,45 @@ export const clearTxByIdAndUser = async(id:string,user:string):Promise<boolean> 
         return false;
     }
 }
+export const puckfaceLog = async(tx:TxType):Promise<boolean> => {
+    try {
+        switch (tx.type) {
+            case 'buyPucks':
+                
+                break;
+            case 'buyCards':    
+                break;
+            case 'counterOffer':
+                break;
+            case 'acceptedOffer':
+                break;
+            case 'declineOffer':
+                break;
+            case 'freeAgentOffer':
+                break;
+            case 'sellCard':
+                break;
+            case 'createGame':
+                break;
+            case 'joinGame':
+                break;
+            case 'winGame':
+                break;
+            case 'loseGame':
+                break;
+            case 'tieGame':
+                break;
+            case 'boughtCard':
+                break;                                            
+            default:
+                break;
+        }
+        return true;
+    } catch (er) {
+        console.log("Error Logging", er);
+        return false;
+    }
+}
 export const logOnTheFire = async(log:LogActionType):Promise <boolean> => {
     try {
         // Do something to Log With here. DB solution????
@@ -567,7 +651,8 @@ export const logOnTheFire = async(log:LogActionType):Promise <boolean> => {
                     tokens:log.payload.tokens,
                     value:log.payload.value,
                     when:log.payload.when,
-                    state:'closed'
+                    state:'closed',
+                    tx:true
                 }
                 const accRef = doc(db,'transactions',log.payload.from);
                 const accRes = await getDoc(accRef);
@@ -610,7 +695,8 @@ export const logOnTheFire = async(log:LogActionType):Promise <boolean> => {
                     when:log.payload.when,
                     by:log.payload.by,
                     state:log.payload.state,
-                    to:''
+                    to:'',
+                    tx:true
                 }
                 const sellCardRef = doc(db,'transactions',log.payload.by);
                 await updateDoc(sellCardRef,{
@@ -631,7 +717,8 @@ export const logOnTheFire = async(log:LogActionType):Promise <boolean> => {
                     to:log.payload.to,
                     tokenIds:log.payload.tokenIds,
                     value:log.payload.value,
-                    when:log.payload.when
+                    when:log.payload.when,
+                    tx:true
                 }
                 await updateDoc(faRef,{
 
@@ -661,7 +748,8 @@ export const logOnTheFire = async(log:LogActionType):Promise <boolean> => {
                         when:log.payload.when,
                         id:log.payload.id,
                         by:log.payload.by,
-                        state:"closed"
+                        state:"closed",
+                        tx:true
                     }
                    const buyerRef = doc(db,'transactions',log.payload.to);
                    await updateDoc(buyerRef,{
@@ -676,8 +764,9 @@ export const logOnTheFire = async(log:LogActionType):Promise <boolean> => {
                 let bc = {
                     id:createRandomId(),
                     type:'buyCards',
-                    cards:log.payload.cards,
-                    when:log.payload.when
+                    tokens:log.payload.cards,
+                    when:log.payload.when,
+                    tx:true
                 }
                 const lRef = doc(db,'transactions',log.payload.who);
                 await updateDoc(lRef,{
@@ -689,7 +778,8 @@ export const logOnTheFire = async(log:LogActionType):Promise <boolean> => {
                     id:createRandomId(),
                     type:'buyPucks',
                     howMany:log.payload.howMany,
-                    when:log.payload.when
+                    when:log.payload.when,
+                    tx:true
                 }
                 const logRef = doc(db,'transactions',log.payload.who);
                 await updateDoc(logRef,{

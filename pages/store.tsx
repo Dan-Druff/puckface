@@ -1,12 +1,11 @@
 import type { NextPage } from 'next'
 import styles from '../styles/All.module.css'
-import { useDashboard, logOnTheFire } from '../context/DashboardContext'
 import { useAuth } from '../context/AuthContext'
 import { useGameState } from '../context/GameState'
 import { useRouter } from 'next/router'
 import { useState, useRef } from 'react'
-import { PRICE_PER_PACK } from '../utility/constants'
-import { buyPucks,updateUsersPucksInDB } from '../context/DashboardContext'
+import { PRICE_PER_PACK, TxType } from '../utility/constants'
+import { buyPucks,updateUsersPucksInDB,puckfaceLog,useDashboard, logOnTheFire } from '../context/DashboardContext'
 import AuthRoute from '../hoc/authRoute'
 import Loader from '../components/Loader'
 const Store: NextPage = () => {
@@ -41,6 +40,7 @@ const Store: NextPage = () => {
                     const toSave = numb + pucks;
                     if(userData === null || userData.userEmail === null) throw new Error('🚦 Do it error 🚦');
                     const dbSuccess = await buyPucks(toSave,userData.userEmail);
+                  
                     const log = await logOnTheFire({type:'buyPucks',payload:{howMany:numb,when:new Date(),who:userData.userEmail}})
                     if(dbSuccess && log){
                         dashboardDispatch({type:'cancelNotify'});
