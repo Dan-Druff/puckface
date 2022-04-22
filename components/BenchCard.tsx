@@ -34,7 +34,7 @@ const BenchCard = (props:BenchCardType) => {
                 {/* <div className={styles.imageContainer}>
                <Image width={665} height={665} src={props.card.image} className={styles.image} layout="fill" alt="altPic"/>
                 </div> */}
-                <img alt='alt img' className={styles.cardImage} src={props.card.image}/>
+                <img alt={`alt${props.card.playerName} ${props.card.tokenId}`} className={styles.cardImage} src={props.card.image}/>
                {props.card.playingTonight && <p>Playing</p>}
                 
                 </div>
@@ -43,7 +43,7 @@ const BenchCard = (props:BenchCardType) => {
         return (
             <div className={styles.benchCard}>
                
-                <img alt='alt img' className={styles.cardImage} src={props.card.image}/>
+                <img alt={`alt${props.card.playerName} ${props.card.tokenId}`} className={styles.cardImage} src={props.card.image}/>
                 {/* <div className={styles.imageContainer}>
                <Image width={665} height={665} src={props.card.image} className={styles.image} layout="fill" alt="altPic"/>
                 </div> */}

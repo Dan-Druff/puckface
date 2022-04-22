@@ -4,11 +4,10 @@ import { useRouter } from "next/router"
 import { auth } from "../firebase/clientApp"
 import { createUserWithEmailAndPassword } from "firebase/auth"
 import GoogleSignIn from '../components/GoogleSignin';
-
-import { postSignup } from '../context/DashboardContext';
-import type { DashboardActions } from '../utility/constants';
-import { useDashboard } from '../context/DashboardContext';
+import { postSignup, puckfaceLog,useDashboard } from '../context/DashboardContext';
 import { useGameState } from '../context/GameState';
+import { TxType } from '../utility/constants';
+import { createRandomId } from '../utility/helpers';
 const EmailPasswordAuthSignUp = () => {
     const Router = useRouter()
     const {gameStateDispatch} = useGameState();
@@ -27,6 +26,22 @@ const EmailPasswordAuthSignUp = () => {
         if(postResult === false){
             throw new Error('🚦Error Post Signup🚦')
         }else{
+          const tx : TxType = {
+            by:email.value,
+            from:email.value,
+            id:createRandomId(),
+            regarding:'signup',
+            state:'closed',
+            to:email.value,
+            tokens:[],
+            tx:true,
+            type:'signup',
+            value:0,
+            when:new Date(),
+            freeAgentToken:0,
+
+          }
+            puckfaceLog(tx);
             dashboardDispatch({type:'signup',payload:{displayName:postResult.displayName,id:postResult.id}})
             gameStateDispatch({type:'dashboard'});
             Router.push("/dashboard")

@@ -4,12 +4,12 @@ import ToggleSwitch from '../components/ToggleSwitch'
 import { useState, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { createRandomId } from '../utility/helpers';
-import { useDashboard } from '../context/DashboardContext';
+import { useDashboard,puckfaceLog } from '../context/DashboardContext';
 import { useRouter } from 'next/router';
 import { useGameState } from '../context/GameState';
 import BuildABench from '../components/BuildABench';
 import { GameType, CardType, nobody } from '../utility/constants';
-import type { GamePosition, PossibleGameStates } from '../utility/constants';
+import type { GamePosition, PossibleGameStates,TxType } from '../utility/constants';
 import BenchCard from '../components/BenchCard';
 
 const CreateGame: NextPage = () => {
@@ -83,6 +83,23 @@ const CreateGame: NextPage = () => {
             if(pucks < dbObject.value) throw new Error('🚦Not enough pucks🚦')
             const dbResult = await createGameInDB(dbObject);
             if(dbResult === false) throw new Error('🚦create game error🚦');
+
+            const tx : TxType = {
+                by:dbObject.homeEmail,
+                from:dbObject.homeEmail,
+                id:createRandomId(),
+                regarding:dbObject.id,
+                state:'open',
+                to:dbObject.homeEmail,
+                tokens:[dbObject.homeTeam.lw,dbObject.homeTeam.c,dbObject.homeTeam.rw,dbObject.homeTeam.d1,dbObject.homeTeam.d2,dbObject.homeTeam.g],
+                tx:true,
+                type:'createGame',
+                value:dbObject.value,
+                when:dbObject.date,
+                freeAgentToken:0
+            }
+            puckfaceLog(tx);
+
             dashboardDispatch({type:'createLobbyGame',payload:{game:dbResult}})
             gameStateDispatch({type:'observingGame'})
             Router.push(`/game/${gameObject.id}`)

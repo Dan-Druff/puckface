@@ -5,9 +5,9 @@ import styles from '../styles/All.module.css';
 import { GoogleAuthProvider, signInWithPopup, getAdditionalUserInfo } from "firebase/auth"
 import { auth } from "../firebase/clientApp"
 
-
-import { useDashboard,postSignup } from "../context/DashboardContext";
-
+import { createRandomId } from "../utility/helpers";
+import { useDashboard,postSignup, puckfaceLog } from "../context/DashboardContext";
+import { TxType } from "../utility/constants";
 import { useGameState } from "../context/GameState";
 const GoogleSignIn = () => {
     const {gameStateDispatch} = useGameState()
@@ -30,6 +30,21 @@ const GoogleSignIn = () => {
                     if(postSign === false){
                         throw new Error('🚦Google Res error🚦')
                     }else{
+                      const tx :TxType = {
+                        by:googleRes.user.email,
+                        from:googleRes.user.email,
+                        id:createRandomId(),
+                        regarding:'signup',
+                        state:'closed',
+                        to:googleRes.user.email,
+                        tokens:[],
+                        tx:true,
+                        type:'signup',
+                        value:0,
+                        when: new Date(),
+                       
+                      }
+                        puckfaceLog(tx);
                         gameStateDispatch({type:'dashboard'})
                         dashboardDispatch({type:'signup',payload:{displayName:postSign.displayName,id:postSign.id}});
                         Router.push("/dashboard")

@@ -1,8 +1,8 @@
 import type { NextPage } from 'next'
 import styles from '../styles/All.module.css'
-import { useDashboard,addToFreeAgents,getFreeAgents, logOnTheFire } from '../context/DashboardContext'
+import { useDashboard,addToFreeAgents,getFreeAgents, logOnTheFire, puckfaceLog } from '../context/DashboardContext'
 import BlockCard from '../components/BlockCard'
-import { GamePosition,nobody, CardType,FreeAgentType, AskType, LogActionType } from '../utility/constants'
+import { GamePosition,nobody, CardType,FreeAgentType, AskType, LogActionType, TxType } from '../utility/constants'
 import AuthRoute from '../hoc/authRoute'
 import { useAuth } from '../context/AuthContext'
 import { useEffect, useRef, useState } from 'react'
@@ -74,20 +74,35 @@ const TradingBlock: NextPage = () => {
                         break;
                 }
               
-                const log :LogActionType = {
-                    type:'sellCard',
-                    payload:{
-                        tokenIds:[currentGuy.tokenId],
-                        id:num,
-                        value:Number(howMuch.value),
-                        when:new Date(),
-                        by:userData.userEmail,
-                        state:'open'
+                // const log :LogActionType = {
+                //     type:'sellCard',
+                //     payload:{
+                //         tokenIds:[currentGuy.tokenId],
+                //         id:num,
+                //         value:Number(howMuch.value),
+                //         when:new Date(),
+                //         by:userData.userEmail,
+                //         state:'open'
 
-                    }
+                //     }
                
 
-                }
+                // }
+                const l2 :TxType = {
+                    by:userData.userEmail,
+                    from:userData.userEmail,
+                    id:createRandomId(),
+                    regarding:num,
+                    state:'open',
+                    to:userData.userEmail,
+                    tokens:[currentGuy.tokenId],
+                    tx:true,
+                    type:'submitFreeAgent',
+                    value:Number(howMuch.value),
+                    when: new Date(),
+                    mString:ask,
+                    freeAgentToken:currentGuy.tokenId
+                    }
                 let obj:FreeAgentType = {
                     by:userData.userEmail,
                     ask:ask,
@@ -100,8 +115,11 @@ const TradingBlock: NextPage = () => {
                     value:Number(howMuch.value),
                     id:num
                 }
-                const logRes = await logOnTheFire(log);
-                if(logRes === false) throw new Error("Error logging");
+                // const logRes = await logOnTheFire(log);
+                const logRes = await puckfaceLog(l2);
+                if(logRes === false) {
+                    console.log("Error Logging");
+                }
                 setMyAgents([obj,...myAgents]);
             }else{
                 throw new Error("Error adding agent");

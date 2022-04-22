@@ -1,13 +1,13 @@
 import type { NextPage } from 'next'
 import styles from '../styles/All.module.css'
-import { logOnTheFire, sendMsgToUser, useDashboard,clearMsgByIdAndUser,clearTxByIdAndUser,getFreeAgents,getUsersPucksFromDB,getUsersTokensFromDB,confirmUserData,updateUsersPucksAndTokensInDB,removeFromFreeAgents} from '../context/DashboardContext'
+import { removeTokenFromUsersTradeArrayDB, sendMsgToUser, useDashboard,clearMsgByIdAndUser,clearTxByIdAndUser,getFreeAgents,getUsersPucksFromDB,getUsersTokensFromDB,confirmUserData,updateUsersPucksAndTokensInDB,removeFromFreeAgents, puckfaceLog} from '../context/DashboardContext'
 import { useGameState } from '../context/GameState'
 import AuthRoute from '../hoc/authRoute'
 import LobbyGameCard from '../components/LobbyGameCard'
 import BenchCard from '../components/BenchCard'
 import { useRouter } from 'next/router'
 import Loader from '../components/Loader'
-import { GamePosition,MessageType, LogActionType, NHLGame, CardType, NoteType } from '../utility/constants'
+import { GamePosition,MessageType, LogActionType, NHLGame, CardType, NoteType, TxType } from '../utility/constants'
 import { useAuth } from '../context/AuthContext'
 import Message from '../components/Message';
 import { createRandomId, getIpfsUrl } from '../utility/helpers'
@@ -35,7 +35,7 @@ const Dashboard: NextPage = () => {
         try {
             console.log("ACEPPTING MSG: ", msg.id);
             switch (msg.type) {
-                case 'counterOffer':
+                case 'offer':
                     // find full tx obj / free agent 
                     if(userData === null || userData.userEmail === null)throw new Error("Error User Data");
                     const agents = await getFreeAgents();
@@ -83,6 +83,7 @@ const Dashboard: NextPage = () => {
                             playingTeams.push(game.homeName);
                          });
 
+                         
                         const newCardPromises = await Promise.all(msg.tokens.map(async(token:number) => {
                                          // I have the integer of the token. 
                
@@ -156,16 +157,16 @@ const Dashboard: NextPage = () => {
                         const updLocUsr = await updateUsersPucksAndTokensInDB(userData.userEmail,hPux,newTox);
                         if(updLocUsr === false)throw new Error("Error updating local user");
                         dashboardDispatch({type:'acceptOffer',payload:{pucks:hPux,cards:newCardPromises,tokens:hTox,removeToken:faTx}})
-                        
+                        let tempId = createRandomId();
                         // send a message to offerer
                         const mto : MessageType = {
                             by:userData.userEmail,
-                            id:createRandomId(),
+                            id:tempId,
                             message:"I accepted your offer. Nice doing busoness with you",
                             regarding:msg.regarding,
                             state:'open',
                             tokens:[],
-                            type:'acceptedOffer',
+                            type:'offerAccepted',
                             value:0,
                             when:new Date(),
                             tx:false
@@ -173,21 +174,62 @@ const Dashboard: NextPage = () => {
                         const ur = await sendMsgToUser(mto, msg.by);
                         if(ur === false)throw new Error("Error sending message to user");
 
+                         
 
-                        // make a tx for offerer
-                        const offLog : LogActionType = {
-                            type:'acceptedOffer',
-                            payload:{
-                             by:userData.userEmail,
-                             regarding:msg.regarding,
-                             from:msg.by,
-                             tokens:[...msg.tokens],
-                             value:msg.value,
-                             id:createRandomId(),
-                             when:new Date()
-                            }
+                        const t : TxType = {
+                            by:msg.by,
+                            from:msg.by,
+                            to:userData.userEmail,
+                            id:tempId,
+                            regarding:msg.regarding,
+                            state:'closed',
+                            tokens:msg.tokens,
+                            tx:true,
+                            type:'acceptOffer',
+                            value:msg.value,
+                            when:new Date(),
+                            freeAgentToken:faTx
                         }
-                        const logRes = await logOnTheFire(offLog);
+                       const logRes = await puckfaceLog(t);
+
+                       const sellerTx : TxType = {
+                            by:userData.userEmail,
+                            from:userData.userEmail,
+                            to:msg.by,
+                            id:tempId,
+                            regarding:msg.regarding,
+                            state:'closed',
+                            tokens:msg.tokens,
+                            tx:true,
+                            type:'acceptOffer',
+                            value:msg.value,
+                            when:new Date(),
+                            freeAgentToken:faTx
+                       }
+                       const sellerRes = await puckfaceLog(sellerTx);
+
+                       const rem = await removeTokenFromUsersTradeArrayDB(userData.userEmail,faTx);
+                       
+                       const marioClear = await clearTxByIdAndUser(msg.regarding,userData.userEmail);
+                       const luigiClear = await clearTxByIdAndUser(msg.regarding,msg.by);
+                       
+                       if(logRes === false || sellerRes === false || rem === false || luigiClear === false || marioClear === false){
+                           console.log("Errror setting tx SOMEWHERE.");
+                       }
+                        // make a tx for offerer
+                        // const offLog : LogActionType = {
+                        //     type:'acceptedOffer',
+                        //     payload:{
+                        //      by:userData.userEmail,
+                        //      regarding:msg.regarding,
+                        //      from:msg.by,
+                        //      tokens:[...msg.tokens],
+                        //      value:msg.value,
+                        //      id:createRandomId(),
+                        //      when:new Date()
+                        //     }
+                        // }
+                        // const logRes = await logOnTheFire(offLog);
                         // make a tx for recipient
 
                         // clear original message in db
@@ -203,7 +245,7 @@ const Dashboard: NextPage = () => {
                             cancelTitle:"COOL",
                             mainTitle:"COOL",
                             colorClass:'',
-                            message:"You just accepted an offer",
+                            message:`You just accepted $${msg.value} & tokens: ${JSON.stringify(msg.tokens)}, for card: #${faTx}`,
                             twoButtons:false
                         }
                         dashboardDispatch({type:"notify",payload:{notObj:N}});
@@ -250,7 +292,7 @@ const Dashboard: NextPage = () => {
                 message:"No Thanks",
                 regarding:msg.id,
                 tokens:[],
-                type:"declineOffer",
+                type:'offerDeclined',
                 value:0,
                 when:new Date(),
                 state:'open',
@@ -263,20 +305,57 @@ const Dashboard: NextPage = () => {
 
             // Deal with old transaction? BEST WAY TO CLOSE STATE OF FREE AGENT OFFER IN DB??
             // Deal with 'luigis' transaction state
-            const luigisTx = await clearTxByIdAndUser(msg.regarding,msg.by);
+            console.log("Clearing tx id: ",msg.id);
+            console.log("By User: ", msg.by);
+            const luigisTx = await clearTxByIdAndUser(msg.id,msg.by);
             if(luigisTx === false)throw new Error("Error updating luigis tx");
             // create log
-            const l : LogActionType = {
-                type:'declineFreeAgentOffer',
-                payload:{
-                    id:msg.id
-                }
+
+           const tempId = createRandomId();
+            const marioTx: TxType = {
+                by:userData.userEmail,
+                from:userData.userEmail,
+                id:tempId,
+                regarding:msg.regarding,
+                state:'closed',
+                to:userData.userEmail,
+                tokens:msg.tokens,
+                tx:true,
+                type:'declineOffer',
+                value:msg.value,
+                when:new Date()
+              
             }
-            // send log
-            const logRes = await logOnTheFire(l);
-            if(logRes === false)throw new Error("Error Logging");
+            const luigiTx : TxType = {
+                by:userData.userEmail,
+                from:userData.userEmail,
+                id:tempId,
+                regarding:msg.regarding,
+                state:'closed',
+                to:msg.by,
+                tokens:msg.tokens,
+                tx:true,
+                type:'declineOffer',
+                value:msg.value,
+                when:new Date()
+            }
+
+            // const l : LogActionType = {
+            //     type:'declineFreeAgentOffer',
+            //     payload:{
+            //         id:msg.id
+            //     }
+            // }
+            // // send log
+            // const logRes = await logOnTheFire(l);
+            // if(logRes === false)throw new Error("Error Logging");
 
             // remove message from db  
+            const mTx = await puckfaceLog(marioTx);
+            const lTx = await puckfaceLog(luigiTx);
+            if(mTx === false || lTx === false){
+                console.log("Error With Transactions");
+            }
             const c = await clearMsgByIdAndUser(msg.id,userData.userEmail);
             if(c === false)throw new Error("Error clearing message");
             
@@ -295,7 +374,7 @@ const Dashboard: NextPage = () => {
     const counterMessage = (msg:MessageType) => {
         try {
             console.log("COUNTERING MSG: ", msg.id);
- 
+            
             return true;
         } catch (er) {
             console.log("Error: ", er);

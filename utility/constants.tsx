@@ -11,8 +11,9 @@ export type PossibleGameStates = 'Waiting for Opponent' | 'Waiting for Game' | '
 export type NHLGamesArray = NHLGame[];
 export type DashboardType = CardType[];
 export type DashDispatch = (action:DashboardActions) => void;
-export type MessageTypeStrings = 'counterOffer' | 'declineOffer' | 'acceptOffer'
-export type TxTypeStrings = 'counterOffer' | 'declineOffer' | 'acceptedOffer' | 'buyCards' | 'buyPucks' | 'sellCard' | 'freeAgentOffer' | 'createGame' | 'joinGame' | 'winGame' | 'loseGame' | 'tieGame' | 'boughtCard'
+// export type MessageTypeStrings = 'counterOffer' | 'declineOffer' | 'acceptOffer'
+export type TxTypeStrings = 'signup' | 'buyPucks' | 'buyCards' | 'createGame' | 'joinGame' | 'winGame' | 'loseGame' | 'tieGame' | 'submitFreeAgent' | 'buyFreeAgent' | 'submitOffer' | 'acceptOffer' | 'counterOffer' | 'declineOffer' | 'createLeague' | 'joinLeague';
+export type MsgTypeStrings = 'offer' | 'offerAccepted' | 'offerDeclined' | 'sold' | 'gameOverW' | 'gameOverL' | 'gameOverT' | 'gameJoined';
 
 
 // ---------------  ACTION TYPES -------------
@@ -234,7 +235,7 @@ export interface MessageType {
     message:string,
     by:string,
     when:Date,
-    type:string,
+    type:MsgTypeStrings,
     value:number,
     tokens:number[],
     regarding:string,

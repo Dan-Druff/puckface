@@ -6,9 +6,9 @@ export type Pages = 'explorer' |'joinGame' | 'createGame' | 'dashboard' | 'lobby
 // import type {GameStateDispatch,GameState, GameStateActions} from '../context/GameState';
 import {useGameState} from '../context/GameState';
 import {useAuth} from '../context/AuthContext';
-import {useDashboard} from '../context/DashboardContext';
-import { NoteType } from '../utility/constants';
-import { dateReader } from '../utility/helpers';
+import {useDashboard, puckfaceLog, sendMsgToUser} from '../context/DashboardContext';
+import { MessageType, TxType } from '../utility/constants';
+import { createRandomId, dateReader } from '../utility/helpers';
 interface Props {
 
 }
@@ -23,7 +23,37 @@ const Menus: FunctionComponent<Props> = () => {
             
             const res = await joinGameInDB();
             if(res === false) throw new Error('🚦Error Joinging Game🚦');
-            
+            const tx:TxType = {
+                by:res.homeEmail,
+                from:res.homeEmail,
+                to:res.awayEmail,
+                id:createRandomId(),
+                regarding:res.id,
+                state:'open',
+                tokens:[res.awayTeam.c,res.awayTeam.lw,res.awayTeam.rw,res.awayTeam.d1,res.awayTeam.d2,res.awayTeam.g],
+                tx:true,
+                type:'joinGame',
+                value:res.value,
+                when:res.date,
+                freeAgentToken:0
+            }
+            const l = await puckfaceLog(tx);
+            const msg:MessageType = {
+                by:res.awayEmail,
+                id:createRandomId(),
+                regarding:res.id,
+                state:'open',
+                tokens:[res.awayTeam.c,res.awayTeam.lw,res.awayTeam.rw,res.awayTeam.d1,res.awayTeam.d2,res.awayTeam.g],
+                tx:false,
+                type:'gameJoined',
+                value:res.value,
+                when:res.date,
+                message:'I joined your game. Lets go!'
+            }
+            const m = await sendMsgToUser(msg,res.homeEmail);
+            if(l === false || m === false){
+                console.log("Error Logging Something...");
+            }
             dashboardDispatch({type:'joinGame',payload:{game:res}})
             gameStateDispatch({type:'observingGame'})
             //join game

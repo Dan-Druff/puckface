@@ -2,8 +2,8 @@ import type { NextPage } from 'next'
 import styles from '../styles/All.module.css'
 import AuthRoute from '../hoc/authRoute'
 import { useState, useEffect } from 'react'
-import { CardType, FreeAgentType, LogActionType, MessageType, NoteType } from '../utility/constants'
-import { useDashboard, getFreeAgents,sendMsgToUser, logOnTheFire } from '../context/DashboardContext'
+import { CardType, FreeAgentType, LogActionType, MessageType, NoteType, TxType } from '../utility/constants'
+import { useDashboard, getFreeAgents,sendMsgToUser, logOnTheFire, puckfaceLog } from '../context/DashboardContext'
 import { createRandomId, getPlayerFromToken } from '../utility/helpers';
 import { useNHL } from '../context/NHLContext'
 import { useAuth } from '../context/AuthContext'
@@ -43,24 +43,45 @@ const FreeAgents: NextPage = () => {
         try {
             const {offerValue} = e.target.elements;
             console.log("Value is: ", offerValue.value);
-            if(userData === null || userData.userEmail === null)throw new Error("Error User Data");
-            const h = createRandomId();
-            if(currentAgent === false)throw new Error("Bad current agent data");
+            if(userData === null || userData.userEmail === null || currentAgent === false)throw new Error("Error User Data");
+            const tempId = createRandomId();
+            
             let mg : MessageType = {
                 value:Number(offerValue.value),
                 by:userData.userEmail,
-                id:h,
+                id:tempId,
                 message:"I'd like to offer you this for that...",
                 regarding:currentAgent.id,
                 tokens:offeredTokens,
-                type:"counterOffer",
+                type:'offer',
                 when:new Date(),
                 state:'open',
                 tx:false
+
             }
-            console.log("GOING TO RETURN: ", mg);
+            
+            const off : TxType = {
+                value:Number(offerValue.value),
+                by:userData.userEmail,
+                id:tempId,
+                regarding:currentAgent.id,
+                tokens:offeredTokens,
+                type:'submitOffer',
+                when:new Date(),
+                state:'open',
+                tx:true,
+                from:userData.userEmail,
+                to:userData.userEmail,
+                freeAgentToken:currentAgent.tokenId,
+                mString:'offer'
+
+            }
             const m = await sendMsgToUser(mg,currentAgent.by);
+            const t = await puckfaceLog(off);
             if(m){
+                if(t === false){
+                    console.log("Error Logging");
+                }
                 console.log("Message sent to user: ", currentAgent.by);
                 const n:NoteType = {
                     cancelFunction:() => {},
@@ -71,20 +92,20 @@ const FreeAgents: NextPage = () => {
                     message:'Offer has been sent to seller. Standby...',
                     twoButtons:false
                 }
-                const l:LogActionType = {
-                    type:'freeAgentOffer',
-                    payload:{
-                        by:userData.userEmail,
-                        id:currentAgent.id,
-                        state:'open',
-                        to:currentAgent.by,
-                        tokenIds:offeredTokens,
-                        value:Number(offerValue.value),
-                        when:new Date()                    
-                    }
-                }
-                const postLog = await logOnTheFire(l);
-                if(postLog === false)throw new Error("Error logging");
+                // const l:LogActionType = {
+                //     type:'freeAgentOffer',
+                //     payload:{
+                //         by:userData.userEmail,
+                //         id:currentAgent.id,
+                //         state:'open',
+                //         to:currentAgent.by,
+                //         tokenIds:offeredTokens,
+                //         value:Number(offerValue.value),
+                //         when:new Date()                    
+                //     }
+                // }
+                // const postLog = await logOnTheFire(l);
+                // if(postLog === false)throw new Error("Error logging");
                 dashboardDispatch({type:'notify',payload:{notObj:n}})
                 gameStateDispatch({type:'dashboard'});
                 Router.push('/dashboard');

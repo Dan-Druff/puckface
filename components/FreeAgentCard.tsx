@@ -1,8 +1,8 @@
 import styles from '../styles/All.module.css';
 import Image from 'next/image'
-import { useDashboard, removeFromFreeAgents,logOnTheFire } from '../context/DashboardContext';
-import { FreeAgentCardType, FreeAgentType, LogActionType, NoteType } from '../utility/constants';
-import { getPlayerFromToken } from '../utility/helpers';
+import { useDashboard, removeFromFreeAgents,logOnTheFire, sendMsgToUser, puckfaceLog, clearTxByIdAndUser } from '../context/DashboardContext';
+import { FreeAgentCardType, FreeAgentType, LogActionType, MessageType, NoteType, TxType } from '../utility/constants';
+import { createRandomId, getPlayerFromToken } from '../utility/helpers';
 import { useNHL } from '../context/NHLContext';
 import { useRouter } from 'next/router';
 import { useGameState } from '../context/GameState';
@@ -22,35 +22,77 @@ const FreeAgentCard = (props:FreeAgentCardType) => {
                 const newCard = await getPlayerFromToken(agent.tokenId,tonightsGames);
                 if(newCard === false) throw new Error("Error getting card");
                 dashboardDispatch({type:'boughtAgent',payload:{agent:agent, card:newCard}});
-                const nt : NoteType = {
-                    cancelFunction:() => {},
-                    mainFunction:() => {},
-                    cancelTitle:"COOL!",
-                    mainTitle:"COOL!",
-                    twoButtons:false,
-                    colorClass:"",
-                    message:`You just got a ${newCard.rarity} ${newCard.playerName} for $${agent.value}.`
-                }
+  
                 const freeUpdate = await removeFromFreeAgents(newCard.tokenId);
                 if(freeUpdate){
+               
+                    if(userData === null || userData.userEmail === null)throw new Error("Error user data");
+          
+                    const tempId = createRandomId();
+                    const tempDate = new Date();
+
+                    const l2 : TxType = {
+                        by:agent.by,
+                        from:agent.by,
+                        id:tempId,
+                        regarding:agent.id,
+                        state:'closed',
+                        to:userData.userEmail,
+                        tokens:[newCard.tokenId],
+                        tx:true,
+                        type:'buyFreeAgent',
+                        value:agent.value,
+                        when:tempDate,
+                        freeAgentToken:agent.tokenId
+                    }
+                    
+                  
+                    const marioTx : TxType = {
+                        by:agent.by,
+                        from:userData.userEmail,
+                        id:tempId,
+                        regarding:agent.id,
+                        state:'closed',
+                        to:agent.by,
+                        tokens:[newCard.tokenId],
+                        tx:true,
+                        type:'buyFreeAgent',
+                        value:agent.value,
+                        when:tempDate,
+                        freeAgentToken:agent.tokenId
+                    }
+                    const msg : MessageType = {
+                        by:userData.userEmail,
+                        id:tempId,
+                        message:`I bought your card: ${agent.tokenId}. Thanks.`,
+                        regarding:agent.id,
+                        state:'open',
+                        tokens:[],
+                        tx:false,
+                        type:'sold',
+                        value:0,
+                        when:tempDate
+                    }
+                    const logResult = await puckfaceLog(l2);
+                    const msgResult = await sendMsgToUser(msg,agent.by);
+                    const marioResult = await puckfaceLog(marioTx);
+
+                    const clearAgent = await clearTxByIdAndUser(agent.id,agent.by);
+                  
+                    if(clearAgent === false || logResult === false || msgResult === false || marioResult === false){
+                        console.log("Error LOGGING SOMEWHERERE!");
+                    }
+                    const nt : NoteType = {
+                        cancelFunction:() => {},
+                        mainFunction:() => {},
+                        cancelTitle:"COOL!",
+                        mainTitle:"COOL!",
+                        twoButtons:false,
+                        colorClass:"",
+                        message:`You just got a ${newCard.rarity} ${newCard.playerName} for $${agent.value}.`
+                    }
                     dashboardDispatch({type:'notify',payload:{notObj:nt}});
                     gameStateDispatch({type:'dashboard'});
-                    // NEED TO ADD A TRANSACTION HERE
-                    if(userData === null || userData.userEmail === null)throw new Error("Error user data");
-                    const log:LogActionType = {
-                        type:'buyFreeAgent',
-                        payload:{
-                            id:agent.id,
-                            by:agent.by,
-                            state:'closed',
-                            tokenIds:[newCard.tokenId],
-                            value:agent.value,
-                            when:new Date(),
-                            to:userData.userEmail
-                        }
-                    }
-                    const logResult = await logOnTheFire(log);
-                    if(logResult === false) throw new Error("LOG WENT WRIONG");
                     Router.push('/dashboard');
                     return;
                 }else{

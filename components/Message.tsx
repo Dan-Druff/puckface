@@ -4,7 +4,7 @@ const Message = (props:MessageCompType) => {
 
 
   switch (props.msg.type) {
-    case 'counterOffer':
+    case 'offer':
       return (
         <div className={styles.rinkDiv}>
           
@@ -26,7 +26,7 @@ const Message = (props:MessageCompType) => {
         </div>
       )
       
-    case 'declineOffer':
+    case 'offerDeclined':
       return (
         <div className={styles.rinkDiv}>
           
@@ -38,16 +38,17 @@ const Message = (props:MessageCompType) => {
                 <h2>OFFER DECLINED</h2>
                 
                 <hr className={styles.centerLine}/>
-                <button className={styles.pfButton} onClick={() => {}}>CLEAR</button>
+                <p>Offer Details:</p>
                 <hr className={styles.blueLine}/>
-                <button className={styles.pfButton} onClick={() => {}}>COUNTER AGAIN</button>
+                <button className={styles.pfButton} onClick={() => props.exit(props.msg)}>CLEAR</button>
 
                 <hr className={styles.smallRedLine}/>
     
       
         </div>
       )
-    case 'acceptedOffer':
+      
+    case 'offerAccepted':
       return (
         <div className={styles.rinkDiv}>
           
@@ -68,7 +69,25 @@ const Message = (props:MessageCompType) => {
       
         </div>
       )    
-  
+    case 'sold':  
+      return (
+        <div className={styles.rinkDiv}>
+          
+                <p>{props.msg.message}</p>
+                <hr className={styles.smallRedLine}/>
+                <p>{props.msg.type}</p>
+                <p>Regarding: {props.msg.regarding}</p>
+                <hr className={styles.blueLine}/>
+                <p>TOKEN SOLD:</p>
+                <p>${props.msg.value} {props.msg.id}</p>
+                <hr className={styles.centerLine}/>
+                <hr className={styles.blueLine}/>
+                <hr className={styles.smallRedLine}/>
+                <button className={styles.pfButton} onClick={() => props.exit(props.msg)}>COOL</button>
+    
+      
+        </div>
+      )
     default:
       return (
         <div className={styles.rinkDiv}>

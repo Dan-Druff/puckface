@@ -8,6 +8,7 @@ import { PRICE_PER_PACK, TxType } from '../utility/constants'
 import { buyPucks,updateUsersPucksInDB,puckfaceLog,useDashboard, logOnTheFire } from '../context/DashboardContext'
 import AuthRoute from '../hoc/authRoute'
 import Loader from '../components/Loader'
+import { createRandomId } from '../utility/helpers'
 const Store: NextPage = () => {
     // buyPucks,setNotification,getPacket,updateUsersPucksInDB,
     const {tokens,pucks,dashboardDispatch, displayName, getPacket} = useDashboard();
@@ -41,8 +42,25 @@ const Store: NextPage = () => {
                     if(userData === null || userData.userEmail === null) throw new Error('🚦 Do it error 🚦');
                     const dbSuccess = await buyPucks(toSave,userData.userEmail);
                   
-                    const log = await logOnTheFire({type:'buyPucks',payload:{howMany:numb,when:new Date(),who:userData.userEmail}})
-                    if(dbSuccess && log){
+                    // const log = await logOnTheFire({type:'buyPucks',payload:{howMany:numb,when:new Date(),who:userData.userEmail}})
+
+                    const tx:TxType = {
+                        by:userData.userEmail,
+                        from:userData.userEmail,
+                        id:createRandomId(),
+                        regarding:'pucks',
+                        state:'closed',
+                        to:userData.userEmail,
+                        tokens:[],
+                        tx:true,
+                        type:'buyPucks',
+                        value:numb,
+                        when:new Date(),
+                        freeAgentToken:0,
+
+                    }
+                    puckfaceLog(tx);
+                    if(dbSuccess){
                         dashboardDispatch({type:'cancelNotify'});
                         gameStateDispatch({type:'dashboard'});
                         dashboardDispatch({type:'addPucks',payload:{amount:numb}});
@@ -94,7 +112,23 @@ const Store: NextPage = () => {
                         returnedPlayers.forEach((guy) => {
                             tokAray.push(guy.tokenId);
                         })
-                        await logOnTheFire({type:'buyCards',payload:{who:userData.userEmail,cards:tokAray,cost:PRICE_PER_PACK,when:new Date()}})
+                        const cardLog : TxType = {
+                            by:userData.userEmail,
+                            from:userData.userEmail,
+                            id:createRandomId(),
+                            regarding:'buyCards',
+                            state:'closed',
+                            to:userData.userEmail,
+                            tokens:tokAray,
+                            tx:true,
+                            type:'buyCards',
+                            value:PRICE_PER_PACK,
+                            when:new Date(),
+                            freeAgentToken:0
+                            
+                        }
+                        puckfaceLog(cardLog);
+                        // await logOnTheFire({type:'buyCards',payload:{who:userData.userEmail,cards:tokAray,cost:PRICE_PER_PACK,when:new Date()}})
                         console.log("LOG ON THE FIRE DONe")
                         dashboardDispatch({type:'addPack',payload:{guys:returnedPlayers, newPucks:newAmount}});
                         console.log("DASHBOARD DISPATCH")

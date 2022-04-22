@@ -120,7 +120,6 @@ export const postSignup = async(email:string, username:string):Promise<false | P
             
             }
            await setDoc(doc(db,'transactions',email),{
-                logs:[],
                 transactions:[],
                 messages:[]
             })
@@ -579,12 +578,15 @@ export const clearTxByIdAndUser = async(id:string,user:string):Promise<boolean> 
         if(uDres.exists()){
             let data = uDres.data();
             let txs = data.transactions;
+            console.log("Clear TX: ", id);
             txs = txs.map((t:any) => {
-                if(t.id === id){
+                if(t.id === id || t.regarding === id){
                     t.state = 'closed';
+                    console.log("Should clear tx: ", t.id);
                 }
                 return t;
             })
+            console.log("Updateing to : ", txs);
             await updateDoc(uD,{
                 transactions:txs
             })
@@ -598,36 +600,243 @@ export const clearTxByIdAndUser = async(id:string,user:string):Promise<boolean> 
         return false;
     }
 }
+export const removeTokenFromUsersTradeArrayDB = async(email:string,token:number):Promise<boolean> => {
+    try {
+        const userRef = doc(db,'users',email);
+        await updateDoc(userRef,{
+            tradeArray:arrayRemove(token)
+        })
+        return true;
+    } catch (er) {
+        console.log("Error removing token from trade array",er);
+        return false;
+    }
+}
 export const puckfaceLog = async(tx:TxType):Promise<boolean> => {
     try {
+        const toRef = doc(db,'transactions',tx.to);
+        let txObj :any = {};
         switch (tx.type) {
-            case 'buyPucks':
+            case 'acceptOffer':
+                const clear = await clearTxByIdAndUser(tx.regarding,tx.by);
+                if(clear === false) console.log("Error Clearing TX");
+           
+                txObj.regarding = tx.regarding;
+                txObj.by = tx.by;
+                txObj.id = tx.id;
+                txObj.type = tx.type;
+                txObj.from = tx.from;
+                txObj.to = tx.to;
+                txObj.state = tx.state;
+                txObj.when = tx.when;
+                txObj.value = tx.value;
+                txObj.tx = tx.tx;
+                txObj.tokens = tx.tokens;
+                txObj.freeAgentToken = tx.freeAgentToken;
+
+                await updateDoc(toRef,{
+                    transactions:arrayUnion(txObj)
+                })
+                // get doc 'transactions' 'from'
+                // get transactions array from it
+                // chamge state of txObject thats id matches regarding id
+                // add this new tx to that array then update
+
+                // clearTxByIdAndUser 
+
+                // update transactions array
+
                 
+                // const accRef = doc(db,'transactions',log.payload.from);
+                // const accRes = await getDoc(accRef);
+                // if(accRes.exists()){
+                //     const data = accRes.data()
+                //     let newTx = data.transactions;
+                //     if(Array.isArray(newTx)){
+                //         newTx = newTx.map((item) => {
+                //             if(item.id === log.payload.regarding){
+                //                 item.state = 'closed'
+                //             }
+                //             return item;
+                //         })
+                //         newTx.push(ots);
+                //         await updateDoc(accRef,{
+                //             transactions:newTx
+                //         })
+                //     }
+                // }
+            
+                // const cleared = await clearTxByIdAndUser(log.payload.regarding,log.payload.from);
+                // if(cleared === false)throw new Error("Error clearing tx for offerer");
+
+                // const recRef = doc(db,'transactions',log.payload.by);
+                // await updateDoc(recRef,{
+                //     transactions:arrayUnion(ots)
+                // })
                 break;
-            case 'buyCards':    
+            case 'buyCards':
+        
+                txObj.id = tx.id;
+                txObj.type = tx.type;
+                txObj.from = tx.from;
+                txObj.to = tx.to;
+                txObj.state = tx.state;
+                txObj.when = tx.when;
+                txObj.value = tx.value;
+                txObj.tx = true;
+                txObj.tokens = tx.tokens;
+
+
+               
+                await updateDoc(toRef,{
+                    transactions:arrayUnion(txObj)
+                })
+                break;
+            case 'buyFreeAgent':
+                txObj.regarding = tx.regarding;
+                txObj.by = tx.by;
+                txObj.id = tx.id;
+                txObj.type = tx.type;
+                txObj.from = tx.from;
+                txObj.to = tx.to;
+                txObj.state = tx.state;
+                txObj.when = tx.when;
+                txObj.value = tx.value;
+                txObj.tx = tx.tx;
+                txObj.tokens = tx.tokens;
+                txObj.freeAgentToken = tx.freeAgentToken;
+                console.log("BUYING FREE AGENT", txObj);
+                await updateDoc(toRef,{
+                    transactions:arrayUnion(txObj)
+                })
+                break;
+            case 'buyPucks':
+           
+                txObj.id = tx.id;
+                txObj.type = tx.type;
+                txObj.from = tx.from;
+                txObj.to = tx.to;
+                txObj.state = tx.state;
+                txObj.when = tx.when;
+                txObj.value = tx.value;
+                txObj.tx = true;
+
+                await updateDoc(toRef,{
+                    transactions:arrayUnion(txObj)
+                })
+          
                 break;
             case 'counterOffer':
                 break;
-            case 'acceptedOffer':
+            case 'createGame':
+                txObj.tokens = tx.tokens;
+                txObj.regarding = tx.regarding;
+                txObj.by = tx.by;
+                txObj.id = tx.id;
+                txObj.type = tx.type;
+                txObj.from = tx.from;
+                txObj.to = tx.to;
+                txObj.state = tx.state;
+                txObj.when = tx.when;
+                txObj.value = tx.value;
+                txObj.tx = true;
+                
+                await updateDoc(toRef,{
+                    transactions:arrayUnion(txObj)
+                })
+
+                break;
+            case 'createLeague':
                 break;
             case 'declineOffer':
-                break;
-            case 'freeAgentOffer':
-                break;
-            case 'sellCard':
-                break;
-            case 'createGame':
+                txObj.by = tx.by;
+                txObj.from = tx.from;
+                txObj.id = tx.id;
+                txObj.regarding = tx.regarding;
+                txObj.state = tx.state;
+                txObj.to = tx.to;
+                txObj.tokens = tx.tokens;
+                txObj.tx = tx.tx;
+                txObj.type = tx.type;
+                txObj.value = tx.value;
+                txObj.when = tx.when;
+                await updateDoc(toRef,{
+                    transactions:arrayUnion(txObj)
+                })
                 break;
             case 'joinGame':
+                txObj.regarding = tx.regarding;
+                txObj.by = tx.by;
+                txObj.id = tx.id;
+                txObj.type = tx.type;
+                txObj.from = tx.from;
+                txObj.to = tx.to;
+                txObj.state = tx.state;
+                txObj.when = tx.when;
+                txObj.value = tx.value;
+                txObj.tx = tx.tx;
+                txObj.tokens = tx.tokens;
+                await updateDoc(toRef,{
+                    transactions:arrayUnion(txObj)
+                })
                 break;
-            case 'winGame':
+            case 'joinLeague':
                 break;
             case 'loseGame':
                 break;
+            case 'signup':
+                txObj.id = tx.id;
+                txObj.type = tx.type;
+                txObj.tx = true;
+                txObj.state = 'closed';
+                txObj.when = tx.when;
+                
+                await updateDoc(toRef,{
+                    transactions:arrayUnion(txObj)
+                })
+                break;
+            case 'submitFreeAgent':
+                txObj.regarding = tx.regarding;
+                txObj.by = tx.by;
+                txObj.id = tx.id;
+                txObj.type = tx.type;
+                txObj.from = tx.from;
+                txObj.to = tx.to;
+                txObj.state = tx.state;
+                txObj.when = tx.when;
+                txObj.value = tx.value;
+                txObj.tx = tx.tx;
+                txObj.tokens = tx.tokens;
+                txObj.mString = tx.mString;
+                txObj.freeAgentToken = tx.freeAgentToken;
+                console.log("SUBMITTING FREE AGENT", txObj);
+                await updateDoc(toRef,{
+                    transactions:arrayUnion(txObj)
+                })
+                break;
+            case 'submitOffer':
+                txObj.regarding = tx.regarding;
+                txObj.by = tx.by;
+                txObj.id = tx.id;
+                txObj.type = tx.type;
+                txObj.from = tx.from;
+                txObj.to = tx.to;
+                txObj.state = tx.state;
+                txObj.when = tx.when;
+                txObj.value = tx.value;
+                txObj.tx = tx.tx;
+                txObj.tokens = tx.tokens;
+                txObj.mString = tx.mString;
+                txObj.freeAgentToken = tx.freeAgentToken;
+                await updateDoc(toRef,{
+                    transactions:arrayUnion(txObj)
+                })
+                break;
             case 'tieGame':
                 break;
-            case 'boughtCard':
-                break;                                            
+            case 'winGame':
+                break;
+                                                                         
             default:
                 break;
         }
