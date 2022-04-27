@@ -18,7 +18,7 @@ const Dashboard: NextPage = () => {
     const {gameStateDispatch} = useGameState();
     const {activeGames, pucks, dashboardDispatch, dashboard, displayName,messages, tokens} = useDashboard();
     const {tonightsGames} = useNHL();
-    console.log("Player has pucks: ", pucks);
+   
     const exitMessage = async(msg:MessageType) => {
         try {
             if(userData === null || userData.userEmail === null)throw new Error("Error user data");
@@ -382,7 +382,6 @@ const Dashboard: NextPage = () => {
         }
 
     }
-
     const cardSelect = async(posId:GamePosition, tokenId:number) => {
         try {
             console.log("You selected card: ", tokenId, posId);
@@ -396,7 +395,7 @@ const Dashboard: NextPage = () => {
         <AuthRoute>
             {displayName === 'NA' ? 
             <div className={styles.contentContainer}>
-                <Loader message="Loading Dashboard..." />
+               <Loader message='Error Loading. You may need to Logout, Refresh, and then Log back in.' />
             </div>
             :     
             <div className={styles.mainContainer}>

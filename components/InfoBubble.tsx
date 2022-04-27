@@ -11,7 +11,8 @@ const InfoBubble = ({bub}:{bub:BubbleType}) => {
   return (
     <div className={styles.bubble}>
         <h3>{x}</h3>
-        <h5>{bub.data.toString()}</h5>
+        {x === "Pot:" ? <h5>{`$${bub.data.toString()}`}</h5> : <h5>{bub.data.toString()}</h5>}
+        {/* <h5>{bub.data.toString()}</h5> */}
     </div>
   )
 }
