@@ -6,12 +6,12 @@ import { useGameState } from "../context/GameState";
 import { useDashboard,getGame } from "../context/DashboardContext";
 import { useNHL } from "../context/NHLContext";
 import { useAuth } from "../context/AuthContext";
-import {  GameType,nobody, Team } from "../utility/constants";
+import {  DefGetPlayersFromTokenArray, GameType,nobody, Team } from "../utility/constants";
 import type { GamePosition } from "../utility/constants";
 const LobbyGameCard = ({game}:{game:GameType}) => {
     const {gameStateDispatch} = useGameState();
     const Router = useRouter();
-    const { dashboardDispatch} = useDashboard();
+    const { dashboardDispatch,getPlayersFromTokenArray} = useDashboard();
     const {tonightsGames} = useNHL();
     const {userData} = useAuth();   
     const goToGame = async(game:GameType) => {
@@ -21,33 +21,36 @@ const LobbyGameCard = ({game}:{game:GameType}) => {
             // if(gameResult === false) throw new Error("🚦Game Res Error🚦")
             let skaterIds:number[] = [];
             skaterIds.push(game.homeTeam.lw,game.homeTeam.c,game.homeTeam.rw,game.homeTeam.d1,game.homeTeam.d2,game.homeTeam.g,game.awayTeam.lw,game.awayTeam.c,game.awayTeam.rw,game.awayTeam.d1,game.awayTeam.d2,game.awayTeam.g)
-            const relevantGuys = await Promise.all(skaterIds.map(async(tokId) => {
-                if(tokId > 0){
+            
+            const relevantGuys = await getPlayersFromTokenArray(skaterIds);
+            if(relevantGuys === false)throw new Error("Error, getting players");
+            // const relevantGuys = await Promise.all(skaterIds.map(async(tokId) => {
+            //     if(tokId > 0){
                  
-                    let guy = await getPlayerFromToken(tokId,tonightsGames);
-                    if(guy === false) throw new Error('🚦Er getting player from token🚦')
-                    let dt = game.date;
+            //         let guy = await getPlayerFromToken(tokId,tonightsGames);
+            //         if(guy === false) throw new Error('🚦Er getting player from token🚦')
+            //         let dt = game.date;
                   
-                    let dateO = dateReader(dt);
+            //         let dateO = dateReader(dt);
      
-                    let tot = await getPlayersPointsFromIdAndDate(guy.playerId, dateO, guy.rarity)
-                    guy.inGame = game.id;
-                    if(tot === false){
-                        guy.points = 0;
-                    }else{
-                        guy.points = tot.total;
-                    }
+            //         let tot = await getPlayersPointsFromIdAndDate(guy.playerId, dateO, guy.rarity)
+            //         guy.inGame = game.id;
+            //         if(tot === false){
+            //             guy.points = 0;
+            //         }else{
+            //             guy.points = tot.total;
+            //         }
                    
                    
                    
-                    return guy;
-                }else{
-                    let copy = nobody;
-                    copy.inGame = game.id;
-                    copy.tokenId = 0;
-                    return copy;
-                }
-            }))
+            //         return guy;
+            //     }else{
+            //         let copy = nobody;
+            //         copy.inGame = game.id;
+            //         copy.tokenId = 0;
+            //         return copy;
+            //     }
+            // }))
             let teamCopy:Team = {
                 lw:nobody,
                 c:nobody,

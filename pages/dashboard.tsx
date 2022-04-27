@@ -395,7 +395,7 @@ const Dashboard: NextPage = () => {
         <AuthRoute>
             {displayName === 'NA' ? 
             <div className={styles.contentContainer}>
-               <Loader message='Error Loading. You may need to Logout, Refresh, and then Log back in.' />
+               <Loader message='LOADING' />
             </div>
             :     
             <div className={styles.mainContainer}>

@@ -1,10 +1,11 @@
 import type { NextPage } from 'next'
 import styles from '../../../styles/All.module.css';
 import { useRouter } from 'next/router'
-import HistoryCard from '../../../components/HistoryCard';
+
 import { useEffect,useState } from 'react';
 import {getUsersTxAndMsg} from '../../../context/DashboardContext';
 import { TxType } from '../../../utility/constants';
+import Tx from '../../../components/Tx';
 const History: NextPage = () => {
     const Router = useRouter();
     const {id} = Router.query;
@@ -32,22 +33,29 @@ const History: NextPage = () => {
             <h2>HISTORY PAGE QUERY: {id}</h2>
             <div className={styles.contentContainerColumn}>
                 <h3>Transactions</h3>
-
-            {ts.filter(t => t.tx === true).map((tx) => {
-                return (
-                    <p key={tx.id}>{JSON.stringify(tx)}</p>
-                )
-            })}
+            <div className={styles.contentContainer}>
+                {ts.filter(t => t.tx === true).map((tx) => {
+                    return (
+                        <Tx key={tx.id} tx={tx}/>
+                        // <p key={tx.id}>{JSON.stringify(tx)}</p>
+                    )
+                })}
+            </div>
+        
             </div>
             <div className={styles.contentContainerColumn}>
                 <h3>Messages</h3>
-            {ts.filter(t => t.tx === false).map((m) => {
-                return (
-                    <p key={m.id}>{JSON.stringify(m)}</p>
-                )
-            })}
+                <div className={styles.contentContainer}>
+                    {ts.filter(t => t.tx === false).map((m) => {
+                    return (
+                        <Tx key={m.id} tx={m}/>
+                        // <p key={m.id}>{JSON.stringify(m)}</p>
+                    )
+                })}
+                </div>
+         
              </div>
-            <HistoryCard />
+         
         </div>
     )
 }

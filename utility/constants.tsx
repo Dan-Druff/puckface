@@ -250,6 +250,7 @@ export interface MessageCompType {
     counter:(msg:MessageType) => void,
     exit:(msg:MessageType) => void    
 }
+
 export interface PostLoginReturnType {
     dashboardPromises:DashboardType,
     dataFromDB:{
@@ -280,6 +281,9 @@ export interface TxType {
     mBool?:boolean,
     mString?:string,
     mNum?:number
+}
+export interface TxCompType {
+    tx:TxType  
 }
 // ---------------- GAME REALATED CONSTANTS------------------
 export const blankGame:GameType = {awayEmail:'',awayName:'',awayTeam:{c:0,lw:0,rw:0,d1:0,d2:0,g:0},date:new Date(),gameState:'Initialized',homeEmail:'',homeName:'blank home',homeTeam:{c:0,lw:0,rw:0,d1:0,d2:0,g:0},id:'blank',open:true,private:false,value:0}

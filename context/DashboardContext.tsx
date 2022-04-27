@@ -1460,144 +1460,146 @@ export const DashboardProvider = ({children}:{children:ReactNode}) => {
                            playingTeams.push(game.homeName);
                 });
                        // Create array of player objects
-                       const dashboardPromises = await Promise.all(dbdata.cards.map(async(token:number) => {
-                           // I have the integer of the token. 
+                    //    const dashboardPromises = await Promise.all(dbdata.cards.map(async(token:number) => {
+                    //        // I have the integer of the token. 
                
-                           // Determine if card is in an active game. If so set inuse position and ingameID
-                           let inUse:GamePosition = 'none';
-                           let inGame = false;
+                    //        // Determine if card is in an active game. If so set inuse position and ingameID
+                    //        let inUse:GamePosition = 'none';
+                    //        let inGame = false;
                          
-                           gameObjectArray.forEach((gme) => {
-                               // For each game in game array, see if this player is in it. If so, add id.
-                               let over = gameIsOver(gme);
-                               console.log("Is game over??: ");
-                               if(!over){
-                                   if(gme.awayTeam.lw === token){
-                                       // inUse = 'lw';
+                    //        gameObjectArray.forEach((gme) => {
+                    //            // For each game in game array, see if this player is in it. If so, add id.
+                    //            let over = gameIsOver(gme);
+                    //            console.log("Is game over??: ");
+                    //            if(!over){
+                    //                if(gme.awayTeam.lw === token){
+                    //                    // inUse = 'lw';
            
-                                       inGame = gme.id;
-                                   }
-                                   if(gme.awayTeam.c === token){
-                                       // inUse = 'c';
-                                       inGame = gme.id;
-                                   }
-                                   if(gme.awayTeam.rw === token){
-                                       // inUse = 'rw';
-                                       inGame = gme.id;
-                                   }
-                                   if(gme.awayTeam.d1 === token){
-                                       // inUse = 'd1';
-                                       inGame = gme.id;
-                                   }
-                                   if(gme.awayTeam.d2 === token){
-                                       // inUse = 'd2';
-                                       inGame = gme.id;
-                                   }
-                                   if(gme.awayTeam.g === token){
-                                       // inUse = 'g';
-                                       inGame = gme.id;
-                                   }
-                                   if(gme.homeTeam.lw === token){
-                                       // inUse = 'lw';
-                                       inGame = gme.id;
-                                   }
-                                   if(gme.homeTeam.c === token){
-                                       // inUse = 'c';
-                                       inGame = gme.id;
-                                   }
-                                   if(gme.homeTeam.rw === token){
-                                       // inUse = 'rw';
-                                       inGame = gme.id;
-                                   }
-                                   if(gme.homeTeam.d1 === token){
-                                       // inUse = 'd1';
-                                       inGame = gme.id;
-                                   }
-                                   if(gme.homeTeam.d2 === token){
-                                       // inUse = 'd2';
-                                       inGame = gme.id;
-                                   }
-                                   if(gme.homeTeam.g === token){
-                                       // inUse = 'g';
-                                       inGame = gme.id;
-                                   }
-                               }
+                    //                    inGame = gme.id;
+                    //                }
+                    //                if(gme.awayTeam.c === token){
+                    //                    // inUse = 'c';
+                    //                    inGame = gme.id;
+                    //                }
+                    //                if(gme.awayTeam.rw === token){
+                    //                    // inUse = 'rw';
+                    //                    inGame = gme.id;
+                    //                }
+                    //                if(gme.awayTeam.d1 === token){
+                    //                    // inUse = 'd1';
+                    //                    inGame = gme.id;
+                    //                }
+                    //                if(gme.awayTeam.d2 === token){
+                    //                    // inUse = 'd2';
+                    //                    inGame = gme.id;
+                    //                }
+                    //                if(gme.awayTeam.g === token){
+                    //                    // inUse = 'g';
+                    //                    inGame = gme.id;
+                    //                }
+                    //                if(gme.homeTeam.lw === token){
+                    //                    // inUse = 'lw';
+                    //                    inGame = gme.id;
+                    //                }
+                    //                if(gme.homeTeam.c === token){
+                    //                    // inUse = 'c';
+                    //                    inGame = gme.id;
+                    //                }
+                    //                if(gme.homeTeam.rw === token){
+                    //                    // inUse = 'rw';
+                    //                    inGame = gme.id;
+                    //                }
+                    //                if(gme.homeTeam.d1 === token){
+                    //                    // inUse = 'd1';
+                    //                    inGame = gme.id;
+                    //                }
+                    //                if(gme.homeTeam.d2 === token){
+                    //                    // inUse = 'd2';
+                    //                    inGame = gme.id;
+                    //                }
+                    //                if(gme.homeTeam.g === token){
+                    //                    // inUse = 'g';
+                    //                    inGame = gme.id;
+                    //                }
+                    //            }
                          
                        
-                           })
-                           let goals = 0;
-                           let assists = 0;
-                           let plusMinus = 0;
-                           let points = 0;
-                           let wins = 0;
-                           let shutouts = 0;
-                           let active = false;
-                        //    let url = baseURL + token.toString() + '.json';
-                           let url = getIpfsUrl('json',token);
+                    //        })
+                    //        let goals = 0;
+                    //        let assists = 0;
+                    //        let plusMinus = 0;
+                    //        let points = 0;
+                    //        let wins = 0;
+                    //        let shutouts = 0;
+                    //        let active = false;
+                    //     //    let url = baseURL + token.toString() + '.json';
+                    //        let url = getIpfsUrl('json',token);
                          
-                           // Get players json object
-                           let data = await fetch(url);
-                           let guy = await data.json();
+                    //        // Get players json object
+                    //        let data = await fetch(url);
+                    //        let guy = await data.json();
            
-                           let playerId = guy.attributes[3].value;
-                           let pos = guy.attributes[0].value;
+                    //        let playerId = guy.attributes[3].value;
+                    //        let pos = guy.attributes[0].value;
                            
-                           let data2 = await fetch(`https://statsapi.web.nhl.com/api/v1/people/${playerId}/stats?stats=statsSingleSeason&season=20212022`);
-                           let playerStats = await data2.json();
-                           let teamName = guy.attributes[1].value;
-                           if(playingTeams.indexOf(teamName) > -1){
-                               // this means the player is playing tonight
-                               active = true;
-                           }
-                           if(playerStats.stats[0].splits[0] !== undefined){
-                               plusMinus = playerStats.stats[0].splits[0].stat.plusMinus || playerStats.stats[0].splits[0].stat.plusMinus === typeof 'number' ? playerStats.stats[0].splits[0].stat.plusMinus : 0;
-                               assists = playerStats.stats[0].splits[0].stat.assists || playerStats.stats[0].splits[0].stat.assists === typeof 'number' ? playerStats.stats[0].splits[0].stat.assists : 0;
-                               wins = playerStats.stats[0].splits[0].stat.wins || playerStats.stats[0].splits[0].stat.wins === typeof 'number' ? playerStats.stats[0].splits[0].stat.wins : 0;
-                               shutouts = playerStats.stats[0].splits[0].stat.shutouts || playerStats.stats[0].splits[0].stat.shutouts === typeof 'number' ? playerStats.stats[0].splits[0].stat.shutouts : 0;
-                               points = playerStats.stats[0].splits[0].stat.points || playerStats.stats[0].splits[0].stat.points === typeof 'number' ? playerStats.stats[0].splits[0].stat.points : 0;
-                               goals = playerStats.stats[0].splits[0].stat.goals || playerStats.stats[0].splits[0].stat.goals === typeof 'number' ? playerStats.stats[0].splits[0].stat.goals : 0;
-                           }else{
-                               console.log("Errror 263");
-                               plusMinus = 0;
-                               assists = 0;
-                               wins = 0;
-                               shutouts = 0;
-                               points = 0;
-                               goals = 0;
-                           }
-                           let player:CardType = {
-                                tokenId:token,
-                                image:getIpfsUrl('png',token),
-                                playerId:playerId,
-                                rarity:guy.attributes[2].value,
-                                inUse:inUse,
-                                playerName:guy.name,
-                                points:points,
-                                pos:pos,
-                                playingTonight:active,
-                                inGame:inGame,
-                                stats:{
-                                    wins:wins,
-                                    shutouts:shutouts,
-                                    goals:goals,
-                                    assists:assists,
-                                    plusMinus:plusMinus
-                               }
-                           }
-                           return player;
+                    //        let data2 = await fetch(`https://statsapi.web.nhl.com/api/v1/people/${playerId}/stats?stats=statsSingleSeason&season=20212022`);
+                    //        let playerStats = await data2.json();
+                    //        let teamName = guy.attributes[1].value;
+                    //        if(playingTeams.indexOf(teamName) > -1){
+                    //            // this means the player is playing tonight
+                    //            active = true;
+                    //        }
+                    //        if(playerStats.stats[0].splits[0] !== undefined){
+                    //            plusMinus = playerStats.stats[0].splits[0].stat.plusMinus || playerStats.stats[0].splits[0].stat.plusMinus === typeof 'number' ? playerStats.stats[0].splits[0].stat.plusMinus : 0;
+                    //            assists = playerStats.stats[0].splits[0].stat.assists || playerStats.stats[0].splits[0].stat.assists === typeof 'number' ? playerStats.stats[0].splits[0].stat.assists : 0;
+                    //            wins = playerStats.stats[0].splits[0].stat.wins || playerStats.stats[0].splits[0].stat.wins === typeof 'number' ? playerStats.stats[0].splits[0].stat.wins : 0;
+                    //            shutouts = playerStats.stats[0].splits[0].stat.shutouts || playerStats.stats[0].splits[0].stat.shutouts === typeof 'number' ? playerStats.stats[0].splits[0].stat.shutouts : 0;
+                    //            points = playerStats.stats[0].splits[0].stat.points || playerStats.stats[0].splits[0].stat.points === typeof 'number' ? playerStats.stats[0].splits[0].stat.points : 0;
+                    //            goals = playerStats.stats[0].splits[0].stat.goals || playerStats.stats[0].splits[0].stat.goals === typeof 'number' ? playerStats.stats[0].splits[0].stat.goals : 0;
+                    //        }else{
+                    //            console.log("Errror 263");
+                    //            plusMinus = 0;
+                    //            assists = 0;
+                    //            wins = 0;
+                    //            shutouts = 0;
+                    //            points = 0;
+                    //            goals = 0;
+                    //        }
+                    //        let player:CardType = {
+                    //             tokenId:token,
+                    //             image:getIpfsUrl('png',token),
+                    //             playerId:playerId,
+                    //             rarity:guy.attributes[2].value,
+                    //             inUse:inUse,
+                    //             playerName:guy.name,
+                    //             points:points,
+                    //             pos:pos,
+                    //             playingTonight:active,
+                    //             inGame:inGame,
+                    //             stats:{
+                    //                 wins:wins,
+                    //                 shutouts:shutouts,
+                    //                 goals:goals,
+                    //                 assists:assists,
+                    //                 plusMinus:plusMinus
+                    //            }
+                    //        }
+                    //        return player;
            
            
            
            
            
-                       }))
+                    //    }))
+                       const dashProm = await getPlayersFromTokenArray(dbdata.cards);
+                       if(dashProm === false)throw new Error("Could not get okayers from toesn");
                       
                        let msg = await getUsersMessages(email);
                        if(msg === false){
                             msg = [];
                        }
                        return {
-                           dashboardPromises:dashboardPromises,
+                           dashboardPromises:dashProm,
                            dataFromDB:{
                                cards:dbdata.cards,
                                pucks:dbdata.pucks,

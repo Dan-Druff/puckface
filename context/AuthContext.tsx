@@ -4,7 +4,7 @@ import { auth } from "../firebase/clientApp";
 // import { onAuthStateChanged } from "firebase/auth";
 import Loader from "../components/Loader";
 import { User } from "firebase/auth";
-
+import { useRouter } from "next/router";
 export interface UserData {
     userId:string,
     userName:string | null,
@@ -26,6 +26,7 @@ export const AuthProvider = ({children}:{children:ReactNode}) => {
     const [currentUser, setCurrentUser] = useState<User | null>(null);
     const [loading,setLoading] = useState<boolean>(true);
     const [userData,setUserData] = useState<UserData | null>(null)
+    const Router = useRouter();
     useEffect(() => {
         const unsubscribe = auth.onAuthStateChanged((user) => {
             console.log("IM BEING CALLED 🍟",user)
@@ -43,6 +44,7 @@ export const AuthProvider = ({children}:{children:ReactNode}) => {
             }else{
                 setCurrentUser(null);
                 setUserData(null);
+                Router.push('/');
             }
             setLoading(false);
         });
@@ -56,7 +58,7 @@ export const AuthProvider = ({children}:{children:ReactNode}) => {
     if(loading){
         return (
             <div className={styles.contentContainer}>
-                <Loader message='Loading...' />
+                <Loader message='Auth Loading...' />
             </div>
         )
     }
