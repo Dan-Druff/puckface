@@ -956,11 +956,19 @@ export const logOnTheFire = async(log:LogActionType):Promise <boolean> => {
                 const res = await getDoc(ref);
                 if(res.exists()){
                     const txData = res.data();
-                    let txEdit = txData.transactions.filter(t => t.id === log.payload.id);
+                    let txa : any[] = [];
+                    txa = txData.transactions;
+                    // let txEdit = txData.transactions.filter(t => t.id === log.payload.id);
+                    let txEdit = txa.filter(t => t.id === log.payload.id);
+
                     txEdit[0].state = 'closed';
                     txEdit[0].to = log.payload.to;
                     txEdit[0].when = log.payload.when;
-                    let updTx = txData.transactions.filter(t => t.id !== log.payload.id);
+                    // let uxa : any[] = [];
+                    // uxa = txData.transactions;
+                    let updTx = txa.filter(t => t.id !== log.payload.id);
+
+                    // let updTx = txData.transactions.filter(t => t.id !== log.payload.id);
                     updTx.push(txEdit[0]);
                     await updateDoc(ref,{
                         transactions:updTx
