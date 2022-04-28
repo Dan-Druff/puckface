@@ -30,25 +30,26 @@ const BenchCard = (props:BenchCardType) => {
 
     if(props.active){
         return (
-            <div className={styles.benchCard} onClick={() => props.func(props.posId, props.card.tokenId)}>
+            <div className={props.avail ? styles.benchCard : styles.benchCardRed} onClick={() => props.func(props.posId, props.card.tokenId)}>
                 {/* <div className={styles.imageContainer}>
                <Image width={665} height={665} src={props.card.image} className={styles.image} layout="fill" alt="altPic"/>
                 </div> */}
                 <img alt={`alt${props.card.playerName} ${props.card.tokenId}`} className={styles.cardImage} src={props.card.image}/>
-               {props.card.playingTonight && <p>Playing</p>}
+               {props.card.playingTonight ? <p>Playing Tonight</p> : <p>No Game Today</p>}
+               {!props.avail && <p>In Trade...</p>}
                 
                 </div>
           )
     }else{
         return (
-            <div className={styles.benchCard}>
+            <div className={props.avail ? styles.benchCard : styles.benchCardRed}>
                
                 <img alt={`alt${props.card.playerName} ${props.card.tokenId}`} className={styles.cardImage} src={props.card.image}/>
                 {/* <div className={styles.imageContainer}>
                <Image width={665} height={665} src={props.card.image} className={styles.image} layout="fill" alt="altPic"/>
                 </div> */}
-               {props.card.playingTonight && <p>Playing</p>}
-                
+               {props.card.playingTonight ? <p>Playing Tonight</p> : <p>No Game Today</p>}
+               {!props.avail && <p>In Trade...</p>}
                 </div>
           )
     }

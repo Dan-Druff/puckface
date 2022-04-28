@@ -16,7 +16,7 @@ const Dashboard: NextPage = () => {
     const Router = useRouter();
     const {userData} = useAuth();
     const {gameStateDispatch} = useGameState();
-    const {activeGames, pucks, dashboardDispatch, dashboard, displayName,messages, tokens} = useDashboard();
+    const {activeGames, pucks, dashboardDispatch, dashboard, displayName,messages, tokens, tradeArray} = useDashboard();
     const {tonightsGames} = useNHL();
    
     const exitMessage = async(msg:MessageType) => {
@@ -446,7 +446,7 @@ const Dashboard: NextPage = () => {
                         <div className={styles.lockerroom}>
                         {dashboard.map((card) => {
                             return (
-                                <BenchCard key={card.tokenId} card={card} active={true} func={cardSelect} posId={'none'}/>
+                                <BenchCard key={card.tokenId} card={card} active={true} func={cardSelect} posId={'none'} avail={tradeArray.indexOf(card.tokenId) > -1 ? false : true}/>
                             )
                         })}           
                     </div>

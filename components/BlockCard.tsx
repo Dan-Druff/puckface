@@ -1,12 +1,10 @@
 import styles from '../styles/All.module.css';
-import { FreeAgentCardType, FreeAgentType} from '../utility/constants';
+import { FreeAgentCardType, FreeAgentType, BlockCardType} from '../utility/constants';
 import Image from 'next/image'
 
-const BlockCard = (props:FreeAgentCardType) => {
+const BlockCard = (props:BlockCardType) => {
 
-    const editFreeAgent = (agent:FreeAgentType) => {
-        console.log("EDITIING AGENT ", agent.tokenId);
-    }
+ 
 
     return (
         <div className={styles.benchCard}>
@@ -18,8 +16,8 @@ const BlockCard = (props:FreeAgentCardType) => {
             <p>{props.agent.ask}</p>
             <p>{props.agent.rarity} {props.agent.playerName} {props.agent.tokenId}</p>
             <p>${props.agent.value}</p>
-           <button className={styles.pfButton} onClick={() => editFreeAgent(props.agent)}>CHANGE</button>
-            
+            <button className={styles.pfButton} onClick={() => props.setOffer('none', props.agent.tokenId)}>EDIT FREE AGENT</button>
+            <button className={styles.pfButton} onClick={() => props.removeAgent(props.agent.tokenId)}>REMOVE FROM FREE AGENTS</button>
             </div>
       )
 

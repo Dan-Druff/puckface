@@ -12,7 +12,7 @@ const Card: NextPage = () => {
     const {userData} = useAuth();
     const {tonightsGames} = useNHL();
     const {gameStateDispatch} = useGameState();
-    const {dashboard,dashboardDispatch} = useDashboard();
+    const {dashboard,dashboardDispatch, tradeArray} = useDashboard();
     const Router = useRouter();
     const {id} = Router.query;
     const idint = Number(id);
@@ -234,10 +234,11 @@ const Card: NextPage = () => {
         <h2>{prare} {pname}</h2>
         <div className={styles.contentContainer}>
       
-       <img className={styles.cardImage} src={card[0].image}/>
+       <img className={styles.cardImage} src={card[0].image} alt="card image"/>
        <div className={styles.contentContainerColumn}>
        {card[0].pos === 'Goalie' ? <p>Wins: {card[0].stats.wins.toString()} Shutouts: {card[0].stats.shutouts.toString()}</p> : <p>Goals: {card[0].stats.goals.toString()} Assists: {card[0].stats.assists.toString()} +/-: {card[0].stats.plusMinus.toString()}</p>}
        <p>What data do I want to see here?</p>
+       {tradeArray.indexOf(idint) > -1 && <h2>CARD IN TRADE...</h2>}
        <p>Recent Games...</p>
        <p>Player History and stuff...</p>
        {card[0].inGame && 

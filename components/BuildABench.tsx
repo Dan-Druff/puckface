@@ -24,7 +24,7 @@ const BuildABench = (props:BuildABenchType) => {
         <div className={styles.leftDiv}>
             {props.guys.map((guy) => {
                 return (
-                    <BenchCard key={guy.tokenId} card={guy} active={true} func={selectPlayer} posId={'none'}/>
+                    <BenchCard key={guy.tokenId} card={guy} active={true} func={selectPlayer} posId={'none'} avail={true}/>
                 )
             })}
 

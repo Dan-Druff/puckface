@@ -6,7 +6,7 @@ import { useRouter } from 'next/router'
 import { GamePosition } from '../utility/constants'
 import AuthRoute from '../hoc/authRoute'
 const Lockerroom: NextPage = () => {
-    const {dashboard} = useDashboard();
+    const {dashboard, tradeArray} = useDashboard();
     const Router = useRouter();
     const cardSelect = async(posId:GamePosition, tokenId:number) => {
         try {
@@ -27,7 +27,7 @@ const Lockerroom: NextPage = () => {
                     <div className={styles.lockerroom}>
                     {dashboard.map((card) => {
                         return (
-                            <BenchCard key={card.tokenId} active={true} card={card} func={cardSelect} posId={card.inUse} />
+                            <BenchCard key={card.tokenId} active={true} card={card} func={cardSelect} posId={card.inUse} avail={tradeArray.indexOf(card.tokenId) > -1 ? false : true}/>
                         )
                     })}
                     </div>

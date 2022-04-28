@@ -146,24 +146,24 @@ const CreateGame: NextPage = () => {
                   <h2>Build Team:</h2>
                   <hr className={styles.smallRedLine} />
                   <div className={styles.cardRow}>
-                    <BenchCard card={team.lw} active={true} func={selectForEdit} posId={'lw'}/>
-                    <BenchCard card={team.c} active={true} func={selectForEdit} posId={'c'}/>
-                    <BenchCard card={team.rw} active={true} func={selectForEdit} posId={'rw'}/>
+                    <BenchCard card={team.lw} active={true} func={selectForEdit} posId={'lw'} avail={true}/>
+                    <BenchCard card={team.c} active={true} func={selectForEdit} posId={'c'} avail={true}/>
+                    <BenchCard card={team.rw} active={true} func={selectForEdit} posId={'rw'} avail={true}/>
 
              
                   </div>
             
               <hr className={styles.blueLine}/>
               <div className={styles.cardRow}>
-                <BenchCard card={team.d1} active={true} func={selectForEdit} posId={'d1'}/>
-                <BenchCard card={team.d2} active={true} func={selectForEdit} posId={'d2'}/>
+                <BenchCard card={team.d1} active={true} func={selectForEdit} posId={'d1'} avail={true}/>
+                <BenchCard card={team.d2} active={true} func={selectForEdit} posId={'d2'} avail={true}/>
 
                  
              
                   </div>
               <hr className={styles.centerLine}/>
               <div className={styles.cardRow}>
-                <BenchCard card={team.g} active={true} func={selectForEdit} posId={'g'}/>
+                <BenchCard card={team.g} active={true} func={selectForEdit} posId={'g'} avail={true}/>
 
              
              

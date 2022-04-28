@@ -12,7 +12,7 @@ export type NHLGamesArray = NHLGame[];
 export type DashboardType = CardType[];
 export type DashDispatch = (action:DashboardActions) => void;
 // export type MessageTypeStrings = 'counterOffer' | 'declineOffer' | 'acceptOffer'
-export type TxTypeStrings = 'signup' | 'buyPucks' | 'buyCards' | 'createGame' | 'joinGame' | 'winGame' | 'loseGame' | 'tieGame' | 'submitFreeAgent' | 'buyFreeAgent' | 'submitOffer' | 'acceptOffer' | 'counterOffer' | 'declineOffer' | 'createLeague' | 'joinLeague';
+export type TxTypeStrings = 'signup' | 'buyPucks' | 'buyCards' | 'createGame' | 'joinGame' | 'winGame' | 'loseGame' | 'tieGame' | 'submitFreeAgent' | 'buyFreeAgent' | 'submitOffer' | 'acceptOffer' | 'counterOffer' | 'declineOffer' | 'createLeague' | 'joinLeague' | 'removeFreeAgent';
 export type MsgTypeStrings = 'offer' | 'offerAccepted' | 'offerDeclined' | 'sold' | 'gameOverW' | 'gameOverL' | 'gameOverT' | 'gameJoined';
 
 
@@ -52,7 +52,8 @@ export type DashboardActions =
 {type:'login',payload:{messages:MessageType[],displayName:string, dash:DashboardType,games:GameType[],dbData:any}} | 
 {type:'signup',payload:{displayName:string,id:string}} |
 {type:'clearMessage',payload:{id:string}} |
-{type:'acceptOffer',payload:{pucks:number, cards:CardType[], tokens:number[],removeToken:number}}
+{type:'acceptOffer',payload:{pucks:number, cards:CardType[], tokens:number[],removeToken:number}} |
+{type:'removeAgent', payload:{tokenId:number}}
 
 export type LogActionType = 
 {type:'buyPucks',payload:{howMany:number, when:Date, who:string}} | 
@@ -159,7 +160,8 @@ export interface BenchCardType {
     card:CardType,
     active:boolean,
     func:(posId:GamePosition, tokenId:number) => void,
-    posId:GamePosition
+    posId:GamePosition,
+    avail:boolean
 }
 export interface OfferCardType {
     card:CardType,
@@ -170,6 +172,11 @@ export interface FreeAgentCardType {
     agent:FreeAgentType,
     setOffer:(agent:FreeAgentType) => void
 
+}
+export interface BlockCardType {
+    agent:FreeAgentType,
+    setOffer:(posId:GamePosition, tokenId:number) => void
+    removeAgent:(tokenId:number) => void
 }
 export interface LoaderType {
     message:string

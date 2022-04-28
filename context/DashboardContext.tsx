@@ -418,6 +418,18 @@ export const getFreeAgents = async():Promise<any | false> => {
     }
     
 }
+export const setFreeAgents = async(agentArray:any):Promise<boolean> => {
+    try {
+        const fRef = doc(db,'freeAgents','cards');
+        await updateDoc(fRef, {
+            array:agentArray
+        })
+        return true;
+    } catch (er) {
+        console.log("Error ", er);
+        return false;
+    }
+}
 export const addToFreeAgents = async(token:number,by:string,ask:string, value:number, id:string):Promise <boolean> => {
     try {
         const fao = {
@@ -633,6 +645,10 @@ export const puckfaceLog = async(tx:TxType):Promise<boolean> => {
         const toRef = doc(db,'transactions',tx.to);
         let txObj :any = {};
         switch (tx.type) {
+            case 'removeFreeAgent':
+
+
+                break;
             case 'acceptOffer':
                 const clear = await clearTxByIdAndUser(tx.regarding,tx.by);
                 if(clear === false) console.log("Error Clearing TX");
@@ -1142,6 +1158,9 @@ export const DashboardProvider = ({children}:{children:ReactNode}) => {
 
     function dashboardReducer(state:DashboardType, action:DashboardActions){
         switch (action.type) {
+            case 'removeAgent':
+                setTradeArray(tradeArray.filter(a => a !== action.payload.tokenId));
+                return state;
             case 'acceptOffer':
                 setTokens(action.payload.tokens);
                 setPucks(action.payload.pucks);
@@ -1299,7 +1318,8 @@ export const DashboardProvider = ({children}:{children:ReactNode}) => {
                     default:
                         break;
                 }
-              
+                
+                filt = filt.filter(guy => tradeArray.indexOf(guy.tokenId) < 0)
                 setAvailableGuys(filt.filter(gy => gy.inGame === false));
                 setPrevPlayer(action.payload.player);
                 setEditing(true);
@@ -1758,7 +1778,10 @@ export const DashboardProvider = ({children}:{children:ReactNode}) => {
     
             // }))
             const packPromises = await Promise.all(tokenArray.map(async(token) => {
-                let inUse:GamePosition = 'none';
+                if(token === 0 || token < 0){
+                    return nobody;
+                }else{
+                    let inUse:GamePosition = 'none';
                 let inGame: StringBool = false;
                 activeGames.forEach((gme:GameType) => {
                     if(gme.awayTeam.lw === token){
@@ -1896,8 +1919,10 @@ export const DashboardProvider = ({children}:{children:ReactNode}) => {
                         shutouts:shutouts
                     }
                 }
-                console.log("Got a promise...");
+                console.log("Got a promise...", player);
                 return player;
+                }
+                
 
 
             }))
