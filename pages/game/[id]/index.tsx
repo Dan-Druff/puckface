@@ -218,26 +218,26 @@ const Game: NextPage = () => {
           <div className={styles.gameContainer}>
           <div className={styles.cardRow}>
       <InfoBubble bub={infoBubbles.pot} />
-  <GameCard card={oppTeam.g} active={false} func={() => {}} posId={'lw'}/>
+  <GameCard card={oppTeam.g} active={false} func={() => {}} posId={'lw'} avail={true}/>
   <InfoBubble bub={infoBubbles.away} />
           </div>
           <div className={styles.cardRow}>
-          <GameCard card={oppTeam.d1} active={false} func={() => {}} posId={'d1'}/>
-          <GameCard card={oppTeam.d2} active={false} func={() => {}} posId={'d2'}/>
+          <GameCard card={oppTeam.d1} active={false} func={() => {}} posId={'d1'} avail={true}/>
+          <GameCard card={oppTeam.d2} active={false} func={() => {}} posId={'d2'} avail={true}/>
           </div>
           <div className={styles.cardRow}>
-          <GameCard card={oppTeam.rw} active={false} func={() => {}} posId={'rw'}/>
-          <GameCard card={oppTeam.c} active={false} func={() => {}} posId={'c'}/>
-          <GameCard card={oppTeam.lw} active={false} func={() => {}} posId={'lw'}/>
+          <GameCard card={oppTeam.rw} active={false} func={() => {}} posId={'rw'} avail={true}/>
+          <GameCard card={oppTeam.c} active={false} func={() => {}} posId={'c'} avail={true}/>
+          <GameCard card={oppTeam.lw} active={false} func={() => {}} posId={'lw'} avail={true}/>
           </div>
           <div className={styles.cardRow}>
-          <GameCard card={team.rw} active={false} func={() => {}} posId={'rw'}/>
-          <GameCard card={team.c} active={false} func={() => {}} posId={'c'}/>
-          <GameCard card={team.lw} active={false} func={() => {}} posId={'lw'}/>
+          <GameCard card={team.rw} active={false} func={() => {}} posId={'rw'} avail={true}/>
+          <GameCard card={team.c} active={false} func={() => {}} posId={'c'} avail={true}/>
+          <GameCard card={team.lw} active={false} func={() => {}} posId={'lw'} avail={true}/>
           </div>
           <div className={styles.cardRow}>
-          <GameCard card={team.d1} active={false} func={() => {}} posId={'d1'}/>
-          <GameCard card={team.d2} active={false} func={() => {}} posId={'d2'}/>
+          <GameCard card={team.d1} active={false} func={() => {}} posId={'d1'} avail={true}/>
+          <GameCard card={team.d2} active={false} func={() => {}} posId={'d2'} avail={true}/>
           </div>
           <div className={styles.cardRow}>
           <InfoBubble bub={infoBubbles.options} />
@@ -253,30 +253,30 @@ const Game: NextPage = () => {
             <>
                <div className={styles.cardRow}>
                     <InfoBubble bub={infoBubbles.pot} />
-                    <GameCard card={oppTeam.g} active={false} func={() => {}} posId={'g'}/>
+                    <GameCard card={oppTeam.g} active={false} func={() => {}} posId={'g'} avail={true}/>
                     <InfoBubble bub={infoBubbles.home} />
                 </div>
                 <div className={styles.cardRow}>
-                    <GameCard card={oppTeam.d1} active={false} func={() => {}} posId={'d1'}/>
-                    <GameCard card={oppTeam.d2} active={false} func={() => {}} posId={'d2'}/>
+                    <GameCard card={oppTeam.d1} active={false} func={() => {}} posId={'d1'} avail={true}/>
+                    <GameCard card={oppTeam.d2} active={false} func={() => {}} posId={'d2'} avail={true}/>
                 </div>
                 <div className={styles.cardRow}>
-                    <GameCard card={oppTeam.rw} active={false} func={() => {}} posId={'rw'}/>
-                    <GameCard card={oppTeam.c} active={false} func={() => {}} posId={'c'}/>
-                    <GameCard card={oppTeam.lw} active={false} func={() => {}} posId={'lw'}/>
+                    <GameCard card={oppTeam.rw} active={false} func={() => {}} posId={'rw'} avail={true}/>
+                    <GameCard card={oppTeam.c} active={false} func={() => {}} posId={'c'} avail={true}/>
+                    <GameCard card={oppTeam.lw} active={false} func={() => {}} posId={'lw'} avail={true}/>
                 </div>
                 <div className={styles.cardRow}>
-                    <GameCard card={team.lw} active={true} func={selectPosition} posId={'lw'}/>
-                    <GameCard card={team.c} active={true} func={selectPosition} posId={'c'}/>
-                    <GameCard card={team.rw} active={true} func={selectPosition} posId={'rw'}/>
+                    <GameCard card={team.lw} active={true} func={selectPosition} posId={'lw'} avail={true}/>
+                    <GameCard card={team.c} active={true} func={selectPosition} posId={'c'} avail={true}/>
+                    <GameCard card={team.rw} active={true} func={selectPosition} posId={'rw'} avail={true}/>
                 </div>
                 <div className={styles.cardRow}>
-                    <GameCard card={team.d1} active={true} func={selectPosition} posId={'d1'}/>
-                    <GameCard card={team.d2} active={true} func={selectPosition} posId={'d2'}/>
+                    <GameCard card={team.d1} active={true} func={selectPosition} posId={'d1'} avail={true}/>
+                    <GameCard card={team.d2} active={true} func={selectPosition} posId={'d2'} avail={true}/>
                 </div>
                 <div className={styles.cardRow}>
                     <InfoBubble bub={infoBubbles.options} />
-                    <GameCard card={team.g} active={true} func={selectPosition} posId={'g'}/>
+                    <GameCard card={team.g} active={true} func={selectPosition} posId={'g'} avail={true}/>
                     <InfoBubble bub={infoBubbles.away} />
                 </div>
             </> 
@@ -284,30 +284,30 @@ const Game: NextPage = () => {
             <>
                <div className={styles.cardRow}> 
                     <InfoBubble bub={infoBubbles.pot} />
-                    <GameCard card={oppTeam.g} active={false} func={() => {}} posId={'g'}/>
+                    <GameCard card={oppTeam.g} active={false} func={() => {}} posId={'g'} avail={true}/>
                     <InfoBubble bub={infoBubbles.home} />
                 </div>
                 <div className={styles.cardRow}>
-                    <GameCard card={oppTeam.d1} active={false} func={() => {}} posId={'d1'}/>
-                    <GameCard card={oppTeam.d2} active={false} func={() => {}} posId={'d2'}/>
+                    <GameCard card={oppTeam.d1} active={false} func={() => {}} posId={'d1'} avail={true}/>
+                    <GameCard card={oppTeam.d2} active={false} func={() => {}} posId={'d2'} avail={true}/>
                 </div>
                 <div className={styles.cardRow}>
-                    <GameCard card={oppTeam.rw} active={false} func={() => {}} posId={'rw'}/>
-                    <GameCard card={oppTeam.c} active={false} func={() => {}} posId={'c'}/>
-                    <GameCard card={oppTeam.lw} active={false} func={() => {}} posId={'lw'}/>
+                    <GameCard card={oppTeam.rw} active={false} func={() => {}} posId={'rw'} avail={true}/>
+                    <GameCard card={oppTeam.c} active={false} func={() => {}} posId={'c'} avail={true}/>
+                    <GameCard card={oppTeam.lw} active={false} func={() => {}} posId={'lw'} avail={true}/>
                 </div>
                 <div className={styles.cardRow}>
-                    <GameCard card={team.lw} active={false} func={() => {}} posId={'lw'}/>
-                    <GameCard card={team.c} active={false} func={() => {}} posId={'c'}/>
-                    <GameCard card={team.rw} active={false} func={() => {}} posId={'rw'}/>
+                    <GameCard card={team.lw} active={false} func={() => {}} posId={'lw'} avail={true}/>
+                    <GameCard card={team.c} active={false} func={() => {}} posId={'c'} avail={true}/>
+                    <GameCard card={team.rw} active={false} func={() => {}} posId={'rw'} avail={true}/>
                 </div>
                 <div className={styles.cardRow}>
-                    <GameCard card={team.d1} active={false} func={() => {}} posId={'d1'}/>
-                    <GameCard card={team.d2} active={false} func={() => {}} posId={'d2'}/>
+                    <GameCard card={team.d1} active={false} func={() => {}} posId={'d1'} avail={true}/>
+                    <GameCard card={team.d2} active={false} func={() => {}} posId={'d2'} avail={true}/>
                 </div>
                 <div className={styles.cardRow}>
                     <InfoBubble bub={infoBubbles.options} />
-                    <GameCard card={team.g} active={false} func={() => {}} posId={'g'}/>
+                    <GameCard card={team.g} active={false} func={() => {}} posId={'g'} avail={true}/>
                     <InfoBubble bub={infoBubbles.away} />
                 </div>
             </>
