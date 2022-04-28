@@ -241,7 +241,7 @@ const Game: NextPage = () => {
           </div>
           <div className={styles.cardRow}>
           <InfoBubble bub={infoBubbles.options} />
-          <GameCard card={team.g} active={false} func={() => {}} posId={'g'}/>
+          <GameCard card={team.g} active={false} func={() => {}} posId={'g'} avail={true}/>
           <InfoBubble bub={infoBubbles.home} />
           </div> 
         </div> 
