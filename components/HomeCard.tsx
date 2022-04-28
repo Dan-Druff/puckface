@@ -35,7 +35,7 @@ const HomeCard = (props:BenchCardType) => {
             {/* <div className={styles.imageContainer}>
            <Image width={665} height={665} src={props.card.image} className={styles.image} layout="fill" alt="altPic"/>
             </div> */}
-    
+        <p>{props.card.playerName}</p>
             </div>
       )
 

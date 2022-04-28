@@ -29,9 +29,10 @@ const Home: NextPage = () => {
       }
         {/* <div className={styles.contentContainer}>
           <h2>🥅 Login to start givin &#39;er... 🏒</h2>
-        </div> */}
+          </div> */}
+          
         <div className={styles.contentContainer}>
-          <button className={styles.pfButton} onClick={() => help()}>WTF is this?</button>
+          <button className={styles.pfButton} onClick={() => help()}>WTF is this? GIT</button>
         </div>
         <div className={styles.contentContainer}>
     
