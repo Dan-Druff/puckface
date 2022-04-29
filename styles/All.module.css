@@ -40,6 +40,10 @@
   text-align: center;
   padding: 1%;
 }
+.mainContainerLeft {
+  text-align: left;
+  padding: 1%;
+}
 .gameContainer {
   position: absolute;
   top: 0;
