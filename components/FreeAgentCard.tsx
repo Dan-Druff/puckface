@@ -112,22 +112,40 @@ const FreeAgentCard = (props:FreeAgentCardType) => {
             return;
         }
     }
+    
  
+    if(props.user === props.agent.by){
+        return (
+            <div className={styles.benchCard}>
+                {/* <div className={styles.imageContainer}>
+               <Image width={665} height={665} src={props.card.image} className={styles.image} layout="fill" alt="altPic"/>
+                </div> */}
+                <img alt='alt img' className={styles.cardImage} src={props.agent.image}/>
+                <p>{props.agent.rarity} {props.agent.playerName}</p>
+                <p>${props.agent.value}</p>
+                <p>Edit on Trading Block.</p>
+    
+                
+                </div>
+          )
+    }else{
+        return (
+            <div className={styles.benchCard}>
+                {/* <div className={styles.imageContainer}>
+               <Image width={665} height={665} src={props.card.image} className={styles.image} layout="fill" alt="altPic"/>
+                </div> */}
+                <img alt='alt img' className={styles.cardImage} src={props.agent.image}/>
+                <p>{props.agent.rarity} {props.agent.playerName}</p>
+                <p>${props.agent.value}</p>
+                <button className={styles.pfButton} onClick={() => buyCard(props.agent)}>BUY CARD</button>
+                <button className={styles.pfButton} onClick={() => props.setOffer(props.agent)}>MAKE OFFER</button>
+    
+                
+                </div>
+          )
+    }
 
-    return (
-        <div className={styles.benchCard}>
-            {/* <div className={styles.imageContainer}>
-           <Image width={665} height={665} src={props.card.image} className={styles.image} layout="fill" alt="altPic"/>
-            </div> */}
-            <img alt='alt img' className={styles.cardImage} src={props.agent.image}/>
-            <p>{props.agent.rarity} {props.agent.playerName}</p>
-            <p>${props.agent.value}</p>
-            <button className={styles.pfButton} onClick={() => buyCard(props.agent)}>BUY CARD</button>
-            <button className={styles.pfButton} onClick={() => props.setOffer(props.agent)}>MAKE OFFER</button>
 
-            
-            </div>
-      )
    
 
 }

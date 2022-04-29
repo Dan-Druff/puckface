@@ -8,7 +8,7 @@ import { useNHL } from "../context/NHLContext";
 import { useAuth } from "../context/AuthContext";
 import {  DefGetPlayersFromTokenArray, GameType,nobody, Team } from "../utility/constants";
 import type { GamePosition } from "../utility/constants";
-const LobbyGameCard = ({game}:{game:GameType}) => {
+const DashLobbyGameCard = ({game}:{game:GameType}) => {
     const {gameStateDispatch} = useGameState();
     const Router = useRouter();
     const { dashboardDispatch,getPlayersFromTokenArray} = useDashboard();
@@ -213,33 +213,19 @@ const LobbyGameCard = ({game}:{game:GameType}) => {
     } catch (error) {
         console.log("Date Error: ",error);
     }
-    if(userData !== null && userData.userEmail !== null && userData.userEmail === game.homeEmail){
-        return (
-            <div className={styles.lobbyGameCard}>
-                <h4>{game.awayName} 🥊 {game.homeName}</h4>
-                <p>{c}</p>
-                <p>${game.value.toString()} each</p>
-                <p>{game.gameState}</p>
-                {/* <button className={styles.pfButtonSecondary} onClick={() => goToGame(game)}>GO TO GAME</button> */}
-    
-            </div>
-        ) 
-    }else{
-        return (
-            <div className={styles.lobbyGameCard}>
-                <h4>{game.awayName} 🥊 {game.homeName}</h4>
-                <p>{c}</p>
-                <p>${game.value.toString()} each</p>
-                <p>{game.gameState}</p>
-                <button className={styles.pfButtonSecondary} onClick={() => goToGame(game)}>GO TO GAME</button>
-    
-            </div>
-        ) 
-    }
+    return (
+        <div className={styles.lobbyGameCard}>
+            <h4>{game.awayName} 🥊 {game.homeName}</h4>
+            <p>{c}</p>
+            <p>${game.value.toString()} each</p>
+            <p>{game.gameState}</p>
+            <button className={styles.pfButtonSecondary} onClick={() => goToGame(game)}>GO TO GAME</button>
 
+        </div>
+    ) 
 
 
 }
 
 
-export default LobbyGameCard
+export default DashLobbyGameCard

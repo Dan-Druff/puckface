@@ -23,7 +23,7 @@ const Lobby: NextPage = () => {
       initLobby();
     
       return () => {
-        
+       
       }
     }, [])
     

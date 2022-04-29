@@ -3,7 +3,8 @@ import styles from '../styles/All.module.css'
 import { removeTokenFromUsersTradeArrayDB, sendMsgToUser, useDashboard,clearMsgByIdAndUser,clearTxByIdAndUser,getFreeAgents,getUsersPucksFromDB,getUsersTokensFromDB,confirmUserData,updateUsersPucksAndTokensInDB,removeFromFreeAgents, puckfaceLog} from '../context/DashboardContext'
 import { useGameState } from '../context/GameState'
 import AuthRoute from '../hoc/authRoute'
-import LobbyGameCard from '../components/LobbyGameCard'
+// import LobbyGameCard from '../components/LobbyGameCard'
+import DashLobbyGameCard from '../components/DashLobbyGameCard'
 import BenchCard from '../components/BenchCard'
 import { useRouter } from 'next/router'
 import Loader from '../components/Loader'
@@ -425,7 +426,7 @@ const Dashboard: NextPage = () => {
                 <div className={styles.contentContainer}>
                 {activeGames.filter(gam => gam.gameState !== "Complete").map((g) => {
                     return (
-                        <LobbyGameCard key={g.id} game={g}/>
+                        <DashLobbyGameCard key={g.id} game={g}/>
                     )
                 })}
     

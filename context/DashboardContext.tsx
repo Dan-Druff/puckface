@@ -263,39 +263,39 @@ export const getLobbyGames = async():Promise <GameType[] | false> => {
         let lobbyArray:GameType[] = [];
         lobbySnapshot.forEach((lobbygame) => {
             let d = lobbygame.data();
-            let obj:GameType = {
-                awayEmail:d.awayEmail,
-                awayName:d.awayName,
-                homeEmail:d.homeEmail,
-                homeName:d.homeName,
-                date:d.date.toDate(),
-                id:d.id,
-                value:d.value,
-                private:d.private,
-                open:d.open,
-                gameState:d.gameState,
-                homeTeam:d.homeTeam,
-                awayTeam:d.awayTeam
-            }
-            lobbyArray.push(obj);
-            // if(d.open){
-                
-            //     let obj:GameType = {
-            //         awayEmail:d.awayEmail,
-            //         awayName:d.awayName,
-            //         homeEmail:d.homeEmail,
-            //         homeName:d.homeName,
-            //         date:d.date.toDate(),
-            //         id:d.id,
-            //         value:d.value,
-            //         private:d.private,
-            //         open:d.open,
-            //         gameState:d.gameState,
-            //         homeTeam:d.homeTeam,
-            //         awayTeam:d.awayTeam
-            //     }
-            //     lobbyArray.push(obj);
+            // let obj:GameType = {
+            //     awayEmail:d.awayEmail,
+            //     awayName:d.awayName,
+            //     homeEmail:d.homeEmail,
+            //     homeName:d.homeName,
+            //     date:d.date.toDate(),
+            //     id:d.id,
+            //     value:d.value,
+            //     private:d.private,
+            //     open:d.open,
+            //     gameState:d.gameState,
+            //     homeTeam:d.homeTeam,
+            //     awayTeam:d.awayTeam
             // }
+            // lobbyArray.push(obj);
+            if(d.open){
+                
+                let obj:GameType = {
+                    awayEmail:d.awayEmail,
+                    awayName:d.awayName,
+                    homeEmail:d.homeEmail,
+                    homeName:d.homeName,
+                    date:d.date.toDate(),
+                    id:d.id,
+                    value:d.value,
+                    private:d.private,
+                    open:d.open,
+                    gameState:d.gameState,
+                    homeTeam:d.homeTeam,
+                    awayTeam:d.awayTeam
+                }
+                lobbyArray.push(obj);
+            }
             // DO MY ACTIVE GAMES HERE???????? ----- ????????
             
         })

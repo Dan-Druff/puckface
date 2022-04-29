@@ -24,6 +24,7 @@ const FreeAgents: NextPage = () => {
     const [currentAgent,setCurrentAgent] = useState<FreeAgentType | false>(false);
     const {gameStateDispatch} = useGameState();
     const Router = useRouter();
+    const faOwned = userData !== null && userData.userEmail !== null ? userData.userEmail : '';
 
     const cancelOffer = () => {
         setOfferedTokens([]);
@@ -38,6 +39,7 @@ const FreeAgents: NextPage = () => {
         setSelectingCard(false);
         console.log("JHappy with tokens: ", offeredTokens);
     }
+
     const makeOfferHandler = async(e:any) => {
         e.preventDefault();
         try {
@@ -222,7 +224,7 @@ const FreeAgents: NextPage = () => {
                 <div className={styles.lockerroom}>
                     {cards.map((c) => {
                         return (
-                            <FreeAgentCard key={c.tokenId} agent={c} setOffer={setOffer}/>
+                            <FreeAgentCard key={c.tokenId} agent={c} setOffer={setOffer} user={faOwned}/>
                             // <BenchCard key={c.tokenId} card={c} posId='none' func={() => {}} active={true}/>
                         )
                     })}

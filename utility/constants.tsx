@@ -170,7 +170,8 @@ export interface OfferCardType {
 }
 export interface FreeAgentCardType {
     agent:FreeAgentType,
-    setOffer:(agent:FreeAgentType) => void
+    setOffer:(agent:FreeAgentType) => void,
+    user:string
 
 }
 export interface BlockCardType {
