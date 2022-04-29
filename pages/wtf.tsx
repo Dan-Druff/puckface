@@ -15,14 +15,14 @@ const Wtf: NextPage = () => {
             <br /><p>All you need is a single pack of cards to get started. Each pack contains 8 cards. 2 Random Positions, 3 Forwards, 2 Defense and 1 Goalie.</p>
             <br /><p>A game of Puckface requires 6 cards to play. 3 Forwards, 2 Defense and 1 Goalie.</p>
             <br /><p>The points each card produces is determined by how well that player does in real life that day, plus the &#39;Rarity&#39; multplier property each card has.</p>
-            <br /><p>Each NHL player has 10 cards associated with them. 1 Unique, 2 Super-Rare, 4 Rare and 6 Standard. 10881 cards in total.</p>
+            <br /><p>Each NHL player has 13 cards associated with them. 1 Unique, 2 Super-Rare, 4 Rare and 6 Standard. 10881 cards in total.</p>
             <hr className={styles.centerLine}/>
             <br /><p>You can have as many cards and play as many games as you like, but each card can only be in one lineup per day.</p>
-            <br /><p>There was an idea to add some kind of bomus vintage cards to the card collection that do various actions when played.</p>
+            <br /><p>There was an idea to add some kind of bonus vintage cards to the collection, that do different things when played.</p>
             <br /><p>Want to access that nostalgic feeling of opening up a new pack of cards, and also the feeling of the sports stickerbooks somehow?</p>
             <hr className={styles.blueLine}/>
             <br /><p>There will be one main league (PHL) that competes every day of NHL hockey, and GMs can create their own private leagues with their friends or other random GMs.</p>
-            <br /><p>You also have to option to just play one-off games that dont require being in a league.</p>
+            <br /><p>You also have the option to just play one-off games that dont require being in a league.</p>
             <br /><p>The App just has some basic styling at this point, but by the launch of next season I want it to look as good as sorare.com, or better.</p>
             <br /><p>And the new card designs look dope...</p>
             <hr className={styles.smallRedLine}/>
