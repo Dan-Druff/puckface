@@ -6,6 +6,7 @@ import { CardType, nobody } from '../../../utility/constants'
 import { useEffect, useRef, useState } from 'react'
 import { useNHL } from '../../../context/NHLContext'
 import ExplorerCard from '../../../components/ExplorerCard'
+import { getMinted } from '../../../context/DashboardContext'
 
 const Explorer: NextPage = () => {
     const {tonightsGames} = useNHL();
@@ -13,6 +14,7 @@ const Explorer: NextPage = () => {
     const {id} = Router.query;
     const idint = Number(id);
     const url = getIpfsUrl('png',idint);
+    const [owned,setOwned] = useState<boolean>(false);
     const [cCard, setCCard] = useState<CardType>(nobody);
     const [cardIndex,setCardIndex] = useState<number>(idint);
     const cardNumber = useRef(1);
@@ -54,8 +56,11 @@ const Explorer: NextPage = () => {
         const getData = async() => {
             if(!didCancel){
                 let player = await getPlayerFromToken(cardIndex, tonightsGames);
-                if(player === false) throw new Error("Error get player from token.");
+                let minted = await getMinted();
+
+                if(player === false || minted === false) throw new Error("Error get player from token.");
                 setCCard(player);
+                setOwned(minted.indexOf(cardIndex) > -1);
                
             }
         }
@@ -79,8 +84,10 @@ const Explorer: NextPage = () => {
 
                 </form>
             </div>
-            <div className={styles.contentContainer}>
+            <div className={styles.contentContainerColumn}>
+                
                 <ExplorerCard card={cCard} image={url} />
+                {owned ? <button className={styles.pfButton}>MAKE TRADE OFFER TO CARD OWNER...</button>: <h3>This Card is still out there to be dealt.</h3>}
             </div>
         </div>
     )

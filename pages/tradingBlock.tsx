@@ -273,7 +273,7 @@ const TradingBlock: NextPage = () => {
             const removeResult = await removeFromFreeAgents(tokenId);
             if(removeResult === false)throw new Error("Error removing agent");
             // remove from myAgents state
-            setMyAgents(myAgents.filter(a => a.tokenId === tokenId));
+            setMyAgents(myAgents.filter(a => a.tokenId !== tokenId));
             if(userData === null || userData.userEmail === null)throw new Error("Error user data.");
             // remove from tradeArray DB
             const userResult = await removeTokenFromUsersTradeArrayDB(userData.userEmail, tokenId);

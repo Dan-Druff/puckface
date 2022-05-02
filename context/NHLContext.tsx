@@ -20,7 +20,7 @@ const getSchedule = async(date:PuckfaceDate):Promise<NHLGamesArray | false> => {
 
         }
         let gameArray = formatted.dates[0].games;
-
+     
         gameArray.forEach((game:any) => {
           if(game.gameType === 'R'){
             let o = {
@@ -34,8 +34,21 @@ const getSchedule = async(date:PuckfaceDate):Promise<NHLGamesArray | false> => {
             }
             puckfaceGamesArray.push(o);
           }
+          if(game.gameType === 'P'){
+            let o = {
+                awayId:game.teams.away.team.id,
+                awayName:game.teams.away.team.name,
+                awayRecord:game.teams.away.leagueRecord.wins.toString() + '-'+game.teams.away.leagueRecord.losses.toString(),
+                homeId:game.teams.home.team.id,
+                homeName:game.teams.home.team.name,
+                homeRecord:game.teams.home.leagueRecord.wins.toString() + '-'+game.teams.home.leagueRecord.losses.toString(),
+                description:game.teams.away.team.name + ' @ ' + game.teams.home.team.name
+            }
+            puckfaceGamesArray.push(o);
+          }
           if(game.gameType === 'A'){
               console.log("AllsTar Game tonight");
+              // HAVE SPECIAL CONDITIONS FOR ALL STAR GAMES
           }
     
         

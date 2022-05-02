@@ -7,11 +7,11 @@ const Wtf: NextPage = () => {
             <div className={styles.rinkDiv}>
             <h2>WTF:</h2>
             <hr className={styles.smallRedLine}/>
-            <br /><p>PUCKFACE Hockey is an App which allows users to collect digital hockey cards which are used to play fantasy lineups against other Puckface GMs.</p>
+            <br /><p>PUCKFACE Hockey is an App which allows users to collect digital hockey cards that are used to play fantasy lineups against other Puckface GMs.</p>
             <br /><p>It is currently in testing and being developed without the use of a crypto wallet. BUT, the game is being built with NFT&#39;s and Smart Contracts in mind, so when the game is ready, we just have to change some constants and functions to switch it over.</p>
-            <br /><p>The reason for this is so we can focus on making the game fun, before we deal with real money.</p>
+            <br /><p>The reason for this is so we can focus on making the game fun, before we deal with real money and all the security issus that come with that.</p>
             <hr className={styles.blueLine}/>
-            <br /><p>The idea is that everyone gets to be GM of all their own rosters. You can trade / sell cards to all Puckface users to suit your style of play. Each GM has their own trading block, and can browse through other cards that have been put on their respective trading blocks.</p>
+            <br /><p>The idea is that everyone is the GM of their own rosters and you can trade / sell cards to all Puckface GMs to suit your style of play. Each GM has their own trading block, and you can browse through other cards that have been put on their respective trading blocks.</p>
             <br /><p>All you need is a single pack of cards to get started. Each pack contains 8 cards. 2 Random Positions, 3 Forwards, 2 Defense and 1 Goalie.</p>
             <br /><p>A game of Puckface requires 6 cards to play. 3 Forwards, 2 Defense and 1 Goalie.</p>
             <br /><p>The points each card produces is determined by how well that player does in real life that day, plus the &#39;Rarity&#39; multplier property each card has.</p>
