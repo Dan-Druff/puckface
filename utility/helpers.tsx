@@ -365,14 +365,18 @@ export const getPlayerFromToken = async(token:number, tonightsGames:NHLGamesArra
         let arrayOfGuysObject:any[] = [];
         const tokenString = token.toString();
         let pos = 'Center';
-        arrayOfGuysObject = LightALL.forwards.filter(g => g.tokenId === tokenString);
+        const fff : any[] = LightALL.forwards;
+       
+        arrayOfGuysObject = fff.filter(g => g.tokenId === tokenString);
         // arrayOfGuysObject = ALL.forwards.filter(g => g.attributes[5].value === tokenString);
         if(arrayOfGuysObject.length === 0){
-            arrayOfGuysObject = LightALL.defense.filter(g => g.tokenId === tokenString);
+            const ddd : any[] = LightALL.defense;
+            arrayOfGuysObject = ddd.filter(g => g.tokenId === tokenString);
             pos = "Defenseman";
         }
         if(arrayOfGuysObject.length === 0){
-            arrayOfGuysObject = LightALL.goalies.filter(g => g.tokenId === tokenString);
+            const ggg : any[] = LightALL.goalies;
+            arrayOfGuysObject = ggg.filter(g => g.tokenId === tokenString);
             pos = "Goalie";
         }
         if(arrayOfGuysObject.length === 0){
