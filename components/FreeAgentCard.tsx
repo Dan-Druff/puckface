@@ -12,14 +12,14 @@ const FreeAgentCard = (props:FreeAgentCardType) => {
     const {userData} = useAuth();
     const {tonightsGames} = useNHL();
     const {gameStateDispatch} = useGameState();
-    const {buyFreeAgent, dashboardDispatch} = useDashboard();
+    const {buyFreeAgent, dashboardDispatch, activeGames} = useDashboard();
     const buyCard = async(agent:FreeAgentType) => {
         try {
             const agentResult = await buyFreeAgent(agent);
             if(agentResult){
                 // subtract puck from state.
                 // add token to buyers state
-                const newCard = await getPlayerFromToken(agent.tokenId,tonightsGames);
+                const newCard = await getPlayerFromToken(agent.tokenId,tonightsGames, activeGames);
                 if(newCard === false) throw new Error("Error getting card");
                 dashboardDispatch({type:'boughtAgent',payload:{agent:agent, card:newCard}});
   

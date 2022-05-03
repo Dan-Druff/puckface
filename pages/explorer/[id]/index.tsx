@@ -6,7 +6,7 @@ import { CardType, nobody } from '../../../utility/constants'
 import { useEffect, useRef, useState } from 'react'
 import { useNHL } from '../../../context/NHLContext'
 import ExplorerCard from '../../../components/ExplorerCard'
-import { getMinted } from '../../../context/DashboardContext'
+import { getMinted, useDashboard } from '../../../context/DashboardContext'
 
 const Explorer: NextPage = () => {
     const {tonightsGames} = useNHL();
@@ -18,6 +18,7 @@ const Explorer: NextPage = () => {
     const [cCard, setCCard] = useState<CardType>(nobody);
     const [cardIndex,setCardIndex] = useState<number>(idint);
     const cardNumber = useRef(1);
+    const {activeGames} = useDashboard();
     const cardSelectHandler = (e:any) => {
         e.preventDefault();
         try {
@@ -55,9 +56,9 @@ const Explorer: NextPage = () => {
         let didCancel = false;
         const getData = async() => {
             if(!didCancel){
-                let player = await getPlayerFromToken(cardIndex, tonightsGames);
+                let player = await getPlayerFromToken(cardIndex, tonightsGames, activeGames);
                 let minted = await getMinted();
-
+                console.log(`Player is:`,player);
                 if(player === false || minted === false) throw new Error("Error get player from token.");
                 setCCard(player);
                 setOwned(minted.indexOf(cardIndex) > -1);
@@ -87,7 +88,7 @@ const Explorer: NextPage = () => {
             <div className={styles.contentContainerColumn}>
                 
                 <ExplorerCard card={cCard} image={url} />
-                {owned ? <button className={styles.pfButton}>MAKE TRADE OFFER TO CARD OWNER...</button>: <h3>This Card is still out there to be dealt.</h3>}
+                {owned ? <button className={styles.pfButton}>MAKE TRADE OFFER TO CARD OWNER...</button>: <h3>CARD STILL AVAILABLE</h3>}
             </div>
         </div>
     )

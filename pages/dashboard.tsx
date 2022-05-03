@@ -13,6 +13,7 @@ import { useAuth } from '../context/AuthContext'
 import Message from '../components/Message';
 import { createRandomId, getIpfsUrl } from '../utility/helpers'
 import { useNHL } from '../context/NHLContext'
+import Link from 'next/link';
 const Dashboard: NextPage = () => {
     const Router = useRouter();
     const {userData} = useAuth();
@@ -400,6 +401,11 @@ const Dashboard: NextPage = () => {
             </div>
             :     
             <div className={styles.mainContainer}>
+                <div className={styles.contentContainer}>
+                    <Link href="/explorer/3432">
+                        <a className={styles.pfButtonSecondary}> CARD EXPLORER 🏒</a>
+                    </Link>
+                </div>
                 <div className={styles.contentContainer}>
                     <h1>{displayName} has &#36;{pucks} Pucks.</h1>
                 </div>

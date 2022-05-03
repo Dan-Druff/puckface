@@ -1,7 +1,8 @@
 import { multipliers, nobody, Team } from "./constants";
-import { CardType, GameType,StatsReturnType,PuckfaceDate,TeamTokens,NHLGame } from "../utility/constants"
+import { StringBool, CardType, GameType,StatsReturnType,PuckfaceDate,TeamTokens,NHLGame } from "../utility/constants"
 import type {NHLGamesArray, GamePosition, Rarity} from '../utility/constants'
-import { ALL } from "./AllPlayersJson";
+// import { ALL } from "./AllPlayersJson";
+const LightALL = require('./LightALL.json');
 export const dateReader = (date:Date):PuckfaceDate => {
        
     let month = '';
@@ -148,90 +149,202 @@ export const gameIsOver = (game:GameType) => {
         return false;
     }
 }
-export const getPlayerFromToken2 = async(token:number, tonightsGames:NHLGamesArray):Promise <CardType | false> => {
-    try {
+// export const getPlayerFromToken2 = async(token:number, tonightsGames:NHLGamesArray):Promise <CardType | false> => {
+//     try {
        
-        let playingTeams:string[] = [];
-        tonightsGames.forEach((game) => {
-            playingTeams.push(game.awayName);
-            playingTeams.push(game.homeName);
-        });
-        let inUse: GamePosition = 'none';
-        let goals = 0;
-        let assists = 0;
-        let plusMinus = 0;
-        let points = 0;
-        let wins = 0;
-        let shutouts = 0;
-        let active = false;
-        // let url = 'https://ipfs.io/ipfs/bafybeiedfdak44r7owq5ytvvgb6cywkpfcnhlauroqqlrr7ta3jt2yqhee/files/' + token.toString() + '.json';
-        let url = getIpfsUrl('json',token);
-        let data = await fetch(url);
-        let guy = await data.json();
+//         let playingTeams:string[] = [];
+//         tonightsGames.forEach((game) => {
+//             playingTeams.push(game.awayName);
+//             playingTeams.push(game.homeName);
+//         });
+//         let inUse: GamePosition = 'none';
+//         let goals = 0;
+//         let assists = 0;
+//         let plusMinus = 0;
+//         let points = 0;
+//         let wins = 0;
+//         let shutouts = 0;
+//         let active = false;
+//         // let url = 'https://ipfs.io/ipfs/bafybeiedfdak44r7owq5ytvvgb6cywkpfcnhlauroqqlrr7ta3jt2yqhee/files/' + token.toString() + '.json';
+//         let url = getIpfsUrl('json',token);
+//         let data = await fetch(url);
+//         let guy = await data.json();
 
-        let playerId = guy.attributes[3].value;
-        let pos = guy.attributes[0].value;
+//         let playerId = guy.attributes[3].value;
+//         let pos = guy.attributes[0].value;
         
-        let data2 = await fetch(`https://statsapi.web.nhl.com/api/v1/people/${playerId}/stats?stats=statsSingleSeason&season=20212022`);
-        let playerStats = await data2.json();
+//         let data2 = await fetch(`https://statsapi.web.nhl.com/api/v1/people/${playerId}/stats?stats=statsSingleSeason&season=20212022`);
+//         let playerStats = await data2.json();
 
-        let teamName = guy.attributes[1].value;
-        if(playingTeams.indexOf(teamName) > -1){
-            // this means the player is playing tonight
-            active = true;
-        }
+//         let teamName = guy.attributes[1].value;
+//         if(playingTeams.indexOf(teamName) > -1){
+//             // this means the player is playing tonight
+//             active = true;
+//         }
 
-        if(playerStats.stats[0].splits[0] !== undefined){
-            plusMinus = playerStats.stats[0].splits[0].stat.plusMinus || playerStats.stats[0].splits[0].stat.plusMinus === typeof 'number' ? playerStats.stats[0].splits[0].stat.plusMinus : 0;
-            assists = playerStats.stats[0].splits[0].stat.assists || playerStats.stats[0].splits[0].stat.assists === typeof 'number' ? playerStats.stats[0].splits[0].stat.assists : 0;
-            wins = playerStats.stats[0].splits[0].stat.wins || playerStats.stats[0].splits[0].stat.wins === typeof 'number' ? playerStats.stats[0].splits[0].stat.wins : 0;
-            shutouts = playerStats.stats[0].splits[0].stat.shutouts || playerStats.stats[0].splits[0].stat.shutouts === typeof 'number' ? playerStats.stats[0].splits[0].stat.shutouts : 0;
-            points = playerStats.stats[0].splits[0].stat.points || playerStats.stats[0].splits[0].stat.points === typeof 'number' ? playerStats.stats[0].splits[0].stat.points : 0;
-            goals = playerStats.stats[0].splits[0].stat.goals || playerStats.stats[0].splits[0].stat.goals === typeof 'number' ? playerStats.stats[0].splits[0].stat.goals : 0;
-        }else{
-            plusMinus = 0;
-            assists = 0;
-            wins = 0;
-            shutouts = 0;
-            points = 0;
-            goals = 0;
-        }
+//         if(playerStats.stats[0].splits[0] !== undefined){
+//             plusMinus = playerStats.stats[0].splits[0].stat.plusMinus || playerStats.stats[0].splits[0].stat.plusMinus === typeof 'number' ? playerStats.stats[0].splits[0].stat.plusMinus : 0;
+//             assists = playerStats.stats[0].splits[0].stat.assists || playerStats.stats[0].splits[0].stat.assists === typeof 'number' ? playerStats.stats[0].splits[0].stat.assists : 0;
+//             wins = playerStats.stats[0].splits[0].stat.wins || playerStats.stats[0].splits[0].stat.wins === typeof 'number' ? playerStats.stats[0].splits[0].stat.wins : 0;
+//             shutouts = playerStats.stats[0].splits[0].stat.shutouts || playerStats.stats[0].splits[0].stat.shutouts === typeof 'number' ? playerStats.stats[0].splits[0].stat.shutouts : 0;
+//             points = playerStats.stats[0].splits[0].stat.points || playerStats.stats[0].splits[0].stat.points === typeof 'number' ? playerStats.stats[0].splits[0].stat.points : 0;
+//             goals = playerStats.stats[0].splits[0].stat.goals || playerStats.stats[0].splits[0].stat.goals === typeof 'number' ? playerStats.stats[0].splits[0].stat.goals : 0;
+//         }else{
+//             plusMinus = 0;
+//             assists = 0;
+//             wins = 0;
+//             shutouts = 0;
+//             points = 0;
+//             goals = 0;
+//         }
      
      
-        let player:CardType = {
-            tokenId:token,
-            image:getIpfsUrl('png',token),
-            playerId:playerId,
-            rarity:guy.attributes[2].value,
-            inUse:inUse,
-            playerName:guy.name,
-            points:points,
-            pos:pos,
-            playingTonight:active,
-            inGame:'',
-            stats:{
-                goals:goals,
-                assists:assists,
-                plusMinus:plusMinus,
-                wins:wins,
-                shutouts:shutouts
-            }
+//         let player:CardType = {
+//             tokenId:token,
+//             image:getIpfsUrl('png',token),
+//             playerId:playerId,
+//             rarity:guy.attributes[2].value,
+//             inUse:inUse,
+//             playerName:guy.name,
+//             points:points,
+//             pos:pos,
+//             playingTonight:active,
+//             inGame:'',
+//             stats:{
+//                 goals:goals,
+//                 assists:assists,
+//                 plusMinus:plusMinus,
+//                 wins:wins,
+//                 shutouts:shutouts
+//             }
 
-        }
-        return player;
-    } catch (e) {
-        console.log("Error", e);
-        return false;
-    }
+//         }
+//         return player;
+//     } catch (e) {
+//         console.log("Error", e);
+//         return false;
+//     }
     
 
-}
-export const getPlayerFromToken = async(token:number, tonightsGames:NHLGamesArray):Promise <CardType | false> => {
+// }
+// export const getPlayerFromToken3 = async(token:number, tonightsGames:NHLGamesArray):Promise <CardType | false> => {
+//     try {
+//         if(token === 0 || token < 0){
+//             return nobody;
+//         }else{
+//             let playingTeams:string[] = [];
+//         tonightsGames.forEach((game) => {
+//             playingTeams.push(game.awayName);
+//             playingTeams.push(game.homeName);
+//         });
+//         let inUse: GamePosition = 'none';
+//         let goals = 0;
+//         let assists = 0;
+//         let plusMinus = 0;
+//         let points = 0;
+//         let wins = 0;
+//         let shutouts = 0;
+//         let active = false;
+//         // let url = 'https://ipfs.io/ipfs/bafybeiedfdak44r7owq5ytvvgb6cywkpfcnhlauroqqlrr7ta3jt2yqhee/files/' + token.toString() + '.json';
+//         // let url = getIpfsUrl('json',token);
+//         // let data = await fetch(url);
+//         // let guy = await data.json();
+//         // This is where I get guy from js Object.
+//         let arrayOfGuysObject = [];
+//         const tokenString = token.toString();
+//         arrayOfGuysObject = ALL.forwards.filter(g => g.attributes[5].value === tokenString);
+//         if(arrayOfGuysObject.length === 0){
+//             arrayOfGuysObject = ALL.defense.filter(g => g.attributes[5].value === tokenString);
+//         }
+//         if(arrayOfGuysObject.length === 0){
+//             arrayOfGuysObject = ALL.goalies.filter(g => g.attributes[5].value === tokenString);
+//         }
+//         if(arrayOfGuysObject.length === 0){
+//             console.log("Error getting array of guy");
+//         }
+//         const guy = arrayOfGuysObject[0];
+
+//         let playerId = guy.attributes[3].value;
+//         let pos = guy.attributes[0].value;
+        
+//         let data2 = await fetch(`https://statsapi.web.nhl.com/api/v1/people/${playerId}/stats?stats=statsSingleSeason&season=20212022`);
+//         let playerStats = await data2.json();
+
+//         let teamName = guy.attributes[1].value;
+//         if(playingTeams.indexOf(teamName) > -1){
+//             // this means the player is playing tonight
+//             active = true;
+//         }
+
+//         if(playerStats.stats[0].splits[0] !== undefined){
+//             plusMinus = playerStats.stats[0].splits[0].stat.plusMinus || playerStats.stats[0].splits[0].stat.plusMinus === typeof 'number' ? playerStats.stats[0].splits[0].stat.plusMinus : 0;
+//             assists = playerStats.stats[0].splits[0].stat.assists || playerStats.stats[0].splits[0].stat.assists === typeof 'number' ? playerStats.stats[0].splits[0].stat.assists : 0;
+//             wins = playerStats.stats[0].splits[0].stat.wins || playerStats.stats[0].splits[0].stat.wins === typeof 'number' ? playerStats.stats[0].splits[0].stat.wins : 0;
+//             shutouts = playerStats.stats[0].splits[0].stat.shutouts || playerStats.stats[0].splits[0].stat.shutouts === typeof 'number' ? playerStats.stats[0].splits[0].stat.shutouts : 0;
+//             points = playerStats.stats[0].splits[0].stat.points || playerStats.stats[0].splits[0].stat.points === typeof 'number' ? playerStats.stats[0].splits[0].stat.points : 0;
+//             goals = playerStats.stats[0].splits[0].stat.goals || playerStats.stats[0].splits[0].stat.goals === typeof 'number' ? playerStats.stats[0].splits[0].stat.goals : 0;
+//         }else{
+//             plusMinus = 0;
+//             assists = 0;
+//             wins = 0;
+//             shutouts = 0;
+//             points = 0;
+//             goals = 0;
+//         }
+//         let r:Rarity = 'Standard'
+//         switch (guy.attributes[2].value) {
+//             case 'Rare':
+//                 r = 'Rare'
+//                 break;
+//             case 'Super Rare':
+//                 r = 'Super Rare';
+//                 break;
+//             case 'Unique':
+//                 r = 'Unique';
+//                 break;        
+        
+//             default:
+//                 break;
+//         }
+     
+//         let player:CardType = {
+//             tokenId:token,
+//             image:getIpfsUrl('png',token),
+//             playerId:playerId,
+//             rarity:r,
+//             inUse:inUse,
+//             playerName:guy.name,
+//             points:points,
+//             pos:pos,
+//             playingTonight:active,
+//             inGame:'',
+//             stats:{
+//                 goals:goals,
+//                 assists:assists,
+//                 plusMinus:plusMinus,
+//                 wins:wins,
+//                 shutouts:shutouts
+//             }
+
+//         }
+//         return player;
+//         }
+       
+        
+//     } catch (e) {
+//         console.log("Error", e);
+//         return false;
+//     }
+    
+
+// }
+export const getPlayerFromToken = async(token:number, tonightsGames:NHLGamesArray, activeGames:GameType[]):Promise <CardType | false> => {
     try {
         if(token === 0 || token < 0){
             return nobody;
         }else{
-            let playingTeams:string[] = [];
+      
+        let playingTeams:string[] = [];
         tonightsGames.forEach((game) => {
             playingTeams.push(game.awayName);
             playingTeams.push(game.homeName);
@@ -249,31 +362,98 @@ export const getPlayerFromToken = async(token:number, tonightsGames:NHLGamesArra
         // let data = await fetch(url);
         // let guy = await data.json();
         // This is where I get guy from js Object.
-        let arrayOfGuysObject = [];
+        let arrayOfGuysObject:any[] = [];
         const tokenString = token.toString();
-        arrayOfGuysObject = ALL.forwards.filter(g => g.attributes[5].value === tokenString);
+        let pos = 'Center';
+        arrayOfGuysObject = LightALL.forwards.filter(g => g.tokenId === tokenString);
+        // arrayOfGuysObject = ALL.forwards.filter(g => g.attributes[5].value === tokenString);
         if(arrayOfGuysObject.length === 0){
-            arrayOfGuysObject = ALL.defense.filter(g => g.attributes[5].value === tokenString);
+            arrayOfGuysObject = LightALL.defense.filter(g => g.tokenId === tokenString);
+            pos = "Defenseman";
         }
         if(arrayOfGuysObject.length === 0){
-            arrayOfGuysObject = ALL.goalies.filter(g => g.attributes[5].value === tokenString);
+            arrayOfGuysObject = LightALL.goalies.filter(g => g.tokenId === tokenString);
+            pos = "Goalie";
         }
         if(arrayOfGuysObject.length === 0){
             console.log("Error getting array of guy");
+         
         }
         const guy = arrayOfGuysObject[0];
-
-        let playerId = guy.attributes[3].value;
-        let pos = guy.attributes[0].value;
-        
+        console.log("Getting player from token: ", token);
+        console.log(`Guy is: ${guy}`);
+        // let playerId = guy.attributes[3].value;
+        let playerId = guy.playerId
+        // let pos = guy.attributes[0].value;
+     
+   
         let data2 = await fetch(`https://statsapi.web.nhl.com/api/v1/people/${playerId}/stats?stats=statsSingleSeason&season=20212022`);
         let playerStats = await data2.json();
 
-        let teamName = guy.attributes[1].value;
+        // let teamName = guy.attributes[1].value;
+        let teamName = guy.team;
+
         if(playingTeams.indexOf(teamName) > -1){
             // this means the player is playing tonight
             active = true;
         }
+        let inGame: StringBool = false;
+        activeGames.forEach((gme:GameType) => {
+            if(gme.awayTeam.lw === token){
+                inUse = 'lw';
+                inGame = gme.id;
+            }
+            if(gme.awayTeam.c === token){
+                inUse = 'c';
+                inGame = gme.id;
+            }
+            if(gme.awayTeam.rw === token){
+                inUse = 'rw';
+                inGame = gme.id;
+            }
+            if(gme.awayTeam.d1 === token){
+                inUse = 'd1';
+                inGame = gme.id;
+            }
+            if(gme.awayTeam.d2 === token){
+                inUse = 'd2';
+                inGame = gme.id;
+            }
+            if(gme.awayTeam.g === token){
+                inUse = 'g';
+                inGame = gme.id;
+            }
+            if(gme.homeTeam.lw === token){
+                inUse = 'lw';
+
+                inGame = gme.id;
+            }
+            if(gme.homeTeam.c === token){
+                inUse = 'c';
+
+                inGame = gme.id;
+            }
+            if(gme.homeTeam.rw === token){
+                inUse = 'rw';
+
+                inGame = gme.id;
+            }
+            if(gme.homeTeam.d1 === token){
+                inUse = 'd1';
+
+                inGame = gme.id;
+            }
+            if(gme.homeTeam.d2 === token){
+                inUse = 'd2';
+                inGame = gme.id;
+            }
+            if(gme.homeTeam.g === token){
+                inUse = 'g';
+
+                inGame = gme.id;
+            }
+    
+        })
 
         if(playerStats.stats[0].splits[0] !== undefined){
             plusMinus = playerStats.stats[0].splits[0].stat.plusMinus || playerStats.stats[0].splits[0].stat.plusMinus === typeof 'number' ? playerStats.stats[0].splits[0].stat.plusMinus : 0;
@@ -291,7 +471,7 @@ export const getPlayerFromToken = async(token:number, tonightsGames:NHLGamesArra
             goals = 0;
         }
         let r:Rarity = 'Standard'
-        switch (guy.attributes[2].value) {
+        switch (guy.rarity) {
             case 'Rare':
                 r = 'Rare'
                 break;
@@ -312,7 +492,7 @@ export const getPlayerFromToken = async(token:number, tonightsGames:NHLGamesArra
             playerId:playerId,
             rarity:r,
             inUse:inUse,
-            playerName:guy.name,
+            playerName:guy.playerName,
             points:points,
             pos:pos,
             playingTonight:active,

@@ -12,7 +12,7 @@ const Card: NextPage = () => {
     const {userData} = useAuth();
     const {tonightsGames} = useNHL();
     const {gameStateDispatch} = useGameState();
-    const {dashboard,dashboardDispatch, tradeArray} = useDashboard();
+    const {dashboard,dashboardDispatch, tradeArray, activeGames} = useDashboard();
     const Router = useRouter();
     const {id} = Router.query;
     const idint = Number(id);
@@ -56,7 +56,7 @@ const Card: NextPage = () => {
           const relevantGuys = await Promise.all(skaterIds.map(async(tokId) => {
               if(tokId > 0){
                
-                  let guy = await getPlayerFromToken(tokId,tonightsGames);
+                  let guy = await getPlayerFromToken(tokId,tonightsGames, activeGames);
                   if(guy === false)throw new Error('🚦Error getting Game🚦')
                   let dt = gameResult.date;
                 

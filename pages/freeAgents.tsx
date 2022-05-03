@@ -16,7 +16,7 @@ import { useGameState } from '../context/GameState'
 const FreeAgents: NextPage = () => {
     const {userData} = useAuth();
     const {tonightsGames} = useNHL();
-    const {tradeArray, dashboard, dashboardDispatch, prevPlayer, currentGame} = useDashboard();
+    const {tradeArray, dashboard, dashboardDispatch, prevPlayer, currentGame, activeGames} = useDashboard();
     const [offering,setOffering] = useState<boolean>(false); 
     const [selectingCard, setSelectingCard] = useState<boolean>(false);
     const [cards,setCards] = useState<FreeAgentType[]>([]);
@@ -154,7 +154,7 @@ const FreeAgents: NextPage = () => {
             if(free === false) throw new Error("Error getting free aganets");
       
             const rez = await Promise.all(free.map(async(agent:any) => {
-              let py = await getPlayerFromToken(agent.tokenId, tonightsGames);
+              let py = await getPlayerFromToken(agent.tokenId, tonightsGames,activeGames);
               if (py === false) throw new Error("Error getting player from token");
               let o:FreeAgentType = {
                   ask:agent.ask,

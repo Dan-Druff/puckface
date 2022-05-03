@@ -11,7 +11,7 @@ import { createRandomId, getPlayerFromToken } from '../utility/helpers'
 import { useNHL } from '../context/NHLContext'
 
 const TradingBlock: NextPage = () => {
-    const {addToTradeArrayDB, tradeArray,dashboardDispatch, dashboard} = useDashboard();
+    const {addToTradeArrayDB, tradeArray,dashboardDispatch, dashboard, activeGames} = useDashboard();
     const {userData} = useAuth();
     const {tonightsGames} = useNHL();
     const [myAgents, setMyAgents] = useState<FreeAgentType[]>([]);
@@ -30,7 +30,7 @@ const TradingBlock: NextPage = () => {
             let freeA = await getFreeAgents();
             if(Array.isArray(freeA)){
                 let rz = await Promise.all(freeA.filter(fa => fa.by === userData.userEmail).map(async(a:any) => {
-                    let py = await getPlayerFromToken(a.tokenId,tonightsGames);
+                    let py = await getPlayerFromToken(a.tokenId,tonightsGames,activeGames);
                     if(py === false)throw new Error("Error gettinbg player from token");
                     let ob :FreeAgentType = {
                         ask:a.ask,
@@ -165,6 +165,7 @@ const TradingBlock: NextPage = () => {
                         if(logRes === false) {
                             console.log("Error Logging");
                         }
+                        console.log("My agents are: ", myAgents);
                         const newAge = myAgents.filter(a => a.tokenId !== currentGuy.tokenId);
                         setMyAgents([obj,...newAge]);
                     }else{
@@ -273,11 +274,31 @@ const TradingBlock: NextPage = () => {
             const removeResult = await removeFromFreeAgents(tokenId);
             if(removeResult === false)throw new Error("Error removing agent");
             // remove from myAgents state
+            const idIneed = myAgents.filter(ag => ag.tokenId === tokenId);
+            const v = idIneed[0];
+
             setMyAgents(myAgents.filter(a => a.tokenId !== tokenId));
             if(userData === null || userData.userEmail === null)throw new Error("Error user data.");
             // remove from tradeArray DB
             const userResult = await removeTokenFromUsersTradeArrayDB(userData.userEmail, tokenId);
             if(userResult === false) throw new Error("Error removing token from users db");
+            // Create and send transaction...
+            const t : TxType = {
+                by:userData.userEmail,
+                from:userData.userEmail,
+                id:createRandomId(),
+                regarding:v.id,
+                state:'closed',
+                to:userData.userEmail,
+                tokens:[tokenId],
+                tx:true,
+                type:'removeFreeAgent',
+                value:0,
+                when: new Date(),
+                mString:'removeFreeAgent',
+                freeAgentToken:tokenId
+            }
+            puckfaceLog(t);
             // remove from tradeAray State
             dashboardDispatch({type:'removeAgent',payload:{tokenId:tokenId}});
            
