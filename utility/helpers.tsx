@@ -500,7 +500,7 @@ export const getPlayerFromToken = async(token:number, tonightsGames:NHLGamesArra
             points:points,
             pos:pos,
             playingTonight:active,
-            inGame:'',
+            inGame:inGame,
             stats:{
                 goals:goals,
                 assists:assists,
