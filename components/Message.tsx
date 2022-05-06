@@ -7,14 +7,14 @@ import { useGameState } from "../context/GameState";
 const Message = (props:MessageCompType) => {
   const Router = useRouter();
   const {userData} = useAuth();
-  const {getPlayersFromTokenArray, dashboardDispatch} = useDashboard();
+  const {getPlayersFromTokenArray, dashboardDispatch, activeGames} = useDashboard();
   const {gameStateDispatch} = useGameState();
   const goToGame = async(gameId:string) => {
     try {
       const game = await getGame(gameId);
       if(game === false)throw new Error("Game is false");
       const skaterIds = [game.homeTeam.lw,game.homeTeam.c,game.homeTeam.rw,game.homeTeam.d1,game.homeTeam.d2,game.homeTeam.g,game.awayTeam.lw,game.awayTeam.c,game.awayTeam.rw,game.awayTeam.d1,game.awayTeam.d2,game.awayTeam.g];
-      const relevantGuys = await getPlayersFromTokenArray(skaterIds);
+      const relevantGuys = await getPlayersFromTokenArray(skaterIds, activeGames);
       if(relevantGuys === false)throw new Error("Error, getting players");
       if(userData === null || userData.userEmail === null) throw new Error('🚦No user data🚦');
   

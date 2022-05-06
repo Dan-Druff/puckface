@@ -31,8 +31,7 @@ import {
     FreeAgentType,
     TxType 
 } from "../utility/constants";
-// import { ALL } from "../utility/AllPlayersJson";
-// const playerMap = require('../utility/playerMap.json');
+
 const TokenMap = require('../utility/TokenMap.json');
 
 

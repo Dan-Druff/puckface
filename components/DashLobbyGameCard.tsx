@@ -11,7 +11,7 @@ import type { GamePosition } from "../utility/constants";
 const DashLobbyGameCard = ({game}:{game:GameType}) => {
     const {gameStateDispatch} = useGameState();
     const Router = useRouter();
-    const { dashboardDispatch,getPlayersFromTokenArray} = useDashboard();
+    const { dashboardDispatch,getPlayersFromTokenArray, activeGames} = useDashboard();
     const {tonightsGames} = useNHL();
     const {userData} = useAuth();   
     const goToGame = async(game:GameType) => {
@@ -22,7 +22,7 @@ const DashLobbyGameCard = ({game}:{game:GameType}) => {
             let skaterIds:number[] = [];
             skaterIds.push(game.homeTeam.lw,game.homeTeam.c,game.homeTeam.rw,game.homeTeam.d1,game.homeTeam.d2,game.homeTeam.g,game.awayTeam.lw,game.awayTeam.c,game.awayTeam.rw,game.awayTeam.d1,game.awayTeam.d2,game.awayTeam.g)
             console.log("SKater Ids: ", skaterIds);
-            const relevantGuys = await getPlayersFromTokenArray(skaterIds);
+            const relevantGuys = await getPlayersFromTokenArray(skaterIds, activeGames);
             if(relevantGuys === false)throw new Error("Error, getting players");
             // const relevantGuys = await Promise.all(skaterIds.map(async(tokId) => {
             //     if(tokId > 0){
