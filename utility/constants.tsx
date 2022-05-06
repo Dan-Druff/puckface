@@ -328,7 +328,7 @@ export const DefDashDisp = (action:DashboardActions) => {
 export const DefPostLog = async(email:string):Promise <false | PostLoginReturnType> => {
     return false;
 }
-export const DefGetPlayersFromTokenArray = async(tokenArray:number[]):Promise<DashboardType | false> => {
+export const DefGetPlayersFromTokenArray = async(tokenArray:number[],games:GameType[]):Promise<DashboardType | false> => {
     return false;
 }
 export const DefGetPacket = async(email:string,tokens:number[]):Promise <false | DashboardType> => {

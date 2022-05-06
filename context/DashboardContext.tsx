@@ -47,7 +47,7 @@ export interface AllDashType {
     dashboardDispatch:DashDispatch,
     notification:NoteType | null,
     postLogin:(email:string) => Promise<false | PostLoginReturnType>,
-    getPlayersFromTokenArray:(tokenArray:number[]) => Promise<DashboardType | false>,
+    getPlayersFromTokenArray:(tokenArray:number[],games:GameType[]) => Promise<DashboardType | false>,
     getPacket:(email:string,tokens:number[]) => Promise<false | DashboardType>,
     availableGuys:DashboardType,
     currentGame:GameType,
@@ -1626,9 +1626,12 @@ export const DashboardProvider = ({children}:{children:ReactNode}) => {
            
            
                     //    }))
-                       const dashProm = await getPlayersFromTokenArray(dbdata.cards);
+                       const dashProm = await getPlayersFromTokenArray(dbdata.cards,gameObjectArray);
                        if(dashProm === false)throw new Error("Could not get okayers from toesn");
-                      
+                       dashProm.forEach((dp) => {
+                        console.log(`Completed getPlayer: ${dp.inGame}`);
+                       })
+                     
                        let msg = await getUsersMessages(email);
                        if(msg === false){
                             msg = [];
@@ -1656,7 +1659,7 @@ export const DashboardProvider = ({children}:{children:ReactNode}) => {
            return false;
         }
     }
-    const getPlayersFromTokenArray = async(tokenArray:number[]):Promise<DashboardType | false> => {
+    const getPlayersFromTokenArray = async(tokenArray:number[],games:GameType[]):Promise<DashboardType | false> => {
         try {
             let playingTeams: string[] = [];
             tonightsGames.forEach((game) => {
@@ -1796,7 +1799,8 @@ export const DashboardProvider = ({children}:{children:ReactNode}) => {
                 if(token === 0 || token < 0){
                     return nobody;
                 }else{
-                const p = await getPlayerFromToken(token,tonightsGames,activeGames);
+                    console.log(`🌵 This is where :${activeGames}`);
+                const p = await getPlayerFromToken(token,tonightsGames,games);
                 if(p === false)throw new Error("Error getting player from token.");
                 return p;
                
@@ -2355,7 +2359,7 @@ export const DashboardProvider = ({children}:{children:ReactNode}) => {
             }
             let mintRes = await updateMintedArray(mintedUpdate, email, tempTokens)
             if(mintRes){
-                const newPlayers = await getPlayersFromTokenArray(pack);
+                const newPlayers = await getPlayersFromTokenArray(pack, activeGames);
                 console.log("Returning new players: ", newPlayers);
                 return newPlayers;
             }else{

@@ -364,7 +364,7 @@ export const getPlayerFromToken = async(token:number, tonightsGames:NHLGamesArra
         // This is where I get guy from js Object.
         let arrayOfGuysObject:any[] = [];
         const tokenString = token.toString();
-        let pos = 'Center';
+      
         const fff : any[] = LightALL.forwards;
        
         arrayOfGuysObject = fff.filter(g => g.tokenId === tokenString);
@@ -372,12 +372,12 @@ export const getPlayerFromToken = async(token:number, tonightsGames:NHLGamesArra
         if(arrayOfGuysObject.length === 0){
             const ddd : any[] = LightALL.defense;
             arrayOfGuysObject = ddd.filter(g => g.tokenId === tokenString);
-            pos = "Defenseman";
+       
         }
         if(arrayOfGuysObject.length === 0){
             const ggg : any[] = LightALL.goalies;
             arrayOfGuysObject = ggg.filter(g => g.tokenId === tokenString);
-            pos = "Goalie";
+          
         }
         if(arrayOfGuysObject.length === 0){
             console.log("Error getting array of guy");
@@ -396,12 +396,13 @@ export const getPlayerFromToken = async(token:number, tonightsGames:NHLGamesArra
 
         // let teamName = guy.attributes[1].value;
         let teamName = guy.team;
-
+        // let pos = guy.pos;
         if(playingTeams.indexOf(teamName) > -1){
             // this means the player is playing tonight
             active = true;
         }
         let inGame: StringBool = false;
+        console.log(`Acitve Games??????🌈 ${activeGames.length}`);
         activeGames.forEach((gme:GameType) => {
             if(gme.awayTeam.lw === token){
                 inUse = 'lw';
@@ -498,7 +499,7 @@ export const getPlayerFromToken = async(token:number, tonightsGames:NHLGamesArra
             inUse:inUse,
             playerName:guy.playerName,
             points:points,
-            pos:pos,
+            pos:guy.pos,
             playingTonight:active,
             inGame:inGame,
             stats:{
