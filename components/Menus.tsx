@@ -69,6 +69,7 @@ const Menus: FunctionComponent<Props> = () => {
     const routeAndPush = (page:Pages) => {
         switch (page) {
             case 'explorer':
+                
                 Router.push('/explorer/3432')
                 break;
             case 'joinGame':

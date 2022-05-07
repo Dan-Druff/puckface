@@ -2,7 +2,7 @@ import type { NextPage } from 'next'
 import styles from '../../../styles/All.module.css'
 import { useRouter } from 'next/router'
 import { getIpfsUrl, getPlayerFromToken } from '../../../utility/helpers'
-import { CardType, nobody } from '../../../utility/constants'
+import { CardType, nobody, NoteType } from '../../../utility/constants'
 import { useEffect, useRef, useState } from 'react'
 import { useNHL } from '../../../context/NHLContext'
 import ExplorerCard from '../../../components/ExplorerCard'
@@ -18,59 +18,66 @@ const Explorer: NextPage = () => {
     const [cCard, setCCard] = useState<CardType>(nobody);
     const [cardIndex,setCardIndex] = useState<number>(idint);
     const cardNumber = useRef(1);
-    const {activeGames} = useDashboard();
-    const cardSelectHandler = (e:any) => {
+    const {activeGames, dashboardDispatch} = useDashboard();
+    const makeOffer = () => {
+        let n : NoteType = {
+            cancelFunction:() => {},
+            mainFunction:() => {},
+            mainTitle:'',
+            cancelTitle:"Got It",
+            colorClass:'',
+            message:"Feature Coming Soon....",
+            twoButtons:false
+        }
+        dashboardDispatch({type:'notify',payload:{notObj:n}});
+    }
+    const cardSelectHandler = async(e:any) => {
         e.preventDefault();
         try {
             const {whatCard} = e.target.elements;
      
             const whereWeGoing = whatCard.value;
             console.log("HUH", whereWeGoing);
-            setCardIndex(whereWeGoing);
+            let p = await getPlayerFromToken(whereWeGoing,tonightsGames,activeGames);
+            let m = await getMinted();
+            if(p === false || m === false) throw new Error("Error get player from token.");
+            console.log(`Minted!!!==== ${m}`);
+            setCCard(p);
+            setOwned(m.indexOf(Number(whereWeGoing)) > -1);
+            setCardIndex(Number(whereWeGoing));
+            console.log(`🏝 What is this result: ${m.indexOf(Number(whereWeGoing)) > -1}`);
+
             Router.push(`/explorer/${whereWeGoing}`)
    
         } catch (er) {
             console.log("rror: ", er);
         }
     }
-    // useEffect(() => {
-   
-    //     const init = async() => {
-    //         try {
-    //             const co = await getPlayerFromToken(cardIndex,tonightsGames);
-    //             if(co === false) throw new Error("Error get player from token.");
-    //             console.log("SAetting card");
-    //             setCCard(co);
-    //         } catch (er) {
-    //             console.log("Error: ", er);
-    //         }
-         
-    //     }
-    //     init();
-    
-    //   return () => {
-    
-    //   }
-    // },[cardIndex])
+
     useEffect(() => {
-        let didCancel = false;
-        const getData = async() => {
-            if(!didCancel){
-                let player = await getPlayerFromToken(cardIndex, tonightsGames, activeGames);
-                let minted = await getMinted();
-                console.log(`Player is:`,player);
-                if(player === false || minted === false) throw new Error("Error get player from token.");
-                setCCard(player);
-                setOwned(minted.indexOf(cardIndex) > -1);
-               
-            }
+     const initEx = async() => {
+        try {
+            let player = await getPlayerFromToken(cardIndex, tonightsGames, activeGames);
+            let minted = await getMinted();
+            console.log(`Player is:`,cardIndex);
+            if(player === false || minted === false) throw new Error("Error get player from token.");
+            setCCard(player);
+            setOwned(minted.indexOf(cardIndex) > -1);
+            console.log(`🍟 What is this result: ${minted.indexOf(cardIndex) > -1}`);
+          return;
+        }catch(er){
+          console.log(`🚦Error: ${er}🚦`)
+          return;
         }
-        getData();
+     }
+     initEx();
+   
+        
     
       return () => {
-        didCancel = true;
+ 
       }
-    }, [cardIndex])
+    }, [])
     
     return (
         <div className={styles.mainContainer}>
@@ -88,7 +95,7 @@ const Explorer: NextPage = () => {
             <div className={styles.contentContainerColumn}>
                 
                 <ExplorerCard card={cCard} image={url} />
-                {owned ? <button className={styles.pfButton}>MAKE TRADE OFFER TO CARD OWNER...</button>: <h3>CARD STILL AVAILABLE</h3>}
+                {owned ? <button className={styles.pfButton} onClick={() => makeOffer()}>MAKE TRADE OFFER TO CARD OWNER...</button>: <h3>CARD STILL AVAILABLE</h3>}
             </div>
         </div>
     )
