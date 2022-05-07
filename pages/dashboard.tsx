@@ -13,7 +13,7 @@ import { useAuth } from '../context/AuthContext'
 import Message from '../components/Message';
 import { createRandomId, getIpfsUrl } from '../utility/helpers'
 import { useNHL } from '../context/NHLContext'
-import Link from 'next/link';
+
 const Dashboard: NextPage = () => {
     const Router = useRouter();
     const {userData} = useAuth();
@@ -393,6 +393,16 @@ const Dashboard: NextPage = () => {
             console.log("Card select error: ",er);
         }
     }
+    const exploreButton = () => {
+       try {
+        gameStateDispatch({type:'home'});
+        Router.push('/explorer/3432');
+         return;
+       }catch(er){
+         console.log(`🚦Error: ${er}🚦`)
+         return;
+       }
+    }
     return (
         <AuthRoute>
             {displayName === 'NA' ? 
@@ -402,9 +412,8 @@ const Dashboard: NextPage = () => {
             :     
             <div className={styles.mainContainer}>
                 <div className={styles.contentContainer}>
-                    <Link href="/explorer/3432">
-                        <a className={styles.pfButtonSecondary}> CARD EXPLORER 🏒</a>
-                    </Link>
+                    <button className={styles.pfButtonSecondary} onClick={() => exploreButton()}> CARD EXPLORER 🏒</button>
+              
                 </div>
                 <div className={styles.contentContainer}>
                     <h1>{displayName} has &#36;{pucks} Pucks.</h1>

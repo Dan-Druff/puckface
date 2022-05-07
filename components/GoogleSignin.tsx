@@ -46,7 +46,9 @@ const GoogleSignIn = () => {
                       }
                         puckfaceLog(tx);
                         gameStateDispatch({type:'dashboard'})
-                        dashboardDispatch({type:'signup',payload:{displayName:postSign.displayName,id:postSign.id}});
+                        const atInd = postSign.displayName.indexOf('@');
+                        const edDis = postSign.displayName.substring(0,atInd);
+                        dashboardDispatch({type:'signup',payload:{displayName:edDis,id:postSign.id}});
                         Router.push("/dashboard")
                         return;
                     }
@@ -64,8 +66,9 @@ const GoogleSignIn = () => {
                     if(postLog === false){
                         throw new Error('🚦Google Res error 2🚦')
                     }else{
-                        
-                        dashboardDispatch({type:'login',payload:{messages:postLog.messages,displayName:googleRes.user.email,dash:postLog.dashboardPromises,dbData:postLog.dataFromDB,games:postLog.activeGames}})
+                        const atInd = googleRes.user.email.indexOf('@');
+                        const edDis = googleRes.user.email.substring(0,atInd);
+                        dashboardDispatch({type:'login',payload:{messages:postLog.messages,displayName:edDis,dash:postLog.dashboardPromises,dbData:postLog.dataFromDB,games:postLog.activeGames}})
                         gameStateDispatch({type:'dashboard'})
 
                         Router.push("/dashboard")

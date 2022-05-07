@@ -69,7 +69,7 @@ const Menus: FunctionComponent<Props> = () => {
     const routeAndPush = (page:Pages) => {
         switch (page) {
             case 'explorer':
-                
+
                 Router.push('/explorer/3432')
                 break;
             case 'joinGame':
@@ -226,6 +226,14 @@ const Menus: FunctionComponent<Props> = () => {
                       <button className={styles.navButton} onClick={() => routeAndPush('lockerroom')}>LOCKERROOM</button>
                       <button className={styles.navButton} onClick={() => routeAndPush('tradingBlock')}>TRADING BLOCK</button>
                       <button className={styles.navButtonSecondary} onClick={() => routeAndPush('freeAgents')}>FREE AGENTS</button>
+                      <button className={styles.navButton} onClick={() => routeAndPush('store')}>STORE</button>
+                  </div>
+                }
+                {gameState.sub === 'none' &&  
+                    <div className={styles.subMenu}>
+                      <button className={styles.navButton} onClick={() => routeAndPush('lockerroom')}>LOCKERROOM</button>
+                      <button className={styles.navButton} onClick={() => routeAndPush('tradingBlock')}>TRADING BLOCK</button>
+                      <button className={styles.navButton} onClick={() => routeAndPush('freeAgents')}>FREE AGENTS</button>
                       <button className={styles.navButton} onClick={() => routeAndPush('store')}>STORE</button>
                   </div>
                 }
