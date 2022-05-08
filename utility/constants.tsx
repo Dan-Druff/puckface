@@ -34,7 +34,7 @@ export type GameStateActions =
 
 export type DashboardActions = 
 {type:'boughtAgent',payload:{agent:FreeAgentType, card:CardType}} | 
-{type:'addToTradingBlock',payload:{tokenId:number}} | 
+{type:'addToTradingBlock',payload:{tokenIds:number[]}} | 
 {type:'dashboard'} | {type:'error',payload:{er:string}} | 
 {type:'setTeams',payload:{game:GameType, myTeam:Team, oppTeam:Team}} | 
 {type:'joinGame',payload:{game:GameType}} | 
@@ -53,7 +53,8 @@ export type DashboardActions =
 {type:'signup',payload:{displayName:string,id:string}} |
 {type:'clearMessage',payload:{id:string}} |
 {type:'acceptOffer',payload:{pucks:number, cards:CardType[], tokens:number[],removeToken:number}} |
-{type:'removeAgent', payload:{tokenId:number}}
+{type:'removeAgent', payload:{tokenId:number}} | 
+{type:'enterPuckEscrow',payload:{amount:number}} 
 
 export type LogActionType = 
 {type:'buyPucks',payload:{howMany:number, when:Date, who:string}} | 

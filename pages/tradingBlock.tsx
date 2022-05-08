@@ -181,7 +181,7 @@ const TradingBlock: NextPage = () => {
                 if(addAgent){
                     const addRes = await addToTradeArrayDB(currentGuy.tokenId);
                     if(addRes === false)throw new Error("Error adding to trade array db");
-                    dashboardDispatch({type:'addToTradingBlock',payload:{tokenId:currentGuy.tokenId}});
+                    dashboardDispatch({type:'addToTradingBlock',payload:{tokenIds:[currentGuy.tokenId]}});
                     setOptions(false);
                     let ask : AskType = 'sell';
                     switch (typeOfTrade.value) {
@@ -412,8 +412,10 @@ const TradingBlock: NextPage = () => {
             {addCard ? 
             <div className={styles.contentContainer}>
                 <h2>⬇️ SELECT CARD TO SELL / TRADE ⬇️</h2>
+                <p>Only cards that are not IN GAME are listed.</p>
                 <div className={styles.lockerroom}>
-                    {dashboard.map((card) => {
+                    
+                    {dashboard.filter(d => d.inGame === false).map((card) => {
                          return (
                              <BenchCard key={card.tokenId} active={true} card={card} func={cardSelect} posId={card.inUse} avail={tradeArray.indexOf(card.tokenId) > -1 ? false : true}/>
                          )

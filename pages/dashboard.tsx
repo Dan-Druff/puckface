@@ -1,6 +1,6 @@
 import type { NextPage } from 'next'
 import styles from '../styles/All.module.css'
-import { removeTokenFromUsersTradeArrayDB, sendMsgToUser, useDashboard,clearMsgByIdAndUser,clearTxByIdAndUser,getFreeAgents,getUsersPucksFromDB,getUsersTokensFromDB,confirmUserData,updateUsersPucksAndTokensInDB,removeFromFreeAgents, puckfaceLog} from '../context/DashboardContext'
+import { removeTokenFromUsersTradeArrayDB, sendMsgToUser, useDashboard,clearMsgByIdAndUser,clearTxByIdAndUser,getFreeAgents,getUsersPucksFromDB,getUsersTokensFromDB,confirmUserData,updateUsersPucksAndTokensInDB,removeFromFreeAgents, puckfaceLog, updateUsersPucksInDB, updateUsersTokensInDB} from '../context/DashboardContext'
 import { useGameState } from '../context/GameState'
 import AuthRoute from '../hoc/authRoute'
 // import LobbyGameCard from '../components/LobbyGameCard'
@@ -11,7 +11,7 @@ import Loader from '../components/Loader'
 import { GamePosition,MessageType, LogActionType, NHLGame, CardType, NoteType, TxType } from '../utility/constants'
 import { useAuth } from '../context/AuthContext'
 import Message from '../components/Message';
-import { createRandomId, getIpfsUrl } from '../utility/helpers'
+import { createRandomId, getIpfsUrl,getPlayerFromToken } from '../utility/helpers'
 import { useNHL } from '../context/NHLContext'
 
 const Dashboard: NextPage = () => {
@@ -49,8 +49,8 @@ const Dashboard: NextPage = () => {
                         let offererData = await confirmUserData(msg.by);
                         if(offererData === false)throw new Error("Error getting user data")
                         // let pux = await getUsersPucksFromDB(msg.by);
-                        let arith = offererData.pucks - msg.value;
-                        if(arith < 0)throw new Error("Not enough pucks to do it");
+                        // let arith = offererData.pucks - msg.value;
+                        // if(arith < 0)throw new Error("Not enough pucks to do it");
                         // let tox = await getUsersTokensFromDB(msg.by);
                         // let valid:boolean = true;
                         let newTokArray = offererData.cards;
@@ -65,96 +65,99 @@ const Dashboard: NextPage = () => {
                             
                         })
                         newTokArray.push(faTx);
-                        const updUsr = await updateUsersPucksAndTokensInDB(msg.by,arith,newTokArray);
+
+                        const updUsr = await updateUsersTokensInDB(msg.by,newTokArray);
                         if(updUsr === false)throw new Error("Error Updating User");
 
-                  
-                        // const faTx = await transferFreeAgent(msg.regarding,msg.by, userData.userEmail);
-
-                        // const faTx = await txFreeAgent(agents,agent.id,msg.by,userData.userEmail);
-                       
-                        console.log("Got FATX: ", faTx);
+             
                         const removeResult = await removeFromFreeAgents(faTx);
+                        if(removeResult === false)throw new Error("Error clearing FA");
                         let hPux = pucks + msg.value
                        
                         let hTox = [...msg.tokens,...tokens];
 
-                        let playingTeams: string[] = [];
-                        tonightsGames.forEach((game:NHLGame) => {
-                            playingTeams.push(game.awayName);
-                            playingTeams.push(game.homeName);
-                         });
+                        const newCardPromises = await Promise.all(msg.tokens.map(async(token:number) => {
+                            const p = await getPlayerFromToken(token,tonightsGames,activeGames);
+                            if(p === false)throw new Error("Error getting player from token");
+                            return p;
+                        }))
+
+                        // let playingTeams: string[] = [];
+                        // tonightsGames.forEach((game:NHLGame) => {
+                        //     playingTeams.push(game.awayName);
+                        //     playingTeams.push(game.homeName);
+                        //  });
 
                          
-                        const newCardPromises = await Promise.all(msg.tokens.map(async(token:number) => {
-                                         // I have the integer of the token. 
+                        // const newCardPromises = await Promise.all(msg.tokens.map(async(token:number) => {
+                        //                  // I have the integer of the token. 
                
-                           // Determine if card is in an active game. If so set inuse position and ingameID
-                           let inUse:GamePosition = 'none';
-                           let inGame = false;
+                        //    // Determine if card is in an active game. If so set inuse position and ingameID
+                        //    let inUse:GamePosition = 'none';
+                        //    let inGame = false;
                          
                           
-                           let goals = 0;
-                           let assists = 0;
-                           let plusMinus = 0;
-                           let points = 0;
-                           let wins = 0;
-                           let shutouts = 0;
-                           let active = false;
-                        //    let url = baseURL + token.toString() + '.json';
-                           let url = getIpfsUrl('json',token);
+                        //    let goals = 0;
+                        //    let assists = 0;
+                        //    let plusMinus = 0;
+                        //    let points = 0;
+                        //    let wins = 0;
+                        //    let shutouts = 0;
+                        //    let active = false;
+                        // //    let url = baseURL + token.toString() + '.json';
+                        //    let url = getIpfsUrl('json',token);
                          
-                           // Get players json object
-                           let data = await fetch(url);
-                           let guy = await data.json();
+                        //    // Get players json object
+                        //    let data = await fetch(url);
+                        //    let guy = await data.json();
            
-                           let playerId = guy.attributes[3].value;
-                           let pos = guy.attributes[0].value;
+                        //    let playerId = guy.attributes[3].value;
+                        //    let pos = guy.attributes[0].value;
                            
-                           let data2 = await fetch(`https://statsapi.web.nhl.com/api/v1/people/${playerId}/stats?stats=statsSingleSeason&season=20212022`);
-                           let playerStats = await data2.json();
-                           let teamName = guy.attributes[1].value;
-                           if(playingTeams.indexOf(teamName) > -1){
-                               // this means the player is playing tonight
-                               active = true;
-                           }
-                           if(playerStats.stats[0].splits[0] !== undefined){
-                               plusMinus = playerStats.stats[0].splits[0].stat.plusMinus || playerStats.stats[0].splits[0].stat.plusMinus === typeof 'number' ? playerStats.stats[0].splits[0].stat.plusMinus : 0;
-                               assists = playerStats.stats[0].splits[0].stat.assists || playerStats.stats[0].splits[0].stat.assists === typeof 'number' ? playerStats.stats[0].splits[0].stat.assists : 0;
-                               wins = playerStats.stats[0].splits[0].stat.wins || playerStats.stats[0].splits[0].stat.wins === typeof 'number' ? playerStats.stats[0].splits[0].stat.wins : 0;
-                               shutouts = playerStats.stats[0].splits[0].stat.shutouts || playerStats.stats[0].splits[0].stat.shutouts === typeof 'number' ? playerStats.stats[0].splits[0].stat.shutouts : 0;
-                               points = playerStats.stats[0].splits[0].stat.points || playerStats.stats[0].splits[0].stat.points === typeof 'number' ? playerStats.stats[0].splits[0].stat.points : 0;
-                               goals = playerStats.stats[0].splits[0].stat.goals || playerStats.stats[0].splits[0].stat.goals === typeof 'number' ? playerStats.stats[0].splits[0].stat.goals : 0;
-                           }else{
-                               console.log("Errror 263");
-                               plusMinus = 0;
-                               assists = 0;
-                               wins = 0;
-                               shutouts = 0;
-                               points = 0;
-                               goals = 0;
-                           }
-                           let player:CardType = {
-                                tokenId:token,
-                                image:getIpfsUrl('png',token),
-                                playerId:playerId,
-                                rarity:guy.attributes[2].value,
-                                inUse:inUse,
-                                playerName:guy.name,
-                                points:points,
-                                pos:pos,
-                                playingTonight:active,
-                                inGame:inGame,
-                                stats:{
-                                    wins:wins,
-                                    shutouts:shutouts,
-                                    goals:goals,
-                                    assists:assists,
-                                    plusMinus:plusMinus
-                               }
-                           }
-                           return player;
-                        }))
+                        //    let data2 = await fetch(`https://statsapi.web.nhl.com/api/v1/people/${playerId}/stats?stats=statsSingleSeason&season=20212022`);
+                        //    let playerStats = await data2.json();
+                        //    let teamName = guy.attributes[1].value;
+                        //    if(playingTeams.indexOf(teamName) > -1){
+                        //        // this means the player is playing tonight
+                        //        active = true;
+                        //    }
+                        //    if(playerStats.stats[0].splits[0] !== undefined){
+                        //        plusMinus = playerStats.stats[0].splits[0].stat.plusMinus || playerStats.stats[0].splits[0].stat.plusMinus === typeof 'number' ? playerStats.stats[0].splits[0].stat.plusMinus : 0;
+                        //        assists = playerStats.stats[0].splits[0].stat.assists || playerStats.stats[0].splits[0].stat.assists === typeof 'number' ? playerStats.stats[0].splits[0].stat.assists : 0;
+                        //        wins = playerStats.stats[0].splits[0].stat.wins || playerStats.stats[0].splits[0].stat.wins === typeof 'number' ? playerStats.stats[0].splits[0].stat.wins : 0;
+                        //        shutouts = playerStats.stats[0].splits[0].stat.shutouts || playerStats.stats[0].splits[0].stat.shutouts === typeof 'number' ? playerStats.stats[0].splits[0].stat.shutouts : 0;
+                        //        points = playerStats.stats[0].splits[0].stat.points || playerStats.stats[0].splits[0].stat.points === typeof 'number' ? playerStats.stats[0].splits[0].stat.points : 0;
+                        //        goals = playerStats.stats[0].splits[0].stat.goals || playerStats.stats[0].splits[0].stat.goals === typeof 'number' ? playerStats.stats[0].splits[0].stat.goals : 0;
+                        //    }else{
+                        //        console.log("Errror 263");
+                        //        plusMinus = 0;
+                        //        assists = 0;
+                        //        wins = 0;
+                        //        shutouts = 0;
+                        //        points = 0;
+                        //        goals = 0;
+                        //    }
+                        //    let player:CardType = {
+                        //         tokenId:token,
+                        //         image:getIpfsUrl('png',token),
+                        //         playerId:playerId,
+                        //         rarity:guy.attributes[2].value,
+                        //         inUse:inUse,
+                        //         playerName:guy.name,
+                        //         points:points,
+                        //         pos:pos,
+                        //         playingTonight:active,
+                        //         inGame:inGame,
+                        //         stats:{
+                        //             wins:wins,
+                        //             shutouts:shutouts,
+                        //             goals:goals,
+                        //             assists:assists,
+                        //             plusMinus:plusMinus
+                        //        }
+                        //    }
+                        //    return player;
+                        // }))
                         let newTox = hTox.filter(h => h !== faTx);
                         const updLocUsr = await updateUsersPucksAndTokensInDB(userData.userEmail,hPux,newTox);
                         if(updLocUsr === false)throw new Error("Error updating local user");
@@ -211,6 +214,12 @@ const Dashboard: NextPage = () => {
                        const sellerRes = await puckfaceLog(sellerTx);
 
                        const rem = await removeTokenFromUsersTradeArrayDB(userData.userEmail,faTx);
+                       const luigisTokenClear = await Promise.all(msg.tokens.map(async(lc) => {
+                           return await removeTokenFromUsersTradeArrayDB(msg.by,lc);
+                       }))
+                       luigisTokenClear.forEach((tok) => {
+                           if(tok === false)throw new Error("Couldnt clear token");
+                       })
                        
                        const marioClear = await clearTxByIdAndUser(msg.regarding,userData.userEmail);
                        const luigiClear = await clearTxByIdAndUser(msg.regarding,msg.by);
@@ -305,6 +314,17 @@ const Dashboard: NextPage = () => {
             const mRes = await sendMsgToUser(m,msg.by);
             if(mRes === false)throw new Error("Error sending message");
 
+            const up = await getUsersPucksFromDB(msg.by);
+            // Needsom erreor checking here
+            const newPuck = up + msg.value;
+            const upNew = await updateUsersPucksInDB(msg.by,newPuck);
+            if(upNew === false)throw new Error("errior updating pucks");
+            const tokRes = await Promise.all(msg.tokens.map(async(t) => {
+                return await removeTokenFromUsersTradeArrayDB(msg.by,t);
+            }))
+            tokRes.forEach((tk) => {
+                if(tk === false)throw new Error("Error removing tokens from users tradeArray DB");
+            })
             // Deal with old transaction? BEST WAY TO CLOSE STATE OF FREE AGENT OFFER IN DB??
             // Deal with 'luigis' transaction state
             console.log("Clearing tx id: ",msg.id);

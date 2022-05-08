@@ -197,6 +197,17 @@ export const updateUsersPucksInDB = async(email:string,pucks:number):Promise<boo
         return false;
     }
 }
+export const updateUsersTokensInDB = async(email:string,tokens:number[]):Promise<boolean> => {
+    try {
+        const userRes = await setDoc(doc(db,'users',email),{
+            cards:tokens
+        },{ merge: true });
+        return true;
+    } catch (er) {
+        console.log("UUPID ERROR: ", er);
+        return false;
+    }
+}
 export const updateUsersPucksAndTokensInDB = async(email:string,pucks:number,tokens:number[]):Promise<boolean> => {
     try {
         const userRes = await setDoc(doc(db,'users',email),{
@@ -624,6 +635,18 @@ export const clearTxByIdAndUser = async(id:string,user:string):Promise<boolean> 
         return true;
     } catch (er) {
         console.log("Error clearing tx", er);
+        return false;
+    }
+}
+export const addTokenToUsersTradeArrayDB = async(email:string,token:number):Promise<boolean> => {
+    try {
+        const userRef = doc(db,'users',email);
+        await updateDoc(userRef,{
+            tradeArray:arrayUnion(token)
+        })
+        return true;
+    } catch (er) {
+        console.log("Error adding token trade array",er);
         return false;
     }
 }
@@ -1172,6 +1195,9 @@ export const DashboardProvider = ({children}:{children:ReactNode}) => {
 
     function dashboardReducer(state:DashboardType, action:DashboardActions){
         switch (action.type) {
+            case 'enterPuckEscrow':
+                setPucks(action.payload.amount);
+                return state;
             case 'removeAgent':
                 setTradeArray(tradeArray.filter(a => a !== action.payload.tokenId));
                 return state;
@@ -1192,7 +1218,7 @@ export const DashboardProvider = ({children}:{children:ReactNode}) => {
 
                 return [action.payload.card,...state];
             case 'addToTradingBlock':
-                setTradeArray([action.payload.tokenId,...tradeArray]);
+                setTradeArray([...action.payload.tokenIds,...tradeArray]);
                 return state;
             case 'dashboard':
                 setTeam(blankTeam);

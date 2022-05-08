@@ -3,7 +3,7 @@ import styles from '../styles/All.module.css'
 import AuthRoute from '../hoc/authRoute'
 import { useState, useEffect } from 'react'
 import { CardType, FreeAgentType, LogActionType, MessageType, NoteType, TxType } from '../utility/constants'
-import { useDashboard, getFreeAgents,sendMsgToUser, logOnTheFire, puckfaceLog } from '../context/DashboardContext'
+import { useDashboard, getFreeAgents,sendMsgToUser, updateUsersPucksInDB, puckfaceLog,addTokenToUsersTradeArrayDB } from '../context/DashboardContext'
 import { createRandomId, getPlayerFromToken } from '../utility/helpers';
 import { useNHL } from '../context/NHLContext'
 import { useAuth } from '../context/AuthContext'
@@ -16,7 +16,7 @@ import { useGameState } from '../context/GameState'
 const FreeAgents: NextPage = () => {
     const {userData} = useAuth();
     const {tonightsGames} = useNHL();
-    const {tradeArray, dashboard, dashboardDispatch, prevPlayer, currentGame, activeGames} = useDashboard();
+    const {tradeArray, dashboard, dashboardDispatch, prevPlayer, currentGame, activeGames, pucks} = useDashboard();
     const [offering,setOffering] = useState<boolean>(false); 
     const [selectingCard, setSelectingCard] = useState<boolean>(false);
     const [cards,setCards] = useState<FreeAgentType[]>([]);
@@ -48,6 +48,10 @@ const FreeAgents: NextPage = () => {
             if(userData === null || userData.userEmail === null || currentAgent === false)throw new Error("Error User Data");
             const tempId = createRandomId();
             
+            const newPux = pucks - Number(offerValue.value);
+            if(newPux < 0)throw new Error("Not enough Pucks to do this");
+            const dba = await updateUsersPucksInDB(userData.userEmail,newPux);
+            if(dba === false) throw new Error("Error updating pucks in DB");
             let mg : MessageType = {
                 value:Number(offerValue.value),
                 by:userData.userEmail,
@@ -94,29 +98,27 @@ const FreeAgents: NextPage = () => {
                     message:'Offer has been sent to seller. Standby...',
                     twoButtons:false
                 }
-                // const l:LogActionType = {
-                //     type:'freeAgentOffer',
-                //     payload:{
-                //         by:userData.userEmail,
-                //         id:currentAgent.id,
-                //         state:'open',
-                //         to:currentAgent.by,
-                //         tokenIds:offeredTokens,
-                //         value:Number(offerValue.value),
-                //         when:new Date()                    
-                //     }
-                // }
-                // const postLog = await logOnTheFire(l);
-                // if(postLog === false)throw new Error("Error logging");
+        
+                // Add cards to tradeArray
+                let tA : number[] = [];
+                const tokenPromises = await Promise.all(offeredTokens.map(async(t) => {
+                    if(userData === null || userData.userEmail === null)throw new Error("USer data null");
+                    tA.push(t);
+                   
+                    return await addTokenToUsersTradeArrayDB(userData.userEmail,t);
+                }))
+                tokenPromises.forEach((p) => {
+                    if(p === false)throw new Error("Error Somewhere updating tradeArrayDB")
+                })
+                dashboardDispatch({type:'addToTradingBlock',payload:{tokenIds:tA}});
+                dashboardDispatch({type:'enterPuckEscrow',payload:{amount:newPux}})
                 dashboardDispatch({type:'notify',payload:{notObj:n}})
                 gameStateDispatch({type:'dashboard'});
                 Router.push('/dashboard');
             }else{
                 throw new Error("Error sending message.");
             }
-            // this is where i make a tx for the buyer
 
-            // make a message and send to seller.
             return;
         } catch (er) {
             console.log("Error Making Offer", er);
