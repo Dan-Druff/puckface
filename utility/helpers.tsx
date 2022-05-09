@@ -940,3 +940,37 @@ export const getIpfsUrl = (type:string, token:number):string => {
         return "Error";
     }
 }
+export const dealWithDate = (d:string):{year:number,day:number,month:number} | false => {
+   try {
+        let x = {
+            year:0,
+            month:0,
+            day:0
+        }
+        let m = -1;
+        let m1 = d[5];
+        let m2 = d[6];
+        // if(m1 === 0){
+        //     m = Number(m2);
+        // }else{
+        //     m = Number(`${m1}${m2}`)
+        // }
+        m = Number(`${m1}${m2}`)
+        let mNum = Number(m);
+        mNum = mNum - 1;
+        let yNum = Number(`${d[0]}${d[1]}${d[2]}${d[3]}`);
+        let dNum = -1;
+        // if(startD[8] === 0){
+        //     dNum = Number(`${startD[9]}`);
+        // }else{
+        //     dNum = Number(`${startD[8]}${startD[9]}`);
+        // }
+        dNum = Number(`${d[8]}${d[9]}`);
+        // if(mNum < 0 || dNum < 0)throw new Error("Some error with dates");
+        console.log(`Year: ${yNum}, Month: ${mNum}, Day: ${dNum}`);
+     return x;
+   }catch(er){
+     console.log(`🚦Error: ${er}🚦`)
+     return false;
+   }
+}

@@ -259,7 +259,6 @@ export interface MessageCompType {
     counter:(msg:MessageType) => void,
     exit:(msg:MessageType) => void    
 }
-
 export interface PostLoginReturnType {
     dashboardPromises:DashboardType,
     dataFromDB:{
@@ -293,6 +292,63 @@ export interface TxType {
 }
 export interface TxCompType {
     tx:TxType  
+}
+export interface LeagueGame {
+    awayEmail:string,
+    awayName:string,
+    homeEmail:string,
+    homeName:string,
+    date:Date,
+    id:string,
+    value:number,
+    private:boolean,
+    open:boolean,
+    gameState:PossibleGameStates,
+    homeTeam:TeamTokens,
+    awayTeam:TeamTokens,
+    winner:string,
+    league:string
+}
+export interface LeagueTeam {
+    teamName:string,
+    owner:string,
+    wins:number,
+    losses:number,
+    ties:number,
+    schedule:LeagueGame[]
+}
+export interface LeagueFormData {
+    name:string,
+    startDate:Date,
+    endDate:Date,
+    numberOfTeams:number,
+    open:boolean,
+    playoffs:boolean,
+    public:boolean,
+    champValue:number,
+    buyIn:number,
+    perGame:number,
+    coffer:number
+}
+export interface LeagueType {
+    name:string,
+    owner:string,
+    id:string,
+    created:Date,
+    startDate:Date,
+    endDate:Date,
+    targetDate:Date,
+    numberOfTeams:number,
+    open:boolean,
+    playoffs:boolean,
+    public:boolean,
+    champValue:number,
+    buyIn:number,
+    perGame:number,
+    coffer:number,
+    teams:LeagueTeam[],
+    results:LeagueGame[],
+    schedule:LeagueGame[]
 }
 // ---------------- GAME REALATED CONSTANTS------------------
 export const blankGame:GameType = {awayEmail:'',awayName:'',awayTeam:{c:0,lw:0,rw:0,d1:0,d2:0,g:0},date:new Date(),gameState:'Initialized',homeEmail:'',homeName:'blank home',homeTeam:{c:0,lw:0,rw:0,d1:0,d2:0,g:0},id:'blank',open:true,private:false,value:0}

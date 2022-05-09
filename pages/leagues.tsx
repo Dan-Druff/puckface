@@ -2,6 +2,7 @@ import type { NextPage } from 'next'
 import styles from '../styles/All.module.css'
 import { useNHL } from '../context/NHLContext'
 import AuthRoute from '../hoc/authRoute'
+import LeagueForm from '../components/LeagueForm'
 const Leagues: NextPage = () => {
     const {tonightsGames} = useNHL();
     return (
@@ -25,7 +26,9 @@ const Leagues: NextPage = () => {
             <h3>No Games Tonight</h3>
         </div>
         }
-   
+        <div className={styles.contentContainer}>
+            <LeagueForm />
+        </div>
   
   
       </div>
