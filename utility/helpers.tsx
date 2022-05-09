@@ -940,8 +940,9 @@ export const getIpfsUrl = (type:string, token:number):string => {
         return "Error";
     }
 }
-export const dealWithDate = (d:string):{year:number,day:number,month:number} | false => {
+export const dealWithDate = (d:string):Date | false => {
    try {
+       
         let x = {
             year:0,
             month:0,
@@ -968,9 +969,25 @@ export const dealWithDate = (d:string):{year:number,day:number,month:number} | f
         dNum = Number(`${d[8]}${d[9]}`);
         // if(mNum < 0 || dNum < 0)throw new Error("Some error with dates");
         console.log(`Year: ${yNum}, Month: ${mNum}, Day: ${dNum}`);
-     return x;
+        const z = new Date(yNum,mNum,dNum);
+     return z;
    }catch(er){
      console.log(`🚦Error: ${er}🚦`)
      return false;
+   }
+}
+export const convertDate = (d:Date):string => {
+   try {
+    const dt = dateReader(d);
+        const yNum = dt.yearNumber.toString();
+        const mNum = dt.monthNumber > 9 ? `${dt.monthNumber.toString()}` : `0${dt.monthNumber.toString()}`
+    
+        const dNum = dt.dayNumber > 9 ? `${dt.dayNumber.toString()}` : `0${dt.dayNumber.toString()}`;
+        const finalString = `${yNum}-${mNum}-${dNum}`;
+
+     return finalString;
+   }catch(er){
+     console.log(`🚦Error: ${er}🚦`)
+     return '2022-05-08';
    }
 }

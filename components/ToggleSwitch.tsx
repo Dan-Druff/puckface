@@ -14,6 +14,12 @@ if(tog.label === 'Playoffs'){
     msg = 'Season Only';
   }
 }
+if(tog.label === "Daily"){
+  if(!tog.toggle){
+    msg = 'Every Other Day'
+  }
+}
+
 const onToggle = () => tog.setToggle(!tog.toggle);
     return (
         <div>
