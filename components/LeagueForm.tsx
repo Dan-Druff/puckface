@@ -1,13 +1,14 @@
 import { useState } from "react"
-import { LeagueGame, LeagueTeam, LeagueFormData, LeagueType } from "../utility/constants";
+import { LeagueType, TxType } from "../utility/constants";
 import { useAuth } from "../context/AuthContext";
-import { createRandomId, dateReader, dealWithDate,convertDate } from "../utility/helpers";
+import { createRandomId, dateReader, dealWithDate } from "../utility/helpers";
 import styles from '../styles/All.module.css';
 import "react-datepicker/dist/react-datepicker.css"; 
 import DatePicker from "react-datepicker";
 import ToggleSwitch from "./ToggleSwitch";
 import { useRouter } from "next/router";
 import { useGameState } from "../context/GameState";
+import { addIdToUsersLeagueArrayDB, addLeagueToDB, puckfaceLog } from "../context/DashboardContext";
 const LeagueForm = () => {
     const today = dateReader(new Date);
     const todForm = `${today.yearNumber.toString()}-${today.monthNumber.toString()}-${today.dayNumber.toString()}`;
@@ -32,13 +33,41 @@ const LeagueForm = () => {
         setStep(step - 1);
     }
     const finishCreate = () => {
-        gameStateDispatch({type:'dashboard'});
-        Router.push('/dashboard');
+        console.log(`FINISHING CREATE: `);
+        
+        
+        // gameStateDispatch({type:'dashboard'});
+        Router.push(`/league/${workingLeague.id}`);
     }
-    const submitLeague = (e:any) => {
+    const submitLeague = async(e:any) => {
         e.preventDefault();
         try {
             console.log(`Submit League Data, and set state here`);
+            let wk = workingLeague;
+            wk.endDate = endDate;
+            wk.startDate = startDate;
+            wk.playoffs = playoffs;
+            wk.public = !privateLeague;
+            if(userData === null || userData.userEmail === null)throw new Error("Errro user data");
+            const addRes = await addLeagueToDB(wk);
+            const addIdRes = await addIdToUsersLeagueArrayDB(userData.userEmail,wk.id);
+            if(addRes === false || addIdRes === false)throw new Error("error adding league");
+            const t : TxType = {
+                by:userData.userEmail,
+                from:userData.userEmail,
+                id:createRandomId(),
+                regarding:wk.id,
+                state:'open',
+                to:userData.userEmail,
+                tokens:[],
+                tx:true,
+                type:'createLeague',
+                value:0,
+                when:wk.created,
+                freeAgentToken:0
+
+            }
+            puckfaceLog(t);
             setStep(7);
         } catch (er) {
             console.log("Error Submitting League: ",er);
@@ -209,7 +238,7 @@ const LeagueForm = () => {
                     <h2>SUCCESS</h2>
                     <p>Creating League</p>
                     <br /><hr className={styles.smallRedLine}/><br />
-                    <button className={styles.pfButton} type='button' onClick={() => finishCreate()}>COOL!</button>
+                    <button className={styles.pfButton} type='button' onClick={() => finishCreate()}>Go There →</button>
 
                 </div>
             )                          

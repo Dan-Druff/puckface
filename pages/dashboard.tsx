@@ -18,7 +18,7 @@ const Dashboard: NextPage = () => {
     const Router = useRouter();
     const {userData} = useAuth();
     const {gameStateDispatch} = useGameState();
-    const {activeGames, pucks, dashboardDispatch, dashboard, displayName,messages, tokens, tradeArray} = useDashboard();
+    const {activeGames, pucks, dashboardDispatch, dashboard, displayName,messages, tokens, tradeArray, activeLeagues} = useDashboard();
     const {tonightsGames} = useNHL();
    
     const exitMessage = async(msg:MessageType) => {
@@ -423,6 +423,9 @@ const Dashboard: NextPage = () => {
          return;
        }
     }
+    const goThere = (leagueId:string) => {
+        Router.push(`/league/${leagueId}`);
+    }    
     return (
         <AuthRoute>
             {displayName === 'NA' ? 
@@ -431,13 +434,18 @@ const Dashboard: NextPage = () => {
             </div>
             :     
             <div className={styles.mainContainer}>
+             
                 <div className={styles.contentContainer}>
                     <button className={styles.pfButtonSecondary} onClick={() => exploreButton()}> CARD EXPLORER 🏒</button>
               
                 </div>
+                <hr className={styles.smallRedLine}/>
+           
                 <div className={styles.contentContainer}>
                     <h1>{displayName} has &#36;{pucks} Pucks.</h1>
                 </div>
+                <hr className={styles.blueLine}/>
+            
                 <div className={styles.contentContainerColumn}>
                     <h3>MESSAGES:</h3>
                     {messages.length > 0 ? 
@@ -453,6 +461,8 @@ const Dashboard: NextPage = () => {
                     <h3>You have NO messages.</h3>
                     }
                 </div>
+                <hr className={styles.centerLine}/>
+        
                 <div className={styles.contentContainerColumn}>
              
              {activeGames.length > 0 ? 
@@ -475,6 +485,27 @@ const Dashboard: NextPage = () => {
              <h2>NO GAMES TO SHOW</h2>
              }
                 </div>
+                <hr className={styles.blueLine}/>
+               
+                <div className={styles.contentContainerColumn}>
+                    <h2>Active Leagues:</h2>
+                    {activeLeagues.length > 0 ? 
+                    <>
+                        {activeLeagues.map((al) => {
+                            return (
+                                <div key={al} className={styles.nhlTick}>
+                                    <p>League: {al}</p>
+                                    <button className={styles.pfButton} onClick={() => goThere(al)}>Go There →</button>
+                                </div>
+                            )
+                        })}
+                    </> 
+                    : 
+                    <p>No Active Leagues</p>
+                    }
+                </div>
+                <hr className={styles.smallRedLine}/>
+           
                 <div className={styles.contentContainer}>
                     {dashboard.length > 0 ? 
                     <>

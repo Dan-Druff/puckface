@@ -1,6 +1,6 @@
 import type { NextPage } from 'next'
 import styles from '../styles/All.module.css'
-import { useDashboard,addToFreeAgents,getFreeAgents, logOnTheFire, puckfaceLog,setFreeAgents,removeFromFreeAgents,removeTokenFromUsersTradeArrayDB } from '../context/DashboardContext'
+import { useDashboard,addToFreeAgents,getFreeAgents, puckfaceLog,setFreeAgents,removeFromFreeAgents,removeTokenFromUsersTradeArrayDB } from '../context/DashboardContext'
 import BlockCard from '../components/BlockCard'
 import { GamePosition,nobody, CardType,FreeAgentType, AskType, LogActionType, TxType } from '../utility/constants'
 import AuthRoute from '../hoc/authRoute'

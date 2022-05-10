@@ -1,34 +1,82 @@
 import type { NextPage } from 'next'
 import styles from '../styles/All.module.css'
-import { useNHL } from '../context/NHLContext'
 import AuthRoute from '../hoc/authRoute'
-import LeagueForm from '../components/LeagueForm'
+import {useState, useEffect} from 'react';
+import { useRouter } from 'next/router'
+import { useDashboard, getOpenLeagues } from '../context/DashboardContext'
+import { LeagueType } from '../utility/constants';
+
 const Leagues: NextPage = () => {
-    const {tonightsGames} = useNHL();
+    const Router = useRouter();
+    const {activeLeagues} = useDashboard();
+    const [openLeagues,setOpenLeagues] = useState<LeagueType[]>([]);
+    const goToCreate = () => {
+     Router.push('/createLeague');
+    }
+    useEffect(() => {
+      const initLeagues = async() => {
+         try {
+            const ls = await getOpenLeagues();
+            if(ls === false)throw new Error("Error getting open leagues");
+            setOpenLeagues(ls);
+           return;
+         }catch(er){
+           console.log(`🚦Error: ${er}🚦`)
+           return;
+         }
+      }
+      
+      initLeagues();
+      return () => {
+        
+      }
+    }, [])
+    
     return (
         <AuthRoute>
         <div className={styles.mainContainer}>
-        <h2>Tonights NHL Games:</h2>
-        {tonightsGames.length > 0 ? 
-        <div className={styles.contentContainer}>
-            {tonightsGames.map((g) => {
-                return (
-                    <div className={styles.nhlTick} key={g.homeName}>
-                    <p>{g.awayName}</p>
-                    <p> 🥊 </p>
-                    <p>{g.homeName}</p>
-                </div>
-                )
-            })}
-        </div> 
-        : 
-        <div className={styles.contentContainer}>
-            <h3>No Games Tonight</h3>
+        <h2>Leagues:</h2>
+        <hr className={styles.smallRedLine}/>
+        <div className={styles.contentContainerColumn}>
+            <h2>Active Leagues:</h2>
+            {activeLeagues.length > 0 ? 
+            <>
+                {activeLeagues.map((al) => {
+                    return (
+                        <div key={al} className={styles.nhlTick}>
+                            <p>League: {al}</p>
+                            <button className={styles.pfButton} onClick={() => goToCreate()}>Go There →</button>
+                        </div>
+                    )
+                })}
+            </> 
+            : 
+            <p>No Active Leagues</p>
+            }
         </div>
-        }
-        <div className={styles.contentContainer}>
-            <LeagueForm />
+        <hr className={styles.blueLine}/>
+
+        <div className={styles.contentContainerColumn}>
+            <h2>OPEN LEAGUES:</h2>
+            {openLeagues.length > 0 ? 
+            <>
+                {openLeagues.map((l) => {
+                    return (
+                        <div key={l.id} className={styles.nhlTick}>
+                            <p>Name: {l.name}</p>
+                            <p>Value: {l.champValue}</p>
+                            <button className={styles.pfButton}>Go There →</button>
+                        </div>
+                    )
+                })}
+            </> 
+            : 
+            <h2>No Open Games to show.</h2>
+            }
         </div>
+        <hr className={styles.centerLine}/>
+
+    
   
   
       </div>

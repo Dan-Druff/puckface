@@ -976,18 +976,3 @@ export const dealWithDate = (d:string):Date | false => {
      return false;
    }
 }
-export const convertDate = (d:Date):string => {
-   try {
-    const dt = dateReader(d);
-        const yNum = dt.yearNumber.toString();
-        const mNum = dt.monthNumber > 9 ? `${dt.monthNumber.toString()}` : `0${dt.monthNumber.toString()}`
-    
-        const dNum = dt.dayNumber > 9 ? `${dt.dayNumber.toString()}` : `0${dt.dayNumber.toString()}`;
-        const finalString = `${yNum}-${mNum}-${dNum}`;
-
-     return finalString;
-   }catch(er){
-     console.log(`🚦Error: ${er}🚦`)
-     return '2022-05-08';
-   }
-}

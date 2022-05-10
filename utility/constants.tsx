@@ -25,6 +25,7 @@ export type GameStateActions =
 {type:'home'} | 
 {type:'dashboard'} | 
 {type:'leagues'} | 
+{type: 'leagueId'} |
 {type:'lobby'} | 
 {type:'profile'} | 
 {type:'lockerroom'} | 

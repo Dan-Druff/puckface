@@ -1,7 +1,7 @@
 import React, {FunctionComponent} from 'react';
 import { useRouter } from "next/router"
 import styles from '../styles/All.module.css';
-export type Pages = 'explorer' |'joinGame' | 'createGame' | 'dashboard' | 'lobby' | 'profile' | 'leagues' | 'store' | 'login' | 'signup' | 'home' | 'freeAgents' | 'tradingBlock' | 'lockerroom'
+export type Pages = 'explorer' |'joinGame' | 'createGame' | 'dashboard' | 'lobby' | 'profile' | 'leagues' | 'store' | 'login' | 'signup' | 'home' | 'freeAgents' | 'tradingBlock' | 'lockerroom' | 'createLeague'
 // import {MainState,GameStateActions,useGameState} from '../context/GameState';
 // import type {GameStateDispatch,GameState, GameStateActions} from '../context/GameState';
 import {useGameState} from '../context/GameState';
@@ -68,6 +68,9 @@ const Menus: FunctionComponent<Props> = () => {
 
     const routeAndPush = (page:Pages) => {
         switch (page) {
+            case 'createLeague':
+                Router.push('/createLeague');
+                break;
             case 'explorer':
 
                 Router.push('/explorer/3432')
@@ -125,7 +128,7 @@ const Menus: FunctionComponent<Props> = () => {
                 break;     
             case 'createGame':
                 gameStateDispatch({type:'createGame'});
-                Router.push('./createGame');
+                Router.push('/createGame');
                 break;
                 default:
                 break;                                
@@ -165,6 +168,14 @@ const Menus: FunctionComponent<Props> = () => {
                     <button className={gameState.main === 'profile' ? styles.navButtonSecondary : styles.navButton} onClick={() => routeAndPush('profile')}>PROFILE</button>
         
                 </div>
+                {gameState.sub === 'none' &&  
+                    <div className={styles.subMenu}>
+                      <button className={styles.navButton} onClick={() => routeAndPush('lockerroom')}>LOCKERROOM</button>
+                      <button className={styles.navButton} onClick={() => routeAndPush('tradingBlock')}>TRADING BLOCK</button>
+                      <button className={styles.navButton} onClick={() => routeAndPush('freeAgents')}>FREE AGENTS</button>
+                      <button className={styles.navButton} onClick={() => routeAndPush('store')}>STORE</button>
+                  </div>
+                }
                 {gameState.sub === 'lobby' &&       
                     <div className={styles.subMenu}>
                         <button className={styles.navButton} onClick={() => routeAndPush('createGame')}>CREATE</button>
@@ -229,14 +240,18 @@ const Menus: FunctionComponent<Props> = () => {
                       <button className={styles.navButton} onClick={() => routeAndPush('store')}>STORE</button>
                   </div>
                 }
-                {gameState.sub === 'none' &&  
-                    <div className={styles.subMenu}>
-                      <button className={styles.navButton} onClick={() => routeAndPush('lockerroom')}>LOCKERROOM</button>
-                      <button className={styles.navButton} onClick={() => routeAndPush('tradingBlock')}>TRADING BLOCK</button>
-                      <button className={styles.navButton} onClick={() => routeAndPush('freeAgents')}>FREE AGENTS</button>
-                      <button className={styles.navButton} onClick={() => routeAndPush('store')}>STORE</button>
-                  </div>
+             
+                {gameState.sub === 'leagues' && 
+                <div className={styles.subMenu}>
+                     <button className={styles.navButton} onClick={() => routeAndPush('createLeague')}>CREATE A LEAGUE:</button>
+                </div>
                 }
+                {gameState.sub === 'leagueId' && 
+                <div className={styles.subMenu}>
+                    <h2>Leagues ID.</h2>
+                </div>
+                }
+                
             </>
         )
     }
