@@ -191,8 +191,52 @@ const Message = (props:MessageCompType) => {
     }
 
   }
-
+  const goToLeague = (leagueId:string) => {
+    Router.push(`/league/${leagueId}`);
+  }
   switch (props.msg.type) {
+    case 'leagueInvite':
+      return (
+        <div className={styles.rinkDiv}>
+          
+                <p>{props.msg.message}</p>
+                <hr className={styles.smallRedLine}/>
+                <p>{props.msg.type}</p>
+                <p>Regarding: {props.msg.regarding}</p>
+                <hr className={styles.blueLine}/>
+                <p>League Invite!</p>
+       
+                <hr className={styles.centerLine}/>
+                <button className={styles.pfButton} onClick={() => props.accept(props.msg)}>ACCEPT</button>
+                <hr className={styles.blueLine}/>
+                <button className={styles.pfButton} onClick={() => props.decline(props.msg)}>DECLINE</button>
+                <hr className={styles.smallRedLine}/>
+    
+      
+        </div>
+      )
+    case 'leagueJoined':
+      return (
+        <div className={styles.rinkDiv}>
+          
+                <p>{props.msg.message}</p>
+                <hr className={styles.smallRedLine}/>
+                <p>A team joined league: {props.msg.regarding}!</p>
+               
+                <hr className={styles.blueLine}/>
+               
+                <p>details...</p>
+                <hr className={styles.centerLine}/>
+                <p>details...</p>
+                <hr className={styles.blueLine}/>
+                <button className={styles.pfButton} onClick={() => goToLeague(props.msg.regarding)}>GO THERE →</button>
+
+                <hr className={styles.smallRedLine}/>
+                <button className={styles.pfButton} onClick={() => props.exit(props.msg)}>CLEAR</button>
+    
+      
+        </div>
+      )  
     case 'offer':
       return (
         <div className={styles.rinkDiv}>

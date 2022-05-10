@@ -299,7 +299,7 @@
   justify-content: center;
   align-items: center;
   border-radius: 5px;
-  border: 1px solid white;
+  border: 1px solid var(--thirdColor);
 }
 .pfButtonSecondary {
   background-color: var(--secondaryColor);
@@ -311,18 +311,18 @@
   z-index: inherit;
 }
 hr.blueLine {
-  border: 6px solid blue;
+  border: 6px solid rgb(56, 41, 224);
   width: 100%;
   border-radius: 5px;
 }
 
 hr.centerLine {
-  border: 10px solid red;
+  border: 9px solid rgb(210, 52, 52);
   border-radius: 5px;
   width: 100%;
 }
 hr.smallRedLine {
-  border: 2px solid red;
+  border: 2px solid rgb(210, 52, 52);
   border-radius: 5px;
   width: 100%;
 }

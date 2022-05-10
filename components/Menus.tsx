@@ -69,6 +69,7 @@ const Menus: FunctionComponent<Props> = () => {
     const routeAndPush = (page:Pages) => {
         switch (page) {
             case 'createLeague':
+                gameStateDispatch({type:'createLeague'});
                 Router.push('/createLeague');
                 break;
             case 'explorer':
@@ -248,10 +249,16 @@ const Menus: FunctionComponent<Props> = () => {
                 }
                 {gameState.sub === 'leagueId' && 
                 <div className={styles.subMenu}>
-                    <h2>Leagues ID.</h2>
+                    <h2>League Deets...</h2>
+                </div>
+                }
+                {gameState.sub === 'createLeague' && 
+                <div className={styles.subMenu}>
+                    <h2>Set League Options:</h2>
                 </div>
                 }
                 
+
             </>
         )
     }

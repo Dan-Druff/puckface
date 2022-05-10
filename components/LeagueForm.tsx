@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { LeagueType, TxType } from "../utility/constants";
+import { LeagueTeam, LeagueType, TxType } from "../utility/constants";
 import { useAuth } from "../context/AuthContext";
 import { createRandomId, dateReader, dealWithDate } from "../utility/helpers";
 import styles from '../styles/All.module.css';
@@ -49,6 +49,17 @@ const LeagueForm = () => {
             wk.playoffs = playoffs;
             wk.public = !privateLeague;
             if(userData === null || userData.userEmail === null)throw new Error("Errro user data");
+            // create LeagueTeam
+            const lt : LeagueTeam = {
+                losses:0,
+                owner:userData.userEmail,
+                schedule:[],
+                teamName:'Default Name',
+                ties:0,
+                wins:0
+            }
+            wk.teams = [lt];
+            // add League team
             const addRes = await addLeagueToDB(wk);
             const addIdRes = await addIdToUsersLeagueArrayDB(userData.userEmail,wk.id);
             if(addRes === false || addIdRes === false)throw new Error("error adding league");

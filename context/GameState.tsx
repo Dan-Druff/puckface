@@ -8,6 +8,10 @@ const GameStateContext = createContext<{gameState:GameState;gameStateDispatch:Ga
 function gameStateReducer(state:GameState,action:GameStateActions){
 
     switch (action.type) {
+        case 'createLeague':
+            state.main = 'none';
+            state.sub = 'createLeague';
+            return state;
         case 'leagueId':
             state.main = 'leagueId';
             state.sub = 'leagueId';

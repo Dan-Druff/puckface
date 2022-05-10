@@ -2,7 +2,7 @@ import { createContext, ReactNode, useContext, useReducer, useState, useRef } fr
 import { db } from "../firebase/clientApp";
 import {doc,getDoc,setDoc,collection,getDocs,updateDoc, arrayUnion, arrayRemove} from 'firebase/firestore';
 import { createRandomId,gameIsOver,makeTeam, getIpfsUrl,getPlayerFromToken } from "../utility/helpers";
-import type { StringBool,DashDispatch,DashboardActions, GamePosition, Rarity, LeagueType } from "../utility/constants";
+import type { StringBool,DashDispatch,DashboardActions, GamePosition, Rarity, LeagueType, LeagueTeam } from "../utility/constants";
 import { useNHL } from "./NHLContext";
 import { useAuth } from "./AuthContext";
 import { 
@@ -679,6 +679,7 @@ export const puckfaceLog = async(tx:TxType):Promise<boolean> => {
         const toRef = doc(db,'transactions',tx.to);
         let txObj :any = {};
         switch (tx.type) {
+          
             case 'removeFreeAgent':
                 txObj.regarding = tx.regarding;
                 txObj.by = tx.by;
@@ -877,6 +878,21 @@ export const puckfaceLog = async(tx:TxType):Promise<boolean> => {
                 })
                 break;
             case 'joinLeague':
+                txObj.regarding = tx.regarding;
+                txObj.by = tx.by;
+                txObj.id = tx.id;
+                txObj.type = tx.type;
+                txObj.from = tx.from;
+                txObj.to = tx.to;
+                txObj.state = tx.state;
+                txObj.when = tx.when;
+                txObj.value = tx.value;
+                txObj.tx = tx.tx;
+                txObj.tokens = tx.tokens;
+                txObj.freeAgentToken = tx.freeAgentToken;
+                await updateDoc(toRef,{
+                    transactions:arrayUnion(txObj)
+                })
                 break;
             case 'loseGame':
                 break;
@@ -1011,7 +1027,7 @@ export const getLeagueFromDB = async(id:string):Promise<LeagueType | false> => {
      return false;
    }
 }
-export const getOpenLeagues = async():Promise<LeagueType[] | false> => {
+export const getOpenLeagues = async(email:string):Promise<LeagueType[] | false> => {
    try {
     const leagueSnapshot = await getDocs(collection(db,'leagues'));
     let leagueArray:LeagueType[] = [];
@@ -1019,32 +1035,50 @@ export const getOpenLeagues = async():Promise<LeagueType[] | false> => {
         let d = league.data();
 
         if(d.open){
-            
-            let obj:LeagueType = {
-                buyIn:d.buyIn,
-                champValue:d.champValue,
-                coffer:d.coffer,
-                created:d.created,
-                endDate:d.endDate,
-                id:d.id,
-                name:d.name,
-                numberOfTeams:d.numberOfTeams,
-                open:d.open,
-                owner:d.owner,
-                perGame:d.perGame,
-                playoffs:d.playoffs,
-                public:d.playoffs,
-                results:d.results,
-                schedule:d.schedule,
-                startDate:d.startDate,
-                targetDate:d.targetDate,
-                teams:d.teams
+            let tt : LeagueTeam[] = d.teams;
+            tt = tt.filter(t => t.owner === email);
+            if(tt.length === 0){
+                let obj:LeagueType = {
+                    buyIn:d.buyIn,
+                    champValue:d.champValue,
+                    coffer:d.coffer,
+                    created:d.created,
+                    endDate:d.endDate,
+                    id:d.id,
+                    name:d.name,
+                    numberOfTeams:d.numberOfTeams,
+                    open:d.open,
+                    owner:d.owner,
+                    perGame:d.perGame,
+                    playoffs:d.playoffs,
+                    public:d.playoffs,
+                    results:d.results,
+                    schedule:d.schedule,
+                    startDate:d.startDate,
+                    targetDate:d.targetDate,
+                    teams:d.teams
+                }
+                leagueArray.push(obj);
             }
-            leagueArray.push(obj);
+   
+  
         }
         
     })
+    
      return leagueArray;
+   }catch(er){
+     console.log(`🚦Error: ${er}🚦`)
+     return false;
+   }
+}
+export const addTeamToLeagueDB = async(leagueId:string,team:LeagueTeam):Promise<boolean> => {
+   try {
+    const dbRef = doc(db,'leagues',leagueId);
+    await updateDoc(dbRef,{
+        teams:arrayUnion(team)
+    })
+     return true;
    }catch(er){
      console.log(`🚦Error: ${er}🚦`)
      return false;
@@ -1331,6 +1365,9 @@ export const DashboardProvider = ({children}:{children:ReactNode}) => {
 
     function dashboardReducer(state:DashboardType, action:DashboardActions){
         switch (action.type) {
+            case 'joinLeague':
+                setActiveLeagues([action.payload.id, ...activeLeagues]);
+                return state;
             case 'enterPuckEscrow':
                 setPucks(action.payload.amount);
                 return state;

@@ -424,6 +424,7 @@ const Dashboard: NextPage = () => {
        }
     }
     const goThere = (leagueId:string) => {
+        gameStateDispatch({type:'leagueId'});
         Router.push(`/league/${leagueId}`);
     }    
     return (

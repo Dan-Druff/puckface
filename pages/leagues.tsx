@@ -5,18 +5,27 @@ import {useState, useEffect} from 'react';
 import { useRouter } from 'next/router'
 import { useDashboard, getOpenLeagues } from '../context/DashboardContext'
 import { LeagueType } from '../utility/constants';
-
+import { useAuth } from '../context/AuthContext';
 const Leagues: NextPage = () => {
+    const {userData} = useAuth();
     const Router = useRouter();
     const {activeLeagues} = useDashboard();
     const [openLeagues,setOpenLeagues] = useState<LeagueType[]>([]);
-    const goToCreate = () => {
-     Router.push('/createLeague');
+   
+    const goToLeague = (lId:string) => {
+       try {
+        Router.push(`/league/${lId}`);
+         return;
+       }catch(er){
+         console.log(`🚦Error: ${er}🚦`)
+         return;
+       }
     }
     useEffect(() => {
       const initLeagues = async() => {
          try {
-            const ls = await getOpenLeagues();
+             if(userData === null || userData.userEmail === null)throw new Error("Error UD");
+            const ls = await getOpenLeagues(userData.userEmail);
             if(ls === false)throw new Error("Error getting open leagues");
             setOpenLeagues(ls);
            return;
@@ -45,7 +54,7 @@ const Leagues: NextPage = () => {
                     return (
                         <div key={al} className={styles.nhlTick}>
                             <p>League: {al}</p>
-                            <button className={styles.pfButton} onClick={() => goToCreate()}>Go There →</button>
+                            <button className={styles.pfButton} onClick={() => goToLeague(al)}>Go There →</button>
                         </div>
                     )
                 })}
@@ -60,12 +69,13 @@ const Leagues: NextPage = () => {
             <h2>OPEN LEAGUES:</h2>
             {openLeagues.length > 0 ? 
             <>
+      
                 {openLeagues.map((l) => {
                     return (
                         <div key={l.id} className={styles.nhlTick}>
                             <p>Name: {l.name}</p>
                             <p>Value: {l.champValue}</p>
-                            <button className={styles.pfButton}>Go There →</button>
+                            <button className={styles.pfButton} onClick={() => goToLeague(l.id)}>Go There →</button>
                         </div>
                     )
                 })}
