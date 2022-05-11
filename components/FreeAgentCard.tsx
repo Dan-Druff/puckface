@@ -1,7 +1,7 @@
 import styles from '../styles/All.module.css';
 import Image from 'next/image'
-import { useDashboard, removeFromFreeAgents,logOnTheFire, sendMsgToUser, puckfaceLog, clearTxByIdAndUser } from '../context/DashboardContext';
-import { FreeAgentCardType, FreeAgentType, LogActionType, MessageType, NoteType, TxType } from '../utility/constants';
+import { useDashboard, removeFromFreeAgents, sendMsgToUser, puckfaceLog, clearTxByIdAndUser } from '../context/DashboardContext';
+import { FreeAgentCardType, FreeAgentType, MessageType, NoteType, TxType } from '../utility/constants';
 import { createRandomId, getPlayerFromToken } from '../utility/helpers';
 import { useNHL } from '../context/NHLContext';
 import { useRouter } from 'next/router';
