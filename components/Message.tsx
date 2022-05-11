@@ -195,6 +195,44 @@ const Message = (props:MessageCompType) => {
     Router.push(`/league/${leagueId}`);
   }
   switch (props.msg.type) {
+    case 'inviteDeclined':
+      return (
+        <div className={styles.rinkDiv}>
+          
+                <p>{props.msg.message}</p>
+                <hr className={styles.smallRedLine}/>
+                <p>{props.msg.type}</p>
+                <p>Regarding: {props.msg.regarding}</p>
+                <hr className={styles.blueLine}/>
+                <p>Invite Declined</p>
+       
+                <hr className={styles.centerLine}/>
+                <hr className={styles.blueLine}/>
+                <button className={styles.pfButton} onClick={() => props.exit(props.msg)}>Got It</button>
+                <hr className={styles.smallRedLine}/>
+    
+      
+        </div>
+      )
+    case 'inviteAccepted':
+      return (
+        <div className={styles.rinkDiv}>
+          
+                <p>{props.msg.message}</p>
+                <hr className={styles.smallRedLine}/>
+                <p>{props.msg.type}</p>
+                <p>Regarding: {props.msg.regarding}</p>
+                <hr className={styles.blueLine}/>
+                <p>Invite Accepted</p>
+       
+                <hr className={styles.centerLine}/>
+                <hr className={styles.blueLine}/>
+                <button className={styles.pfButton} onClick={() => props.exit(props.msg)}>COOL</button>
+                <hr className={styles.smallRedLine}/>
+    
+      
+        </div>
+      )  
     case 'leagueInvite':
       return (
         <div className={styles.rinkDiv}>

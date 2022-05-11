@@ -12,8 +12,8 @@ export type NHLGamesArray = NHLGame[];
 export type DashboardType = CardType[];
 export type DashDispatch = (action:DashboardActions) => void;
 // export type MessageTypeStrings = 'counterOffer' | 'declineOffer' | 'acceptOffer'
-export type TxTypeStrings = 'signup' | 'buyPucks' | 'buyCards' | 'createGame' | 'joinGame' | 'winGame' | 'loseGame' | 'tieGame' | 'submitFreeAgent' | 'buyFreeAgent' | 'submitOffer' | 'acceptOffer' | 'counterOffer' | 'declineOffer' | 'createLeague' | 'joinLeague' | 'removeFreeAgent';
-export type MsgTypeStrings = 'offer' | 'offerAccepted' | 'offerDeclined' | 'sold' | 'gameOverW' | 'gameOverL' | 'gameOverT' | 'gameJoined' | 'leagueJoined' | 'leagueInvite';
+export type TxTypeStrings = 'signup' | 'buyPucks' | 'buyCards' | 'createGame' | 'joinGame' | 'winGame' | 'loseGame' | 'tieGame' | 'submitFreeAgent' | 'buyFreeAgent' | 'submitOffer' | 'acceptOffer' | 'counterOffer' | 'declineOffer' | 'createLeague' | 'joinLeague' | 'removeFreeAgent' | 'invitePlayer' | 'acceptInvite';
+export type MsgTypeStrings = 'offer' | 'offerAccepted' | 'offerDeclined' | 'sold' | 'gameOverW' | 'gameOverL' | 'gameOverT' | 'gameJoined' | 'leagueJoined' | 'leagueInvite' | 'inviteDeclined' | 'inviteAccepted';
 
 
 // ---------------  ACTION TYPES -------------

@@ -679,7 +679,22 @@ export const puckfaceLog = async(tx:TxType):Promise<boolean> => {
         const toRef = doc(db,'transactions',tx.to);
         let txObj :any = {};
         switch (tx.type) {
-          
+            case 'invitePlayer':
+                txObj.regarding = tx.regarding;
+                txObj.by = tx.by;
+                txObj.id = tx.id;
+                txObj.type = tx.type;
+                txObj.from = tx.from;
+                txObj.to = tx.to;
+                txObj.state = tx.state;
+                txObj.when = tx.when;
+                txObj.value = tx.value;
+                txObj.tx = tx.tx;
+                txObj.tokens = tx.tokens;
+                await updateDoc(toRef,{
+                    transactions:arrayUnion(txObj)
+                })
+                break;
             case 'removeFreeAgent':
                 txObj.regarding = tx.regarding;
                 txObj.by = tx.by;

@@ -8,7 +8,7 @@ import DatePicker from "react-datepicker";
 import ToggleSwitch from "./ToggleSwitch";
 import { useRouter } from "next/router";
 import { useGameState } from "../context/GameState";
-import { addIdToUsersLeagueArrayDB, addLeagueToDB, puckfaceLog } from "../context/DashboardContext";
+import { addIdToUsersLeagueArrayDB, addLeagueToDB, puckfaceLog,useDashboard } from "../context/DashboardContext";
 const LeagueForm = () => {
     const today = dateReader(new Date);
     const todForm = `${today.yearNumber.toString()}-${today.monthNumber.toString()}-${today.dayNumber.toString()}`;
@@ -22,7 +22,7 @@ const LeagueForm = () => {
     const [daily,setDaily] = useState<boolean>(true);
     const Router = useRouter();
     const {gameStateDispatch} = useGameState();
-
+    const {dashboardDispatch} = useDashboard();
     const nextStep = (e:any) => {
         e.preventDefault();
         setStep(step + 1);
@@ -79,6 +79,7 @@ const LeagueForm = () => {
 
             }
             puckfaceLog(t);
+            dashboardDispatch({type:'joinLeague',payload:{id:wk.id}});
             setStep(7);
         } catch (er) {
             console.log("Error Submitting League: ",er);

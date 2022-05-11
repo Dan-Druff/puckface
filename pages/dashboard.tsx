@@ -1,6 +1,6 @@
 import type { NextPage } from 'next'
 import styles from '../styles/All.module.css'
-import { removeTokenFromUsersTradeArrayDB, sendMsgToUser, useDashboard,clearMsgByIdAndUser,clearTxByIdAndUser,getFreeAgents,getUsersPucksFromDB,getUsersTokensFromDB,confirmUserData,updateUsersPucksAndTokensInDB,removeFromFreeAgents, puckfaceLog, updateUsersPucksInDB, updateUsersTokensInDB} from '../context/DashboardContext'
+import { removeTokenFromUsersTradeArrayDB, sendMsgToUser, useDashboard,clearMsgByIdAndUser,clearTxByIdAndUser,getFreeAgents,getUsersPucksFromDB,getUsersTokensFromDB,confirmUserData,updateUsersPucksAndTokensInDB,removeFromFreeAgents, puckfaceLog, updateUsersPucksInDB, updateUsersTokensInDB, addIdToUsersLeagueArrayDB, addTeamToLeagueDB} from '../context/DashboardContext'
 import { useGameState } from '../context/GameState'
 import AuthRoute from '../hoc/authRoute'
 // import LobbyGameCard from '../components/LobbyGameCard'
@@ -8,7 +8,7 @@ import DashLobbyGameCard from '../components/DashLobbyGameCard'
 import BenchCard from '../components/BenchCard'
 import { useRouter } from 'next/router'
 import Loader from '../components/Loader'
-import { GamePosition,MessageType, LogActionType, NHLGame, CardType, NoteType, TxType } from '../utility/constants'
+import { GamePosition,MessageType, LogActionType, NHLGame, CardType, NoteType, TxType, LeagueTeam } from '../utility/constants'
 import { useAuth } from '../context/AuthContext'
 import Message from '../components/Message';
 import { createRandomId, getIpfsUrl,getPlayerFromToken } from '../utility/helpers'
@@ -35,8 +35,79 @@ const Dashboard: NextPage = () => {
     }
     const acceptMessage = async(msg:MessageType) => {
         try {
-            console.log("ACEPPTING MSG: ", msg.id);
+            if(userData === null || userData.userEmail === null)throw new Error("Error ud");            
+            const tId = createRandomId();
             switch (msg.type) {
+                case 'leagueInvite':
+                    const mInviteAccept : MessageType = {
+                        by:userData.userEmail,
+                        id:tId,
+                        message:"YES! I joined your league Lets GO!!!",
+                        regarding:msg.id,
+                        tokens:[],
+                        type:'inviteAccepted',
+                        value:0,
+                        when:new Date(),
+                        state:'open',
+                        tx:false
+                    }
+                    sendMsgToUser(mInviteAccept,msg.by);
+                    const txAcceptToInviter : TxType = {
+                        by:userData.userEmail,
+                        from:userData.userEmail,
+                        id:tId,
+                        regarding:msg.id,
+                        state:'closed',
+                        to:msg.by,
+                        tokens:[],
+                        tx:true,
+                        type:'acceptInvite',
+                        value:0,
+                        when:new Date,
+                        freeAgentToken:0
+                    }
+                    const txAcceptLocal : TxType = {
+                        by:userData.userEmail,
+                        from:msg.by,
+                        id:tId,
+                        regarding:msg.id,
+                        state:'closed',
+                        to:userData.userEmail,
+                        tokens:[],
+                        tx:true,
+                        type:'acceptInvite',
+                        value:0,
+                        when:new Date,
+                        freeAgentToken:0
+                    }
+                    puckfaceLog(txAcceptToInviter);
+                    puckfaceLog(txAcceptLocal);
+                    const clearTx = await clearTxByIdAndUser(msg.id, msg.by);
+                    if(clearTx === false){
+                        console.log(`Error clearing Tx `);
+                    }
+                    const dbRes = await addIdToUsersLeagueArrayDB(userData.userEmail, msg.id);
+                    if(dbRes === false){
+                        console.log(`Error adding id to users league array`);
+                    }
+                    const lgt : LeagueTeam = {
+                        losses:0,
+                        owner:userData.userEmail,
+                        schedule:[],
+                        teamName:userData.userEmail,
+                        ties:0,
+                        wins:0
+                    }
+                    const teamRes = await addTeamToLeagueDB(msg.regarding,lgt);
+                    if(teamRes === false){
+                        console.log(`Error Adding Team To League DB`);
+                    }
+                    clearMsgByIdAndUser(msg.id,userData.userEmail);
+                    dashboardDispatch({type:'clearMessage',payload:{id:msg.id}});
+                    dashboardDispatch({type:'joinLeague',payload:{id:msg.regarding}});
+                    gameStateDispatch({type:'leagueId'});
+                    Router.push(`/league/${msg.regarding}`);
+                    break;
                 case 'offer':
                     // find full tx obj / free agent 
                     if(userData === null || userData.userEmail === null)throw new Error("Error User Data");
@@ -294,98 +365,119 @@ const Dashboard: NextPage = () => {
     const declineMessage = async(msg:MessageType) => {
     
         try {
-            console.log("DECLINING MSG: ", msg.id);
-            // Create Message object
+
             if(userData === null || userData.userEmail === null)throw new Error("Error userdata");
-            const m : MessageType = {
-                by:userData.userEmail,
-                id:createRandomId(),
-                message:"No Thanks",
-                regarding:msg.id,
-                tokens:[],
-                type:'offerDeclined',
-                value:0,
-                when:new Date(),
-                state:'open',
-                tx:false
-            }
 
-            // send message object
-            const mRes = await sendMsgToUser(m,msg.by);
-            if(mRes === false)throw new Error("Error sending message");
+            switch (msg.type) {
+                case 'offerDeclined':
+                
+                    const m : MessageType = {
+                        by:userData.userEmail,
+                        id:createRandomId(),
+                        message:"No Thanks",
+                        regarding:msg.id,
+                        tokens:[],
+                        type:'offerDeclined',
+                        value:0,
+                        when:new Date(),
+                        state:'open',
+                        tx:false
+                    }
+        
+                    // send message object
+                    const mRes = await sendMsgToUser(m,msg.by);
+                    if(mRes === false)throw new Error("Error sending message");
+        
+                    const up = await getUsersPucksFromDB(msg.by);
+                    // Needsom erreor checking here
+                    const newPuck = up + msg.value;
+                    const upNew = await updateUsersPucksInDB(msg.by,newPuck);
+                    if(upNew === false)throw new Error("errior updating pucks");
+                    const tokRes = await Promise.all(msg.tokens.map(async(t) => {
+                        return await removeTokenFromUsersTradeArrayDB(msg.by,t);
+                    }))
+                    tokRes.forEach((tk) => {
+                        if(tk === false)throw new Error("Error removing tokens from users tradeArray DB");
+                    })
+                    // Deal with old transaction? BEST WAY TO CLOSE STATE OF FREE AGENT OFFER IN DB??
+                    // Deal with 'luigis' transaction state
+                    console.log("Clearing tx id: ",msg.id);
+                    console.log("By User: ", msg.by);
+                    const luigisTx = await clearTxByIdAndUser(msg.id,msg.by);
+                    if(luigisTx === false)throw new Error("Error updating luigis tx");
+                    // create log
+        
+                   const tempId = createRandomId();
+                    const marioTx: TxType = {
+                        by:userData.userEmail,
+                        from:userData.userEmail,
+                        id:tempId,
+                        regarding:msg.regarding,
+                        state:'closed',
+                        to:userData.userEmail,
+                        tokens:msg.tokens,
+                        tx:true,
+                        type:'declineOffer',
+                        value:msg.value,
+                        when:new Date()
+                      
+                    }
+                    const luigiTx : TxType = {
+                        by:userData.userEmail,
+                        from:userData.userEmail,
+                        id:tempId,
+                        regarding:msg.regarding,
+                        state:'closed',
+                        to:msg.by,
+                        tokens:msg.tokens,
+                        tx:true,
+                        type:'declineOffer',
+                        value:msg.value,
+                        when:new Date()
+                    }
+      
+        
+                    // remove message from db  
+                    const mTx = await puckfaceLog(marioTx);
+                    const lTx = await puckfaceLog(luigiTx);
+                    if(mTx === false || lTx === false){
+                        console.log("Error With Transactions");
+                    }
+                    const c = await clearMsgByIdAndUser(msg.id,userData.userEmail);
+                    if(c === false)throw new Error("Error clearing message");
+                    
+                    // remove message from state
+                    dashboardDispatch({type:'clearMessage',payload:{id:msg.id}});
+        
+                    
+                    return true;
+                    
+                case 'leagueInvite':
+                    const mInvite : MessageType = {
+                        by:userData.userEmail,
+                        id:createRandomId(),
+                        message:"No Thanks",
+                        regarding:msg.id,
+                        tokens:[],
+                        type:'inviteDeclined',
+                        value:0,
+                        when:new Date(),
+                        state:'open',
+                        tx:false
+                    }
+                    const c2 = await clearMsgByIdAndUser(msg.id,userData.userEmail);
+                    if(c2 === false)throw new Error("Error clearing message");
 
-            const up = await getUsersPucksFromDB(msg.by);
-            // Needsom erreor checking here
-            const newPuck = up + msg.value;
-            const upNew = await updateUsersPucksInDB(msg.by,newPuck);
-            if(upNew === false)throw new Error("errior updating pucks");
-            const tokRes = await Promise.all(msg.tokens.map(async(t) => {
-                return await removeTokenFromUsersTradeArrayDB(msg.by,t);
-            }))
-            tokRes.forEach((tk) => {
-                if(tk === false)throw new Error("Error removing tokens from users tradeArray DB");
-            })
-            // Deal with old transaction? BEST WAY TO CLOSE STATE OF FREE AGENT OFFER IN DB??
-            // Deal with 'luigis' transaction state
-            console.log("Clearing tx id: ",msg.id);
-            console.log("By User: ", msg.by);
-            const luigisTx = await clearTxByIdAndUser(msg.id,msg.by);
-            if(luigisTx === false)throw new Error("Error updating luigis tx");
-            // create log
-
-           const tempId = createRandomId();
-            const marioTx: TxType = {
-                by:userData.userEmail,
-                from:userData.userEmail,
-                id:tempId,
-                regarding:msg.regarding,
-                state:'closed',
-                to:userData.userEmail,
-                tokens:msg.tokens,
-                tx:true,
-                type:'declineOffer',
-                value:msg.value,
-                when:new Date()
-              
-            }
-            const luigiTx : TxType = {
-                by:userData.userEmail,
-                from:userData.userEmail,
-                id:tempId,
-                regarding:msg.regarding,
-                state:'closed',
-                to:msg.by,
-                tokens:msg.tokens,
-                tx:true,
-                type:'declineOffer',
-                value:msg.value,
-                when:new Date()
-            }
-
-            // const l : LogActionType = {
-            //     type:'declineFreeAgentOffer',
-            //     payload:{
-            //         id:msg.id
-            //     }
-            // }
-            // // send log
-            // const logRes = await logOnTheFire(l);
-            // if(logRes === false)throw new Error("Error Logging");
-
-            // remove message from db  
-            const mTx = await puckfaceLog(marioTx);
-            const lTx = await puckfaceLog(luigiTx);
-            if(mTx === false || lTx === false){
-                console.log("Error With Transactions");
-            }
-            const c = await clearMsgByIdAndUser(msg.id,userData.userEmail);
-            if(c === false)throw new Error("Error clearing message");
+                    sendMsgToUser(mInvite,msg.by);
+                    clearTxByIdAndUser(msg.id,msg.by);
+                    dashboardDispatch({type:'clearMessage',payload:{id:msg.id}});
+                    break;    
             
-            // remove message from state
-            dashboardDispatch({type:'clearMessage',payload:{id:msg.id}});
-
-            
-            return true;
+                default:
+                    throw new Error("Error switch statement");
+                    
+            }
+         
         } catch (er) {
             console.log("Error: ", er);
             return false;
@@ -443,12 +535,12 @@ const Dashboard: NextPage = () => {
                 <hr className={styles.smallRedLine}/>
            
                 <div className={styles.contentContainer}>
-                    <h1>{displayName} has &#36;{pucks} Pucks.</h1>
+                    <h1>{displayName}: &#36;{pucks}</h1>
                 </div>
                 <hr className={styles.blueLine}/>
             
                 <div className={styles.contentContainerColumn}>
-                    <h3>MESSAGES:</h3>
+                <h2>⬇ MESSAGES ⬇</h2>
                     {messages.length > 0 ? 
                     <>
                         
@@ -461,6 +553,7 @@ const Dashboard: NextPage = () => {
                     : 
                     <h3>You have NO messages.</h3>
                     }
+                    <button className={styles.pfButton}>SEND MESSAGE →</button>
                 </div>
                 <hr className={styles.centerLine}/>
         
@@ -483,13 +576,16 @@ const Dashboard: NextPage = () => {
          
              </>
              :
-             <h2>NO GAMES TO SHOW</h2>
+             <>
+              <h2>⬇ ACTIVE GAMES ⬇</h2>
+             <h4>NO GAMES TO SHOW</h4>
+             </>
              }
                 </div>
                 <hr className={styles.blueLine}/>
                
                 <div className={styles.contentContainerColumn}>
-                    <h2>Active Leagues:</h2>
+                <h2>⬇ ACTIVE LEAGUES ⬇</h2>
                     {activeLeagues.length > 0 ? 
                     <>
                         {activeLeagues.map((al) => {
@@ -502,7 +598,7 @@ const Dashboard: NextPage = () => {
                         })}
                     </> 
                     : 
-                    <p>No Active Leagues</p>
+                    <h4>No Active Leagues</h4>
                     }
                 </div>
                 <hr className={styles.smallRedLine}/>
@@ -521,8 +617,10 @@ const Dashboard: NextPage = () => {
                     </> 
                     : 
                     <div className={styles.contentContainerColumn}>
-                        <h2>Welcome Puck Face! 🏒 </h2>
-                        <h2>Checkout the store to start playing... 🥅</h2>
+                           <h2>⬇ ALL CARDS ⬇</h2>
+                        <h3>🥅 Welcome Puck Face! 🏒 </h3>
+                        <h3>You need somne cards to get started.</h3>
+                        <button className={styles.pfButton} onClick={() => Router.push('/store')}>GET CARDS</button>
                     </div>
                     }
                 </div>

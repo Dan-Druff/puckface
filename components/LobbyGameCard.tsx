@@ -231,7 +231,7 @@ const LobbyGameCard = ({game}:{game:GameType}) => {
                 <p>{c}</p>
                 <p>${game.value.toString()} each</p>
                 <p>{game.gameState}</p>
-                <button className={styles.pfButtonSecondary} onClick={() => goToGame(game)}>GO TO GAME</button>
+                <button className={styles.pfButtonSecondary} onClick={() => goToGame(game)}>GO TO GAME →</button>
     
             </div>
         ) 
