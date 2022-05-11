@@ -271,7 +271,8 @@ export interface PostLoginReturnType {
         activeGames:string[],
         activeLeagues:string[],
         userId:string,
-        tradeArray:number[]
+        tradeArray:number[],
+        friends:string[]
     },
     activeGames:GameType[],
     messages:MessageType[]

@@ -58,7 +58,8 @@ export interface AllDashType {
     tradeArray:number[],
     addToTradeArrayDB:(tokenId:number) => Promise<boolean>,
     buyFreeAgent:(agent:FreeAgentType) => Promise<boolean>,
-    messages:MessageType[]
+    messages:MessageType[],
+    friends:string[]
 }
 // -----------------------------Types UP ^------------------------------
 // FUNCTIONS THAT DONT NEED STATE--------------------
@@ -102,7 +103,8 @@ export const postSignup = async(email:string, username:string):Promise<false | P
                     username:email,
                     activeGames:[],
                     userId:rando,
-                    tradeArray:[]
+                    tradeArray:[],
+                    friends:[]
                 })
             
                 dName = email;
@@ -114,7 +116,8 @@ export const postSignup = async(email:string, username:string):Promise<false | P
                     username:username,
                     activeGames:[],
                     userId:rando,
-                    tradeArray:[]
+                    tradeArray:[],
+                    friends:[]
                 })
                 dName = username;
             
@@ -1099,262 +1102,8 @@ export const addTeamToLeagueDB = async(leagueId:string,team:LeagueTeam):Promise<
      return false;
    }
 }
-// export const logOnTheFire = async(log:LogActionType):Promise <boolean> => {
-//     try {
-//         // Do something to Log With here. DB solution????
-//         switch (log.type) {
-//             case 'acceptedOffer':
-//                 let ots = {
-//                     type:log.type,
-//                     by:log.payload.by,
-//                     from:log.payload.from,
-//                     regarding:log.payload.regarding,
-//                     id:log.payload.id,
-//                     tokens:log.payload.tokens,
-//                     value:log.payload.value,
-//                     when:log.payload.when,
-//                     state:'closed',
-//                     tx:true
-//                 }
-//                 const accRef = doc(db,'transactions',log.payload.from);
-//                 const accRes = await getDoc(accRef);
-//                 if(accRes.exists()){
-//                     const data = accRes.data()
-//                     let newTx = data.transactions;
-//                     if(Array.isArray(newTx)){
-//                         newTx = newTx.map((item) => {
-//                             if(item.id === log.payload.regarding){
-//                                 item.state = 'closed'
-//                             }
-//                             return item;
-//                         })
-//                         newTx.push(ots);
-//                         await updateDoc(accRef,{
-//                             transactions:newTx
-//                         })
-//                     }
-//                 }
-            
-//                 const cleared = await clearTxByIdAndUser(log.payload.regarding,log.payload.from);
-//                 if(cleared === false)throw new Error("Error clearing tx for offerer");
-
-//                 const recRef = doc(db,'transactions',log.payload.by);
-//                 await updateDoc(recRef,{
-//                     transactions:arrayUnion(ots)
-//                 })
-
-//                 break;
-//             case 'declineFreeAgentOffer':
-//                 // should i call the clear tx func here
-//                 // also should i create and save a tx obj? 
-//                 break;
-//             case 'sellCard':
-//                 let objToSave = {
-//                     type:log.type,
-//                     tokenIds:log.payload.tokenIds,
-//                     id:log.payload.id,
-//                     value:log.payload.value,
-//                     when:log.payload.when,
-//                     by:log.payload.by,
-//                     state:log.payload.state,
-//                     to:'',
-//                     tx:true
-//                 }
-//                 const sellCardRef = doc(db,'transactions',log.payload.by);
-//                 await updateDoc(sellCardRef,{
-//                     transactions:arrayUnion(objToSave)
-//                 })
-//                 break;
-//             case 'tradeCard':
-//                 break;
-//             case 'sellOrTradeCard':
-//                 break;
-//             case 'freeAgentOffer':
-//                 const faRef = doc(db,'transactions',log.payload.by);
-//                 const ou = {
-//                     type:log.type,
-//                     by:log.payload.by,
-//                     id:log.payload.id,
-//                     state:log.payload.state,
-//                     to:log.payload.to,
-//                     tokenIds:log.payload.tokenIds,
-//                     value:log.payload.value,
-//                     when:log.payload.when,
-//                     tx:true
-//                 }
-//                 await updateDoc(faRef,{
-
-//                     transactions:arrayUnion(ou)
-//                 })
-//                 break;
-//             case 'buyFreeAgent':
-//                 // update sellers transactions object
-//                 const ref = doc(db,'transactions',log.payload.by);
-//                 const res = await getDoc(ref);
-//                 if(res.exists()){
-//                     const txData = res.data();
-//                     let txa : any[] = [];
-//                     txa = txData.transactions;
-//                     // let txEdit = txData.transactions.filter(t => t.id === log.payload.id);
-//                     let txEdit = txa.filter(t => t.id === log.payload.id);
-
-//                     txEdit[0].state = 'closed';
-//                     txEdit[0].to = log.payload.to;
-//                     txEdit[0].when = log.payload.when;
-//                     // let uxa : any[] = [];
-//                     // uxa = txData.transactions;
-//                     let updTx = txa.filter(t => t.id !== log.payload.id);
-
-//                     // let updTx = txData.transactions.filter(t => t.id !== log.payload.id);
-//                     updTx.push(txEdit[0]);
-//                     await updateDoc(ref,{
-//                         transactions:updTx
-//                     })
-//                     // add log object to buyers transactions
-//                     const bought = {
-//                         type:'boughtAgent',
-//                         tokenIds:log.payload.tokenIds,
-//                         value:log.payload.value,
-//                         when:log.payload.when,
-//                         id:log.payload.id,
-//                         by:log.payload.by,
-//                         state:"closed",
-//                         tx:true
-//                     }
-//                    const buyerRef = doc(db,'transactions',log.payload.to);
-//                    await updateDoc(buyerRef,{
-//                        transactions:arrayUnion(bought)
-//                    })
-//                 }else{
-//                     throw new Error("Doc doesnt exist");
-//                 }
-                
-//                 break;                
-//             case 'buyCards':
-//                 let bc = {
-//                     id:createRandomId(),
-//                     type:'buyCards',
-//                     tokens:log.payload.cards,
-//                     when:log.payload.when,
-//                     tx:true
-//                 }
-//                 const lRef = doc(db,'transactions',log.payload.who);
-//                 await updateDoc(lRef,{
-//                     transactions:arrayUnion(bc)
-//                 })
-//                 break;
-//             case 'buyPucks':
-//                 let obj = {
-//                     id:createRandomId(),
-//                     type:'buyPucks',
-//                     howMany:log.payload.howMany,
-//                     when:log.payload.when,
-//                     tx:true
-//                 }
-//                 const logRef = doc(db,'transactions',log.payload.who);
-//                 await updateDoc(logRef,{
-//                     transactions:arrayUnion(obj)
-//                 })
-//                 // await setDoc(doc(db,'transactions',log.payload.who),{
-//                 //     transactions:obj
-//                 // },{merge:true})
-//                 console.log("LOGGING ON: BUY PUCKS");
-//                 break;
-//             case 'completeGame':
-//                 break;
-//             case 'createGame':
-//                 break;
-//             case 'joinGame':
-//                 break;                
-        
-//             default:
-//                 break;
-//         }
-//         return true;
-//     } catch (er) {
-//        console.log("Lon On The Fire Error"); 
-//        return false;
-//     }
-// }
-
-// export const txFreeAgent = async(agents:FreeAgentType[], id:string,to:string,from:string):Promise<number | false> => {
-//     try {
-//         let myArraySearch = agents.filter(a => a.id === id);
-//         let tokenId = myArraySearch[0].tokenId;
-//         let newFAArray = agents.filter(a => a.id !== id);
-//         const freeAgentsRef = doc(db,'freeAgents','cards');
-//         const fromRef = doc(db,'users',from);
-//         const toRef = doc(db,'users',to);
-
-//         await updateDoc(freeAgentsRef,{
-//             array:newFAArray
-//         })
-//         // await updateDoc(fromRef,{
-//         //     cards:arrayRemove(tokenId)
-//         // })
-//         // await updateDoc(toRef,{
-//         //     cards:arrayUnion(tokenId)
-//         // })
-//         return tokenId;
-//     } catch (er) {
-//         console.log("Error txFreeAgent", er);
-//         return false;
-//     }
-// }
-// export const transferFreeAgent = async(id:string, to:string, from:string):Promise<number | false> => {
-//     try {
-//         const fas = await getFreeAgents();
-//         if(Array.isArray(fas)){
-//             console.log("In Transfer freeagents, fas is array...", fas);
-//             let na = fas.filter(f => f.id === id);
-//             let tokenId = na[0].tokenId;
-//             let newFA = fas.filter(f => f.id !== id);
-//             const od = doc(db,'freeAgents','cards');
-//             await updateDoc(od,{
-//                 array:newFA
-//             })
-//             console.log("Trying to remove " + tokenId + " from " + from);
-//             let uTok = await getUsersTokensFromDB(from);
-//             let ti = uTok.indexOf(tokenId);
-//             if(ti > -1){
-//                 uTok.splice(ti,1);
-//             }
-     
-//             // const userRes = await setDoc(doc(db,'users',from),{
-//             //     cards:uTok
-                
-//             // },{ merge: true });
-//             const seller = doc(db,'users',from);
-//             console.log("By updating doc with this array: ", uTok);
-//             await updateDoc(seller,{
-//                 cards:uTok
-//             })
-//             // const seller = doc(db,'users',from);
-//             // await updateDoc(seller,{
-//             //     cards:arrayRemove(tokenId)
-//             // })
-//             console.log("Trying to add " + tokenId + " to " + to);
-
-//             const ur = doc(db,'users',to);
-//             await updateDoc(ur,{
-//                 cards:arrayUnion(tokenId)
-//             })
-//             return tokenId;
-//             // remove free agent token from db
-
-//             //remove free agent token from state
-//         }else{
-//             throw new Error("Error getting free agents");
-//         }
-       
-//     } catch (er) {
-//         console.log("Error transferring free agent",er);
-//         return false;
-//     }
-// }
-
-// ----------------------------- <MEAT AND POTOTOS> -----------------------------
-const DashboardContext = createContext<AllDashType>({dashboard:[], pucks:0, dashboardDispatch:DefDashDisp,displayName:'NA',activeGames:[],activeLeagues:[],tokens:[],editing:false, notification:null, postLogin:DefPostLog, getPlayersFromTokenArray:DefGetPlayersFromTokenArray,getPacket:DefGetPacket, availableGuys:[], currentGame:blankGame, team:blankTeam, oppTeam:blankTeam, prevPlayer:nobody,createGameInDB:DefCreateGameDB,joinGameInDB:DefJoinGameDB,tradeArray:[],addToTradeArrayDB:DefAddToTradeArrayDB,buyFreeAgent:DefBuyFreeAgent,messages:[]});
+// ----------------------------- <MEAT AND PATATAS> -----------------------------
+const DashboardContext = createContext<AllDashType>({dashboard:[], pucks:0, dashboardDispatch:DefDashDisp,displayName:'NA',activeGames:[],activeLeagues:[],tokens:[],editing:false, notification:null, postLogin:DefPostLog, getPlayersFromTokenArray:DefGetPlayersFromTokenArray,getPacket:DefGetPacket, availableGuys:[], currentGame:blankGame, team:blankTeam, oppTeam:blankTeam, prevPlayer:nobody,createGameInDB:DefCreateGameDB,joinGameInDB:DefJoinGameDB,tradeArray:[],addToTradeArrayDB:DefAddToTradeArrayDB,buyFreeAgent:DefBuyFreeAgent,messages:[],friends:[]});
 
 export const DashboardProvider = ({children}:{children:ReactNode}) => {
     const {tonightsGames} = useNHL();
@@ -1373,6 +1122,7 @@ export const DashboardProvider = ({children}:{children:ReactNode}) => {
     const [prevPlayer, setPrevPlayer] = useState<CardType>(nobody);
     const [tradeArray,setTradeArray] = useState<number[]>([]);
     const [messages,setMessages] = useState<MessageType[]>([]);
+    const [friends,setFriends] = useState<string[]>([]);
     const selectedPosition = useRef('');
     const cancelNotification = () => {
         setNotification(null);
@@ -1639,6 +1389,7 @@ export const DashboardProvider = ({children}:{children:ReactNode}) => {
             case 'create':
                 return state;
             case 'login':
+                setFriends(action.payload.dbData.friends);
                 setTradeArray(action.payload.dbData.tradeArray);
                 setAvailableGuys([]);
                 setNotification(null)
@@ -1858,7 +1609,8 @@ export const DashboardProvider = ({children}:{children:ReactNode}) => {
                                activeGames:dbdata.activeGames,
                                activeLeagues:dbdata.activeLeagues,
                                username:dbdata.username,
-                               tradeArray:dbdata.tradeArray
+                               tradeArray:dbdata.tradeArray,
+                               friends:dbdata.friends
                             },
                             activeGames:gameObjectArray,
                             messages:msg.filter(m => m.state === "open")
@@ -2789,7 +2541,8 @@ export const DashboardProvider = ({children}:{children:ReactNode}) => {
         tradeArray:tradeArray,
         addToTradeArrayDB:addToTradeArrayDB,
         buyFreeAgent:buyFreeAgent,
-        messages:messages
+        messages:messages,
+        friends:friends
     }
     return (
         <DashboardContext.Provider value={allVal}>{children}</DashboardContext.Provider>

@@ -18,7 +18,7 @@ const Dashboard: NextPage = () => {
     const Router = useRouter();
     const {userData} = useAuth();
     const {gameStateDispatch} = useGameState();
-    const {activeGames, pucks, dashboardDispatch, dashboard, displayName,messages, tokens, tradeArray, activeLeagues} = useDashboard();
+    const {friends, activeGames, pucks, dashboardDispatch, dashboard, displayName,messages, tokens, tradeArray, activeLeagues} = useDashboard();
     const {tonightsGames} = useNHL();
    
     const exitMessage = async(msg:MessageType) => {
@@ -536,6 +536,11 @@ const Dashboard: NextPage = () => {
            
                 <div className={styles.contentContainer}>
                     <h1>{displayName}: &#36;{pucks}</h1>
+                    {friends.map((f) => {
+                        return (
+                            <p key={f}>Friend: {f}</p>
+                        )
+                    })}
                 </div>
                 <hr className={styles.blueLine}/>
             
