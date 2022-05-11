@@ -6,7 +6,9 @@ import { LeagueTeam, LeagueType, MessageType, NoteType, TxType } from '../../../
 import { useDashboard, addIdToUsersLeagueArrayDB, addTeamToLeagueDB, getLeagueFromDB, puckfaceLog, sendMsgToUser } from '../../../context/DashboardContext';
 import { useAuth } from '../../../context/AuthContext';
 import { createRandomId } from '../../../utility/helpers';
+import { useGameState } from '../../../context/GameState';
 const League: NextPage = () => {
+    const {gameStateDispatch} = useGameState();
     const {dashboardDispatch} = useDashboard();
     const {userData} = useAuth();
     const Router = useRouter();
@@ -163,7 +165,7 @@ const League: NextPage = () => {
         sendMsgToUser(mm,currentLeague.owner);
         // set Iam Participant
         setIAmParticipant(true);
-        
+        gameStateDispatch({type:'leagueId'});
 
 
          return;
