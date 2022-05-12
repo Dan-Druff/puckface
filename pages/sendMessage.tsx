@@ -95,14 +95,28 @@ const SendMessage: NextPage = () => {
         <AuthRoute>
             {chooseFriends ? 
             <div className={styles.contentContainer}>
-                 <div className={styles.rinkDiv}>
-                     <h2>FRIENDS LIST</h2>
+                {friends.length > 0 ? 
+                <div className={styles.rinkDiv}>
+                    <h2>FRIENDS LIST</h2>
                      {friends.map((f) => {
                          return (
                              <button key={f} type="button" className={styles.pfButton} onClick={() => selectFriend(f)}>{f}</button>
                          )
                      })}
-                 </div>
+                </div> 
+                : 
+                <div className={styles.rinkDiv}>
+                    <h3>You have no friends 😢</h3>
+                    <hr className={styles.smallRedLine}></hr>
+                    <p>Come back when you find some.</p>
+                    <hr className={styles.blueLine}></hr>
+
+                    <button className={styles.pfButton} onClick={() => setChooseFriends(false)}>BACK</button>
+                    <hr className={styles.centerLine}></hr>
+
+                </div>
+                }
+ 
             </div>
             :
             <div className={styles.contentContainer}>

@@ -39,8 +39,10 @@ const Dashboard: NextPage = () => {
             const tId = createRandomId();
             switch (msg.type) {
                 case 'message':
+                    
                     clearMsgByIdAndUser(msg.id,userData.userEmail);
-
+                    dashboardDispatch({type:'clearMessage',payload:{id:msg.id}});
+                    gameStateDispatch({type:'home'});
                     Router.push(`/sendMessageTo/${msg.by}`);
                     break;
                 case 'leagueInvite':
@@ -523,7 +525,17 @@ const Dashboard: NextPage = () => {
     const goThere = (leagueId:string) => {
         gameStateDispatch({type:'leagueId'});
         Router.push(`/league/${leagueId}`);
-    }    
+    }   
+    const goMessage = () => {
+       try {
+           gameStateDispatch({type:'home'});
+        Router.push('/sendMessage')
+         return;
+       }catch(er){
+         console.log(`🚦Error: ${er}🚦`)
+         return;
+       }
+    } 
     return (
         <AuthRoute>
             {displayName === 'NA' ? 
@@ -541,11 +553,7 @@ const Dashboard: NextPage = () => {
            
                 <div className={styles.contentContainer}>
                     <h1>{displayName}: &#36;{pucks}</h1>
-                    {friends.map((f) => {
-                        return (
-                            <p key={f}>Friend: {f}</p>
-                        )
-                    })}
+                    
                 </div>
                 <hr className={styles.blueLine}/>
             
@@ -563,7 +571,7 @@ const Dashboard: NextPage = () => {
                     : 
                     <h3>You have NO messages.</h3>
                     }
-                    <button className={styles.pfButton} onClick={() => Router.push('/sendMessage')}>SEND MESSAGE →</button>
+                    <button className={styles.pfButton} onClick={() => goMessage()}>SEND MESSAGE →</button>
                 </div>
                 <hr className={styles.centerLine}/>
         

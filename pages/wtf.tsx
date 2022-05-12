@@ -4,7 +4,7 @@ const Wtf: NextPage = () => {
     return (
         <div className={styles.contentContainer}>
             
-            <div className={styles.rinkDiv}>
+            <div className={styles.contentContainerColumn}>
             <h2>WTF:</h2>
             <hr className={styles.smallRedLine}/>
             <br /><p>PUCKFACE Hockey is an App which allows users to collect digital hockey cards that are used to play fantasy lineups against other Puckface GMs.</p>
