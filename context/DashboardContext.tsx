@@ -1102,6 +1102,18 @@ export const addTeamToLeagueDB = async(leagueId:string,team:LeagueTeam):Promise<
      return false;
    }
 }
+export const addFriend = async(email:string,friend:string):Promise<boolean> => {
+   try {
+    const dbRef = doc(db,'users',email);
+    await updateDoc(dbRef,{
+        friends:arrayUnion(friend)
+    })
+     return true;
+   }catch(er){
+     console.log(`🚦Error: ${er}🚦`)
+     return false;
+   }
+}
 // ----------------------------- <MEAT AND PATATAS> -----------------------------
 const DashboardContext = createContext<AllDashType>({dashboard:[], pucks:0, dashboardDispatch:DefDashDisp,displayName:'NA',activeGames:[],activeLeagues:[],tokens:[],editing:false, notification:null, postLogin:DefPostLog, getPlayersFromTokenArray:DefGetPlayersFromTokenArray,getPacket:DefGetPacket, availableGuys:[], currentGame:blankGame, team:blankTeam, oppTeam:blankTeam, prevPlayer:nobody,createGameInDB:DefCreateGameDB,joinGameInDB:DefJoinGameDB,tradeArray:[],addToTradeArrayDB:DefAddToTradeArrayDB,buyFreeAgent:DefBuyFreeAgent,messages:[],friends:[]});
 
@@ -1130,6 +1142,9 @@ export const DashboardProvider = ({children}:{children:ReactNode}) => {
 
     function dashboardReducer(state:DashboardType, action:DashboardActions){
         switch (action.type) {
+            case 'addFriend':
+                setFriends([action.payload.friend,...friends]);
+                return state;
             case 'joinLeague':
                 setActiveLeagues([action.payload.id, ...activeLeagues]);
                 return state;

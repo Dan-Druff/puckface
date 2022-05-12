@@ -38,6 +38,11 @@ const Dashboard: NextPage = () => {
             if(userData === null || userData.userEmail === null)throw new Error("Error ud");            
             const tId = createRandomId();
             switch (msg.type) {
+                case 'message':
+                    clearMsgByIdAndUser(msg.id,userData.userEmail);
+
+                    Router.push(`/sendMessageTo/${msg.by}`);
+                    break;
                 case 'leagueInvite':
                     const mInviteAccept : MessageType = {
                         by:userData.userEmail,
@@ -558,7 +563,7 @@ const Dashboard: NextPage = () => {
                     : 
                     <h3>You have NO messages.</h3>
                     }
-                    <button className={styles.pfButton}>SEND MESSAGE →</button>
+                    <button className={styles.pfButton} onClick={() => Router.push('/sendMessage')}>SEND MESSAGE →</button>
                 </div>
                 <hr className={styles.centerLine}/>
         

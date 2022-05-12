@@ -13,7 +13,7 @@ export type DashboardType = CardType[];
 export type DashDispatch = (action:DashboardActions) => void;
 // export type MessageTypeStrings = 'counterOffer' | 'declineOffer' | 'acceptOffer'
 export type TxTypeStrings = 'signup' | 'buyPucks' | 'buyCards' | 'createGame' | 'joinGame' | 'winGame' | 'loseGame' | 'tieGame' | 'submitFreeAgent' | 'buyFreeAgent' | 'submitOffer' | 'acceptOffer' | 'counterOffer' | 'declineOffer' | 'createLeague' | 'joinLeague' | 'removeFreeAgent' | 'invitePlayer' | 'acceptInvite';
-export type MsgTypeStrings = 'offer' | 'offerAccepted' | 'offerDeclined' | 'sold' | 'gameOverW' | 'gameOverL' | 'gameOverT' | 'gameJoined' | 'leagueJoined' | 'leagueInvite' | 'inviteDeclined' | 'inviteAccepted';
+export type MsgTypeStrings = 'offer' | 'offerAccepted' | 'offerDeclined' | 'sold' | 'gameOverW' | 'gameOverL' | 'gameOverT' | 'gameJoined' | 'leagueJoined' | 'leagueInvite' | 'inviteDeclined' | 'inviteAccepted' | 'message';
 
 
 // ---------------  ACTION TYPES -------------
@@ -57,7 +57,8 @@ export type DashboardActions =
 {type:'acceptOffer',payload:{pucks:number, cards:CardType[], tokens:number[],removeToken:number}} |
 {type:'removeAgent', payload:{tokenId:number}} | 
 {type:'enterPuckEscrow',payload:{amount:number}} |
-{type:'joinLeague',payload:{id:string}}
+{type:'joinLeague',payload:{id:string}} | 
+{type:'addFriend',payload:{friend:string}}
 
 export type LogActionType = 
 {type:'buyPucks',payload:{howMany:number, when:Date, who:string}} | 
